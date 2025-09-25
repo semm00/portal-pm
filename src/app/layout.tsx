@@ -1,5 +1,7 @@
-import './globals.css'; 
-import Header from './components/header';
+import "./globals.css";
+import Sidebar from "./components/menu";
+import ContentWrapper from "./components/content-wrapper";
+//import Header from './components/header';
 
 export default function RootLayout({
   children,
@@ -8,9 +10,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-br">
-      <body>
-        <Header/>
-        {children}
+      <body className="md:flex md:min-h-screen">
+        {/* Sidebar fixa no desktop; no mobile permanece fixa inferior via componente */}
+        <Sidebar />
+        {/* Conteúdo principal com margem dinâmica conforme largura da sidebar */}
+        <ContentWrapper>{children}</ContentWrapper>
       </body>
     </html>
   );
