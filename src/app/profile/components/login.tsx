@@ -107,6 +107,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -154,17 +155,26 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   // Carregar Google Identity Services (GSI) e integrar fluxo (id_token -> backend)
   useEffect(() => {
     const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    if (!googleClientId) return;
+    if (!googleClientId) {
+      console.warn("NEXT_PUBLIC_GOOGLE_CLIENT_ID não definido");
+      setGoogleLoading(false);
+      return;
+    }
 
+    console.log("Carregando script GSI...");
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.defer = true;
-    document.body.appendChild(script);
+    document.head.appendChild(script); // Usar head em vez de body para melhor carregamento
 
     const handleCredentialResponse = async (response: {
       credential: string;
     }) => {
+      console.log(
+        "Recebido idToken do Google:",
+        response.credential.substring(0, 50) + "..."
+      );
       const credential = response?.credential;
       if (!credential) return;
       setIsLoading(true);
@@ -176,13 +186,14 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           body: JSON.stringify({ idToken: credential }),
         });
         const data = await res.json();
+        console.log("Resposta do backend:", data);
         if (res.ok && data.user) {
           onLoginSuccess(data.user);
         } else {
           setError(data.message ?? "Falha no login com Google.");
         }
       } catch (err) {
-        console.error(err);
+        console.error("Erro no login Google:", err);
         setError("Erro ao autenticar com Google. Tente novamente.");
       } finally {
         setIsLoading(false);
@@ -190,24 +201,45 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     };
 
     script.onload = () => {
+      console.log("Script GSI carregado");
       const google = window.google;
       if (google && google.accounts && google.accounts.id) {
+        console.log("Inicializando GSI com client_id:", googleClientId);
         google.accounts.id.initialize({
           client_id: googleClientId,
           callback: handleCredentialResponse,
         });
 
-        // Renderizar botão dentro do placeholder
-        try {
-          google.accounts.id.renderButton(
-            document.getElementById("gsi-button"),
-            { theme: "outline", size: "large", width: "100%" }
-          );
-        } catch (err) {
-          // caso o render falhe, apenas ignore
-          console.warn("GSI renderButton falhou:", err);
-        }
+        // Aguardar um pouco para garantir que o DOM esteja pronto
+        setTimeout(() => {
+          const element = document.getElementById("gsi-button");
+          if (element) {
+            console.log("Renderizando botão GSI");
+            try {
+              google.accounts.id.renderButton(element, {
+                theme: "outline",
+                size: "large",
+                width: "100%",
+              });
+              setGoogleLoading(false);
+            } catch (err) {
+              console.error("GSI renderButton falhou:", err);
+              setGoogleLoading(false);
+            }
+          } else {
+            console.error("Elemento #gsi-button não encontrado");
+            setGoogleLoading(false);
+          }
+        }, 100);
+      } else {
+        console.error("GSI não disponível após carregamento");
+        setGoogleLoading(false);
       }
+    };
+
+    script.onerror = () => {
+      console.error("Falha ao carregar script GSI");
+      setGoogleLoading(false);
     };
 
     return () => {
@@ -226,7 +258,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         console.error(e);
         // ignore
       }
-      document.body.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, [onLoginSuccess]);
 
@@ -251,10 +285,19 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       </div>
 
       {/* Botão Google */}
-      <div
-        id="gsi-button"
-        className="w-full inline-flex items-center justify-center"
-      />
+      <div className="w-full">
+        {googleLoading ? (
+          <div className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-50">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700"></div>
+            Carregando...
+          </div>
+        ) : (
+          <div
+            id="gsi-button"
+            className="w-full inline-flex items-center justify-center"
+          />
+        )}
+      </div>
 
       <div className="flex items-center my-6">
         <div className="flex-grow border-t border-slate-300"></div>
