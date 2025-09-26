@@ -9,7 +9,7 @@ type Slide = {
   caption: string;
 };
 
-const SLIDE_INTERVAL = 8000; // 8s
+const SLIDE_INTERVAL = 5000; // 8s
 
 export default function Slides() {
   const slides: Slide[] = useMemo(

@@ -73,7 +73,7 @@ const links: LinkItem[] = [
   { href: "/", label: "Home", Icon: HomeIcon },
   { href: "/about", label: "Sobre", Icon: Newspaper },
   { href: "/feed", label: "Feed", Icon: Instagram },
-  { href: "/events", label: "Eventos", Icon: CalendarIcon },
+  { href: "/calendar", label: "Eventos", Icon: CalendarIcon },
 ];
 
 function isActivePath(current: string | null, href: string) {
@@ -298,7 +298,7 @@ export default function Menu() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex h-14 flex-col items-center justify-center gap-1 text-xs font-medium",
-                  "text-[#0b203a] hover:text-[#0a4ea1] dark:text-neutral-200 dark:hover:text-white"
+                  "text-[#0b203a] hover:text-[#0a4ea1] dark:text-[#0a4ea1] dark:hover:text-[#fca311]"
                 )}
               >
                 <Icon className={cn("h-5 w-5", active && "text-[#fca311]")} />

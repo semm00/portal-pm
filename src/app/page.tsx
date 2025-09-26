@@ -6,13 +6,15 @@ estrutura da página:
 - Logo do portal no topo                                 - icone notificações (campainha)
 - Seção com slideshow ou imagem destacada da cidade e texto de boas-vindas
 - Seção com últimas notícias
-- Eventos próximos → lista curta (2 ou 3 próximos).
+- Eventos próximos → lista curta (3 ou 4 próximos).
 - contato rápido (telefone, email, redes sociais) 
 - Responsividade para dispositivos móveis
 */
 
 import Slides from "./components/slides";
 import News from "./components/news";
+import Events from "./components/events";
+import Footer from "./components/footer";
 import Image from "next/image";
 import { Bell } from "lucide-react";
 
@@ -56,12 +58,20 @@ export default function Home() {
       </div>
 
       {/* Últimas notícias */}
-      <div className="px-5 sm:px-8 md:px-10 my-5">
+      <div className="my-10">
         <div className="mx-auto">
           {/* Server component pronto para back-end */}
           <News />
+          {/* Próximos eventos */}
+          <div className="mt-8">
+            <Events />
+          </div>
+          {/* Contato rápido */}
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </main>
   );
 }

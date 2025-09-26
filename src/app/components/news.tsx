@@ -98,12 +98,12 @@ export default async function News() {
   if (!items || items.length === 0) {
     return (
       <section aria-labelledby="news-heading" className="py-6">
-        <h2
+        <h1
           id="news-heading"
           className="text-lg font-semibold text-[#0b203a] dark:text-[#0a4ea1]"
         >
           Últimas Notícias
-        </h2>
+        </h1>
         <p className="mt-2 text-sm text-gray-600 dark:text-neutral-300">
           Nenhuma notícia disponível no momento.
         </p>
@@ -114,13 +114,16 @@ export default async function News() {
   const display = items.slice(0, 8);
 
   return (
-    <section aria-labelledby="news-heading" className="py-6">
-      <h2
+    <section
+      aria-labelledby="news-heading"
+      className="px-5 sm:px-8 md:px-10 py-6 bg-[#ecececad]"
+    >
+      <h1
         id="news-heading"
-        className="mb-4 text-xl font-bold text-[#0b203a] dark:text-[#0a4ea1]"
+        className="mb-4 text-xl font-bold text-[#0b203a] dark:text-[#0a4ea1] border-b-3 border-[#0a4ea1]pb-1 w-fit"
       >
         Últimas Notícias
-      </h2>
+      </h1>
 
       {/* Carrossel (sm/md) com 2 cards por vez */}
       <div className="lg:hidden">
@@ -136,33 +139,33 @@ export default async function News() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={n.title}
-            className={[
-              "group block overflow-hidden rounded-xl border shadow-sm transition hover:shadow-md",
-              "bg-white border-gray-200 hover:border-gray-300 dark:bg-neutral-900 dark:border-neutral-700 dark:hover:border-neutral-600",
-            ].join(" ")}
+            className="group block overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-transform hover:shadow-md hover:-translate-y-1"
+            style={{
+              backgroundColor: "#ffffff",
+              borderColor: "#e5e7eb",
+              color: "#1f2937",
+            }}
           >
-            <div className="relative aspect-[16/10] w-full">
+            <div className="relative aspect-[16/10] w-full mb-3">
               {n.imageUrl ? (
                 <Image
                   src={n.imageUrl}
                   alt={n.title}
                   fill
                   sizes="25vw"
-                  className="object-cover"
+                  className="object-cover rounded-lg"
                   priority={idx < 3}
                 />
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-sky-100 to-amber-100 dark:from-neutral-800 dark:to-neutral-700" />
+                <div className="absolute inset-0 bg-gradient-to-br from-sky-200 to-amber-200 rounded-lg" />
               )}
             </div>
-            <div className="p-3">
-              <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-[#0a4ea1] dark:text-white dark:group-hover:text-amber-300">
+            <div className="flex-1">
+              <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-[#0a4ea1]">
                 {n.title}
               </h3>
               {n.source && (
-                <p className="mt-1 text-[11px] text-gray-500 dark:text-neutral-400">
-                  {n.source}
-                </p>
+                <p className="mt-1 text-[11px] text-gray-500">{n.source}</p>
               )}
             </div>
           </a>
