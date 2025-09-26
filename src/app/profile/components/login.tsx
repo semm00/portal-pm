@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Script from "next/script";
 import { AtSign, Lock, User, LogIn, Mail } from "lucide-react";
 
 // Declarar tipos para Google Identity Services
@@ -108,6 +109,12 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(true);
+  const [isGsiLoaded, setGsiLoaded] = useState(false);
+
+  const handleGsiLoad = () => {
+    setGsiLoaded(true);
+    console.log("Script GSI carregado e pronto.");
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -161,8 +168,13 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       return;
     }
 
+    if (!isGsiLoaded) {
+      console.log("Aguardando carregamento do script GSI...");
+      setGoogleLoading(true);
+      return;
+    }
+
     let cancelled = false;
-    setGoogleLoading(true);
 
     const handleCredentialResponse = async (response: {
       credential: string;
@@ -197,93 +209,65 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     };
 
     const initializeGsi = () => {
-      if (cancelled) return;
-      const google = window.google;
-      if (!google?.accounts?.id) {
-        return false;
+      if (cancelled || !window.google?.accounts?.id) {
+        setGoogleLoading(false);
+        return;
       }
 
       try {
         console.log("Inicializando GSI com client_id:", googleClientId);
-        google.accounts.id.initialize({
+        window.google.accounts.id.initialize({
           client_id: googleClientId,
           callback: handleCredentialResponse,
         });
 
         const element = document.getElementById("gsi-button");
         if (element) {
-          google.accounts.id.renderButton(element, {
+          // Limpa o botão antigo para evitar duplicatas em re-renderizações
+          element.innerHTML = "";
+          window.google.accounts.id.renderButton(element, {
             theme: "outline",
             size: "large",
             width: "100%",
           });
-          setGoogleLoading(false);
+          console.log("Botão do Google renderizado.");
         } else {
           console.error("Elemento #gsi-button não encontrado");
-          setGoogleLoading(false);
         }
       } catch (err) {
         console.error("Erro ao inicializar GSI:", err);
+      } finally {
         setGoogleLoading(false);
       }
-
-      return true;
     };
 
-    const handleScriptLoad = () => {
-      console.log("Script GSI carregado");
-      initializeGsi();
-    };
-
-    const handleScriptError = () => {
-      console.error("Falha ao carregar script GSI");
-      setGoogleLoading(false);
-    };
-
-    const existingScript = document.getElementById(
-      "google-identity-services"
-    ) as HTMLScriptElement | null;
-
-    if (window.google?.accounts?.id) {
-      initializeGsi();
-    } else if (existingScript) {
-      existingScript.addEventListener("load", handleScriptLoad);
-      existingScript.addEventListener("error", handleScriptError);
-    } else {
-      console.log("Carregando script GSI...");
-      const script = document.createElement("script");
-      script.id = "google-identity-services";
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.addEventListener("load", handleScriptLoad);
-      script.addEventListener("error", handleScriptError);
-      document.head.appendChild(script);
-    }
+    initializeGsi();
 
     return () => {
       cancelled = true;
       try {
-        const google = window.google;
-        if (google?.accounts?.id?.cancel) {
-          google.accounts.id.cancel();
+        if (window.google?.accounts?.id) {
+          window.google.accounts.id.cancel();
         }
       } catch (err) {
-        console.error(err);
-      }
-
-      const script = document.getElementById(
-        "google-identity-services"
-      ) as HTMLScriptElement | null;
-      if (script) {
-        script.removeEventListener("load", handleScriptLoad);
-        script.removeEventListener("error", handleScriptError);
+        console.error("Erro ao cancelar GSI:", err);
       }
     };
-  }, [onLoginSuccess]);
+  }, [isGsiLoaded, onLoginSuccess]);
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8">
+      <Script
+        src="https://accounts.google.com/gsi/client"
+        async
+        defer
+        onLoad={handleGsiLoad}
+        onError={() => {
+          console.error("Falha ao carregar script GSI");
+          setGoogleLoading(false);
+          setGsiLoaded(false);
+        }}
+      />
       <div className="flex flex-col items-center mb-6">
         <Image
           src="/images/logo-portal.png"
