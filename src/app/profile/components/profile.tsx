@@ -2,15 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Edit,
-  LogOut,
-  Shield,
-  Bell,
-} from "lucide-react";
+import { Mail, Phone, MapPin, Edit, LogOut, Shield, Bell } from "lucide-react";
 import type { AuthUser } from "./login";
 
 // Tipo para os dados do usuário

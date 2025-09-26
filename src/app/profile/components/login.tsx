@@ -28,39 +28,54 @@ type AuthResponse = {
   message?: string;
 };
 
-// Simula uma função de login que seria chamada no backend
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
+  "http://localhost:4000";
+
 const handleLogin = async (
   credentials: LoginPayload
 ): Promise<AuthResponse> => {
-  console.log("Tentativa de login com:", credentials);
-  // Exemplo de chamada de API (substituir por fetch/axios real)
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // Retornar dados simulados
-  return {
-    success: true,
-    user: {
-      name: "Usuário Teste",
-      email: credentials.email,
+  const response = await fetch(`${API_BASE_URL}/api/users/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-  };
+    body: JSON.stringify(credentials),
+  });
+
+  const data = (await response.json()) as AuthResponse;
+
+  if (!response.ok) {
+    return {
+      success: false,
+      message: data.message ?? "Falha no login.",
+    };
+  }
+
+  return data;
 };
 
-// Simula uma função de cadastro
 const handleRegister = async (
   payload: RegisterPayload
 ): Promise<AuthResponse> => {
-  console.log("Tentativa de cadastro com:", payload);
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  return {
-    success: true,
-    user: {
-      name: payload.fullName,
-      email: payload.email,
-      username: payload.username,
+  const response = await fetch(`${API_BASE_URL}/api/users/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-  };
+    body: JSON.stringify(payload),
+  });
+
+  const data = (await response.json()) as AuthResponse;
+
+  if (!response.ok) {
+    return {
+      success: false,
+      message: data.message ?? "Falha no cadastro.",
+    };
+  }
+
+  return data;
 };
 
 interface LoginProps {
@@ -136,7 +151,12 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
       {/* Botão Google */}
       <button className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all">
-        <Image src="/images/google.png" alt="Google logo" width={18} height={18} />
+        <Image
+          src="/images/google.png"
+          alt="Google logo"
+          width={18}
+          height={18}
+        />
         Entrar com Google
       </button>
 
