@@ -49,6 +49,7 @@ type AuthResponse = {
   user?: AuthUser;
   message?: string;
   code?: string; // Adicionado para códigos de erro específicos
+  emailSent?: boolean;
 };
 
 const API_BASE_URL =
@@ -110,7 +111,17 @@ const resendVerificationEmail = async (
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
   });
-  return (await response.json()) as AuthResponse;
+
+  const data = (await response.json()) as AuthResponse;
+
+  if (!response.ok) {
+    return {
+      success: false,
+      message: data.message ?? "Falha ao reenviar e-mail.",
+    };
+  }
+
+  return data;
 };
 
 interface LoginProps {
@@ -202,6 +213,10 @@ export default function Login({ onLoginSuccess }: LoginProps) {
               "Cadastro realizado! Verifique seu e-mail para ativar a conta."
           );
           setMode("login"); // Mudar para a tela de login
+          if (response.emailSent === false) {
+            setShowResend(true);
+            setEmailForResend(email);
+          }
         } else {
           setError(response.message ?? "Falha no cadastro.");
         }
@@ -283,8 +298,12 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           window.google.accounts.id.renderButton(element, {
             theme: "outline",
             size: "large",
-            width: "100%",
+            width: "320",
           });
+          const googleButton = element.firstElementChild as HTMLElement | null;
+          if (googleButton) {
+            googleButton.style.width = "100%";
+          }
           console.log("Botão do Google renderizado.");
         } else {
           console.error("Elemento #gsi-button não encontrado");
@@ -399,6 +418,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
                 placeholder="Nome e Sobrenome"
                 className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-[#fca311] focus:border-[#fca311] transition"
                 required
+                autoComplete="name"
               />
             </div>
             <div className="relative">
@@ -409,6 +429,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
                 placeholder="Nome de usuário"
                 className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-[#fca311] focus:border-[#fca311] transition"
                 required
+                autoComplete="username"
               />
             </div>
           </>
@@ -422,6 +443,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             placeholder="E-mail"
             className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-[#fca311] focus:border-[#fca311] transition"
             required
+            autoComplete="email"
           />
         </div>
 
@@ -433,10 +455,13 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             placeholder="Senha"
             className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-1 focus:ring-[#fca311] focus:border-[#fca311] transition"
             required
+            autoComplete={
+              mode === "login" ? "current-password" : "new-password"
+            }
           />
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {/* Erros são exibidos no alerta acima */}
 
         <button
           type="submit"
