@@ -48,6 +48,7 @@ type AuthResponse = {
   success: boolean;
   user?: AuthUser;
   message?: string;
+  code?: string; // Adicionado para códigos de erro específicos
 };
 
 const API_BASE_URL =
@@ -71,6 +72,7 @@ const handleLogin = async (
     return {
       success: false,
       message: data.message ?? "Falha no login.",
+      code: data.code, // Passa o código de erro para o frontend
     };
   }
 
@@ -100,6 +102,17 @@ const handleRegister = async (
   return data;
 };
 
+const resendVerificationEmail = async (
+  email: string
+): Promise<AuthResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/users/send-verification`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  return (await response.json()) as AuthResponse;
+};
+
 interface LoginProps {
   onLoginSuccess: (user: AuthUser) => void;
 }
@@ -108,6 +121,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showResend, setShowResend] = useState(false);
+  const [emailForResend, setEmailForResend] = useState("");
   const [googleLoading, setGoogleLoading] = useState(true);
   const [isGsiLoaded, setGsiLoaded] = useState(false);
 
@@ -116,40 +132,79 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     console.log("Script GSI carregado e pronto.");
   };
 
+  const handleResendVerification = async () => {
+    if (!emailForResend) return;
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+    try {
+      const response = await resendVerificationEmail(emailForResend);
+      if (response.success) {
+        setSuccessMessage(response.message ?? "E-mail reenviado com sucesso!");
+        setShowResend(false);
+        setError(null);
+      } else {
+        setError(response.message ?? "Falha ao reenviar e-mail.");
+      }
+    } catch {
+      setError("Ocorreu um erro ao reenviar o e-mail.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setSuccessMessage(null);
+    setShowResend(false);
 
     const formEntries = Object.fromEntries(
       new FormData(e.currentTarget).entries()
     ) as Record<string, string>;
+
+    const email = formEntries.email ?? "";
 
     try {
       let response: AuthResponse;
 
       if (mode === "login") {
         const payload: LoginPayload = {
-          email: formEntries.email ?? "",
+          email,
           password: formEntries.password ?? "",
         };
         response = await handleLogin(payload);
+
+        if (response.success && response.user) {
+          onLoginSuccess(response.user);
+        } else if (response.code === "EMAIL_NOT_VERIFIED") {
+          setError(response.message ?? "E-mail não verificado.");
+          setShowResend(true);
+          setEmailForResend(email);
+        } else {
+          setError(
+            response.message ?? "Falha na autenticação. Verifique seus dados."
+          );
+        }
       } else {
         const payload: RegisterPayload = {
           fullName: formEntries.fullName ?? "",
           username: formEntries.username ?? "",
-          email: formEntries.email ?? "",
+          email,
           password: formEntries.password ?? "",
         };
         response = await handleRegister(payload);
-      }
 
-      if (response.success && response.user) {
-        onLoginSuccess(response.user);
-      } else {
-        setError(
-          response.message ?? "Falha na autenticação. Verifique seus dados."
-        );
+        if (response.success) {
+          setSuccessMessage(
+            response.message ??
+              "Cadastro realizado! Verifique seu e-mail para ativar a conta."
+          );
+          setMode("login"); // Mudar para a tela de login
+        } else {
+          setError(response.message ?? "Falha no cadastro.");
+        }
       }
     } catch (err) {
       console.error(err);
@@ -285,6 +340,32 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             : "Junte-se à comunidade de Padre Marcos."}
         </p>
       </div>
+
+      {successMessage && (
+        <div
+          className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50"
+          role="alert"
+        >
+          {successMessage}
+        </div>
+      )}
+      {error && (
+        <div
+          className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50"
+          role="alert"
+        >
+          {error}
+          {showResend && (
+            <button
+              onClick={handleResendVerification}
+              disabled={isLoading}
+              className="font-semibold underline ml-2 hover:text-red-900 disabled:opacity-50"
+            >
+              {isLoading ? "Reenviando..." : "Reenviar e-mail"}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Botão Google */}
       <div className="relative w-full min-h-[46px]">
