@@ -1,8 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { AtSign, Lock, User, LogIn, Mail } from "lucide-react";
+
+// Declarar tipos para Google Identity Services
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: { credential: string }) => void;
+          }) => void;
+          renderButton: (
+            element: HTMLElement | null,
+            options: { theme: string; size: string; width: string }
+          ) => void;
+          cancel: () => void;
+        };
+      };
+    };
+  }
+}
 
 export interface AuthUser {
   name: string;
@@ -123,11 +144,91 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         );
       }
     } catch (err) {
+      console.error(err);
       setError("Ocorreu um erro. Tente novamente mais tarde.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Carregar Google Identity Services (GSI) e integrar fluxo (id_token -> backend)
+  useEffect(() => {
+    const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!googleClientId) return;
+
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    const handleCredentialResponse = async (response: {
+      credential: string;
+    }) => {
+      const credential = response?.credential;
+      if (!credential) return;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/users/login/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken: credential }),
+        });
+        const data = await res.json();
+        if (res.ok && data.user) {
+          onLoginSuccess(data.user);
+        } else {
+          setError(data.message ?? "Falha no login com Google.");
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Erro ao autenticar com Google. Tente novamente.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    script.onload = () => {
+      const google = window.google;
+      if (google && google.accounts && google.accounts.id) {
+        google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleCredentialResponse,
+        });
+
+        // Renderizar botão dentro do placeholder
+        try {
+          google.accounts.id.renderButton(
+            document.getElementById("gsi-button"),
+            { theme: "outline", size: "large", width: "100%" }
+          );
+        } catch (err) {
+          // caso o render falhe, apenas ignore
+          console.warn("GSI renderButton falhou:", err);
+        }
+      }
+    };
+
+    return () => {
+      // cancelar prompt/credenciais pendentes se disponível
+      try {
+        const google = window.google;
+        if (
+          google &&
+          google.accounts &&
+          google.accounts.id &&
+          google.accounts.id.cancel
+        ) {
+          google.accounts.id.cancel();
+        }
+      } catch (e) {
+        console.error(e);
+        // ignore
+      }
+      document.body.removeChild(script);
+    };
+  }, [onLoginSuccess]);
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8">
@@ -150,15 +251,10 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       </div>
 
       {/* Botão Google */}
-      <button className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all">
-        <Image
-          src="/images/google.png"
-          alt="Google logo"
-          width={18}
-          height={18}
-        />
-        Entrar com Google
-      </button>
+      <div
+        id="gsi-button"
+        className="w-full inline-flex items-center justify-center"
+      />
 
       <div className="flex items-center my-6">
         <div className="flex-grow border-t border-slate-300"></div>
@@ -242,6 +338,16 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             {mode === "login" ? "Cadastre-se" : "Faça login"}
           </button>
         </p>
+        {mode === "login" && (
+          <div className="mt-3">
+            <a
+              href="/profile/recover"
+              className="text-sm text-[#0b203a] hover:underline"
+            >
+              Esqueci minha senha
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
