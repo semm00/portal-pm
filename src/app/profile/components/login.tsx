@@ -161,12 +161,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       return;
     }
 
-    console.log("Carregando script GSI...");
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script); // Usar head em vez de body para melhor carregamento
+    let cancelled = false;
+    setGoogleLoading(true);
 
     const handleCredentialResponse = async (response: {
       credential: string;
@@ -200,66 +196,88 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       }
     };
 
-    script.onload = () => {
-      console.log("Script GSI carregado");
+    const initializeGsi = () => {
+      if (cancelled) return;
       const google = window.google;
-      if (google && google.accounts && google.accounts.id) {
+      if (!google?.accounts?.id) {
+        return false;
+      }
+
+      try {
         console.log("Inicializando GSI com client_id:", googleClientId);
         google.accounts.id.initialize({
           client_id: googleClientId,
           callback: handleCredentialResponse,
         });
 
-        // Aguardar um pouco para garantir que o DOM esteja pronto
-        setTimeout(() => {
-          const element = document.getElementById("gsi-button");
-          if (element) {
-            console.log("Renderizando botão GSI");
-            try {
-              google.accounts.id.renderButton(element, {
-                theme: "outline",
-                size: "large",
-                width: "100%",
-              });
-              setGoogleLoading(false);
-            } catch (err) {
-              console.error("GSI renderButton falhou:", err);
-              setGoogleLoading(false);
-            }
-          } else {
-            console.error("Elemento #gsi-button não encontrado");
-            setGoogleLoading(false);
-          }
-        }, 100);
-      } else {
-        console.error("GSI não disponível após carregamento");
+        const element = document.getElementById("gsi-button");
+        if (element) {
+          google.accounts.id.renderButton(element, {
+            theme: "outline",
+            size: "large",
+            width: "100%",
+          });
+          setGoogleLoading(false);
+        } else {
+          console.error("Elemento #gsi-button não encontrado");
+          setGoogleLoading(false);
+        }
+      } catch (err) {
+        console.error("Erro ao inicializar GSI:", err);
         setGoogleLoading(false);
       }
+
+      return true;
     };
 
-    script.onerror = () => {
+    const handleScriptLoad = () => {
+      console.log("Script GSI carregado");
+      initializeGsi();
+    };
+
+    const handleScriptError = () => {
       console.error("Falha ao carregar script GSI");
       setGoogleLoading(false);
     };
 
+    const existingScript = document.getElementById(
+      "google-identity-services"
+    ) as HTMLScriptElement | null;
+
+    if (window.google?.accounts?.id) {
+      initializeGsi();
+    } else if (existingScript) {
+      existingScript.addEventListener("load", handleScriptLoad);
+      existingScript.addEventListener("error", handleScriptError);
+    } else {
+      console.log("Carregando script GSI...");
+      const script = document.createElement("script");
+      script.id = "google-identity-services";
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.addEventListener("load", handleScriptLoad);
+      script.addEventListener("error", handleScriptError);
+      document.head.appendChild(script);
+    }
+
     return () => {
-      // cancelar prompt/credenciais pendentes se disponível
+      cancelled = true;
       try {
         const google = window.google;
-        if (
-          google &&
-          google.accounts &&
-          google.accounts.id &&
-          google.accounts.id.cancel
-        ) {
+        if (google?.accounts?.id?.cancel) {
           google.accounts.id.cancel();
         }
-      } catch (e) {
-        console.error(e);
-        // ignore
+      } catch (err) {
+        console.error(err);
       }
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
+
+      const script = document.getElementById(
+        "google-identity-services"
+      ) as HTMLScriptElement | null;
+      if (script) {
+        script.removeEventListener("load", handleScriptLoad);
+        script.removeEventListener("error", handleScriptError);
       }
     };
   }, [onLoginSuccess]);
@@ -285,17 +303,16 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       </div>
 
       {/* Botão Google */}
-      <div className="w-full">
-        {googleLoading ? (
-          <div className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-50">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700"></div>
+      <div className="relative w-full min-h-[46px]">
+        <div
+          id="gsi-button"
+          className="w-full inline-flex items-center justify-center"
+        />
+        {googleLoading && (
+          <div className="absolute inset-0 flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white/80 backdrop-blur-[1px] px-4 py-2.5 text-sm font-semibold text-slate-700">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" />
             Carregando...
           </div>
-        ) : (
-          <div
-            id="gsi-button"
-            className="w-full inline-flex items-center justify-center"
-          />
         )}
       </div>
 
