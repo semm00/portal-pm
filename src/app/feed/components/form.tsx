@@ -59,11 +59,7 @@ const getFirstName = (value?: string | null) => {
   return formatted.split(" ")[0] ?? formatted;
 };
 
-export default function FeedForm({
-  onSubmitted,
-}: {
-  onSubmitted?: () => void;
-}) {
+export default function FeedForm() {
   const mediaInputRef = useRef<HTMLInputElement | null>(null);
   const [content, setContent] = useState("");
   const [category, setCategory] = useState<Category | "">("");
@@ -90,7 +86,7 @@ export default function FeedForm({
   const avatarUrl = session?.avatarUrl || FALLBACK_AVATAR;
   const isLogged = Boolean(session?.token);
   const contentPlaceholder = isLogged
-    ? `${firstName}, o que deseja compartilhar hoje?`
+    ? `${firstName}, o que está acontecendo em Padre Marcos?`
     : "O que está acontecendo em Padre Marcos?";
 
   const syncSession = useCallback(() => {
@@ -263,7 +259,6 @@ export default function FeedForm({
         "Post enviado para moderação! Assim que aprovado, aparecerá no feed."
       );
       resetForm();
-      onSubmitted?.();
     } catch (err) {
       setError(
         err instanceof Error
@@ -283,34 +278,24 @@ export default function FeedForm({
         </div>
       )}
       <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-        <header className="flex items-start gap-4">
+        <header className="flex flex-col items-center gap-4">
           {isLogged ? (
-            <div className="relative h-12 w-12 overflow-hidden rounded-full border border-slate-200">
+            <div className="relative h-16 w-16 overflow-hidden rounded-full border border-slate-200">
               <Image
                 src={avatarUrl}
                 alt={`Avatar de ${displayName}`}
                 fill
                 className="object-cover"
-                sizes="48px"
+                sizes="64px"
                 priority
               />
             </div>
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-slate-500">
-              <UserCircle2 className="h-7 w-7" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-200 text-slate-500">
+              <UserCircle2 className="h-10 w-10" />
             </div>
           )}
-          <div className="flex-1 space-y-3">
-            {isLogged && (
-              <div className="flex items-center justify-between text-xs text-[#0b203a]/60">
-                <span className="font-semibold uppercase tracking-wide">
-                  Publicando como
-                </span>
-                <span className="font-medium text-[#0b203a]">
-                  {displayName}
-                </span>
-              </div>
-            )}
+          <div className="w-full space-y-3">
             <textarea
               value={content}
               onChange={(event) => setContent(event.target.value)}

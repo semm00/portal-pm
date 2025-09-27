@@ -21,14 +21,8 @@ import Posts from "./components/posts";
 
 export default function Feed() {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("todos");
-
-  const handlePostSubmitted = () => {
-    setIsFormOpen(false);
-    setRefreshKey((prev) => prev + 1);
-  };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
@@ -98,17 +92,13 @@ export default function Feed() {
 
           {isFormOpen && (
             <div className="mt-6">
-              <FeedForm onSubmitted={handlePostSubmitted} />
+              <FeedForm />
             </div>
           )}
         </div>
 
         {/* Seção de Posts */}
-        <Posts
-          refreshKey={refreshKey}
-          searchQuery={searchQuery}
-          activeFilter={activeFilter}
-        />
+        <Posts searchQuery={searchQuery} activeFilter={activeFilter} />
       </div>
     </div>
   );

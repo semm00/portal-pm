@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -92,12 +92,6 @@ export default function FeedHeader({
     onFilter?.(filter);
   };
 
-  const activeFilterDetails = useMemo(
-    () => filters.find((item) => item.value === currentFilter),
-    [currentFilter]
-  );
-  const ActiveFilterIcon = activeFilterDetails?.icon;
-
   return (
     <header className="w-full rounded-3xl border border-[#0b203a]/15 bg-gradient-to-r from-white via-[#f8fbff] to-white shadow-xl shadow-[#0b203a]/15 backdrop-blur-sm">
       <div className="flex flex-col gap-6 p-6 md:p-8">
@@ -151,25 +145,6 @@ export default function FeedHeader({
             </div>
           </div>
         </div>
-
-        {activeFilterDetails && ActiveFilterIcon && (
-          <div className="flex flex-col gap-2 rounded-2xl border border-[#0b203a]/10 bg-white/80 p-4 text-sm text-[#0b203a]/80 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3 text-[#0b203a]">
-              <ActiveFilterIcon className="h-6 w-6" />
-              <div>
-                <span className="block text-xs font-semibold uppercase tracking-wide text-[#0b203a]/70">
-                  Filtro ativo
-                </span>
-                <span className="text-base font-semibold text-[#0b203a]">
-                  {activeFilterDetails.label}
-                </span>
-              </div>
-            </div>
-            <p className="text-xs text-[#0b203a]/70 sm:max-w-md">
-              {activeFilterDetails.description}
-            </p>
-          </div>
-        )}
 
         <div className="md:hidden">
           <button

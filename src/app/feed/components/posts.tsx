@@ -17,9 +17,11 @@ import {
   Search,
   Share2,
   Tag,
+  Trash2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { buildApiUrl } from "@/lib/api";
+import { loadSession } from "@/app/profile/utils/session";
 import type { FilterType } from "./header";
 
 type PollData = {
@@ -29,7 +31,9 @@ type PollData = {
 
 type ApiPost = {
   id: string;
+  authorId?: string | null;
   authorName: string;
+  authorUsername?: string | null;
   authorAvatarUrl?: string | null;
   content: string;
   category: string;
@@ -350,9 +354,11 @@ interface PostCardProps {
   onToggleLike: (postId: string, liked: boolean) => void;
   onShare: (post: ApiPost) => void;
   onReport: (post: ApiPost) => void;
+  onDelete: (postId: string) => void;
   likePending: boolean;
   sharePending: boolean;
   reportPending: boolean;
+  deletePending: boolean;
   onPollUpdated: (postId: string, poll: PollData) => void;
 }
 
@@ -362,9 +368,11 @@ function PostCard({
   onToggleLike,
   onShare,
   onReport,
+  onDelete,
   likePending,
   sharePending,
   reportPending,
+  deletePending,
   onPollUpdated,
 }: PostCardProps) {
   const categoryConfig = useMemo(
@@ -376,7 +384,10 @@ function PostCard({
     () => formatDisplayName(post.authorName),
     [post.authorName]
   );
-  const userHandle = useMemo(() => slugifyHandle(displayName), [displayName]);
+  const userHandle = useMemo(
+    () => `@${post.authorUsername || slugifyHandle(displayName).slice(1)}`,
+    [post.authorUsername, displayName]
+  );
   const eventLabel = useMemo(
     () => formatEventDate(post.eventDate),
     [post.eventDate]
@@ -398,6 +409,9 @@ function PostCard({
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const actionMenuRef = useRef<HTMLDivElement | null>(null);
+  const session = loadSession();
+
+  const isAuthor = session?.id === post.authorId;
 
   useEffect(() => {
     if (!isMenuOpen) return;
@@ -421,17 +435,17 @@ function PostCard({
     }
   };
 
-  const handleMenuShare = () => {
-    setIsMenuOpen(false);
-    if (!sharePending) {
-      onShare(post);
-    }
-  };
-
   const handleMenuReport = () => {
     setIsMenuOpen(false);
     if (!reportPending) {
       onReport(post);
+    }
+  };
+
+  const handleMenuDelete = () => {
+    setIsMenuOpen(false);
+    if (!deletePending && isAuthor) {
+      onDelete(post.id);
     }
   };
 
@@ -442,79 +456,136 @@ function PostCard({
 
   return (
     <article className="rounded-3xl border border-[#0b203a]/10 bg-white p-5 shadow-sm shadow-[#0b203a]/10 transition-shadow hover:shadow-lg">
-      <header className="flex flex-col gap-4 border-b border-slate-200/60 pb-4 md:flex-row md:items-start md:justify-between">
-        <div className="flex items-start gap-3">
-          <Image
-            src={post.authorAvatarUrl || FALLBACK_AVATAR}
-            alt={`Avatar de ${displayName}`}
-            width={52}
-            height={52}
-            className="h-12 w-12 rounded-full border border-slate-200 object-cover"
-          />
-          <div className="space-y-1">
-            <h3 className="text-base font-semibold text-[#0b203a]">
-              {displayName}
-            </h3>
-            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-              <span>{userHandle}</span>
-              <span className="inline-block h-1 w-1 rounded-full bg-slate-300" />
-              <span>{formatRelativeTime(post.createdAt)}</span>
-            </div>
-            {post.alertUsers && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#fce8d7] px-2 py-1 text-[11px] font-semibold text-[#a04b03]">
-                <Megaphone className="h-3.5 w-3.5" />
-                Destaque para todos
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span
-            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${categoryConfig.badgeClass}`}
-          >
-            <CategoryIcon className="h-3.5 w-3.5" />
-            {categoryConfig.label}
-          </span>
-          <div ref={actionMenuRef} className="relative">
-            <button
-              type="button"
-              aria-haspopup="menu"
-              aria-expanded={isMenuOpen}
-              onClick={() => setIsMenuOpen((prev) => !prev)}
-              className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-            >
-              <MoreVertical className="h-5 w-5" />
-            </button>
-            {isMenuOpen && (
-              <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-[#0b203a]/10">
-                <button
-                  type="button"
-                  onClick={handleMenuShare}
-                  disabled={sharePending}
-                  className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {sharePending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Share2 className="h-4 w-4" />
-                  )}
-                  Compartilhar
-                </button>
-                <button
-                  type="button"
-                  onClick={handleMenuReport}
-                  disabled={reportPending}
-                  className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {reportPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Flag className="h-4 w-4" />
-                  )}
-                  Denunciar post
-                </button>
+      <header className="border-b border-slate-200/60 pb-4">
+        <div className="flex items-start gap-3 md:justify-between">
+          <div className="flex items-start gap-3 flex-1">
+            <Image
+              src={post.authorAvatarUrl || FALLBACK_AVATAR}
+              alt={`Avatar de ${displayName}`}
+              width={52}
+              height={52}
+              className="h-12 w-12 rounded-full border border-slate-200 object-cover"
+            />
+            <div className="flex-1 space-y-1">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold text-[#0b203a]">
+                  {displayName}
+                </h3>
+                <div className="flex items-center gap-3 md:hidden">
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${categoryConfig.badgeClass}`}
+                  >
+                    <CategoryIcon className="h-3.5 w-3.5" />
+                    {categoryConfig.label}
+                  </span>
+                  <div ref={actionMenuRef} className="relative">
+                    <button
+                      type="button"
+                      aria-haspopup="menu"
+                      aria-expanded={isMenuOpen}
+                      onClick={() => setIsMenuOpen((prev) => !prev)}
+                      className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                    >
+                      <MoreVertical className="h-5 w-5" />
+                    </button>
+                    {isMenuOpen && (
+                      <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-[#0b203a]/10">
+                        {isAuthor && (
+                          <button
+                            type="button"
+                            onClick={handleMenuDelete}
+                            disabled={deletePending}
+                            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {deletePending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                            Excluir post
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleMenuReport}
+                          disabled={reportPending}
+                          className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {reportPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Flag className="h-4 w-4" />
+                          )}
+                          Denunciar post
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            )}
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                <span>{userHandle}</span>
+                <span className="inline-block h-1 w-1 rounded-full bg-slate-300" />
+                <span>{formatRelativeTime(post.createdAt)}</span>
+              </div>
+              {post.alertUsers && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#fce8d7] px-2 py-1 text-[11px] font-semibold text-[#a04b03]">
+                  <Megaphone className="h-3.5 w-3.5" />
+                  Destaque para todos
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="hidden md:flex items-center gap-3">
+            <span
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${categoryConfig.badgeClass}`}
+            >
+              <CategoryIcon className="h-3.5 w-3.5" />
+              {categoryConfig.label}
+            </span>
+            <div ref={actionMenuRef} className="relative">
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={isMenuOpen}
+                onClick={() => setIsMenuOpen((prev) => !prev)}
+                className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+              >
+                <MoreVertical className="h-5 w-5" />
+              </button>
+              {isMenuOpen && (
+                <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-[#0b203a]/10">
+                  {isAuthor && (
+                    <button
+                      type="button"
+                      onClick={handleMenuDelete}
+                      disabled={deletePending}
+                      className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {deletePending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      Excluir post
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleMenuReport}
+                    disabled={reportPending}
+                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {reportPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Flag className="h-4 w-4" />
+                    )}
+                    Denunciar post
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -588,14 +659,11 @@ function PostCard({
               <Share2 className="h-4 w-4" />
             )}
             <span>Compartilhar</span>
+            <span>{post.shares}</span>
+            <span className="text-xs font-normal text-slate-400">
+              {shareCountWord}
+            </span>
           </button>
-        </div>
-
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-slate-500">
-            <Share2 className="h-3 w-3" />
-            {post.shares} {shareCountWord}
-          </span>
         </div>
       </footer>
     </article>
@@ -603,13 +671,11 @@ function PostCard({
 }
 
 interface PostsProps {
-  refreshKey?: number;
   searchQuery?: string;
   activeFilter?: FilterType;
 }
 
 export default function Posts({
-  refreshKey = 0,
   searchQuery = "",
   activeFilter = "todos",
 }: PostsProps) {
@@ -621,6 +687,7 @@ export default function Posts({
   const [likePending, setLikePending] = useState<string | null>(null);
   const [sharePending, setSharePending] = useState<string | null>(null);
   const [reportPending, setReportPending] = useState<string | null>(null);
+  const [deletePending, setDeletePending] = useState<string | null>(null);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
 
   const fetchPosts = useCallback(async () => {
@@ -649,10 +716,6 @@ export default function Posts({
       setLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts, refreshKey]);
 
   useEffect(() => {
     if (!feedback) return;
@@ -783,6 +846,48 @@ export default function Posts({
       });
     } finally {
       setSharePending(null);
+    }
+  };
+
+  const handleDelete = async (postId: string) => {
+    setDeletePending(postId);
+
+    try {
+      const session = loadSession();
+      if (!session?.token) {
+        throw new Error("Faça login para excluir posts.");
+      }
+
+      const response = await fetch(buildApiUrl(`/api/posts/${postId}`), {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session.token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.message || "Erro ao excluir post.");
+      }
+
+      // Remove o post da lista
+      setPosts((prev) => prev.filter((post) => post.id !== postId));
+
+      setFeedback({
+        type: "success",
+        message: "Post excluído com sucesso.",
+      });
+    } catch (err) {
+      setFeedback({
+        type: "error",
+        message:
+          err instanceof Error
+            ? err.message
+            : "Não foi possível excluir o post.",
+      });
+    } finally {
+      setDeletePending(null);
     }
   };
 
@@ -946,9 +1051,11 @@ export default function Posts({
             onToggleLike={handleToggleLike}
             onShare={handleShare}
             onReport={handleReport}
+            onDelete={handleDelete}
             likePending={likePending === post.id}
             sharePending={sharePending === post.id}
             reportPending={reportPending === post.id}
+            deletePending={deletePending === post.id}
             onPollUpdated={handlePollUpdated}
           />
         ))}
