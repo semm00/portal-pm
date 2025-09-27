@@ -19,131 +19,159 @@ type EventItem = {
   location?: string;
 };
 
-const getDefaultEventsForYear = (year: number): EventItem[] => {
-  const toIso = (month: number, day: number) =>
-    new Date(Date.UTC(year, month, day, 12, 0, 0)).toISOString();
+type RecurringEventDefinition = {
+  id: string;
+  title: string;
+  description: string;
+  location?: string;
+  start: { month: number; day: number };
+  end?: { month: number; day: number };
+};
 
-  return [
-    {
-      id: `default-confraternizacao-${year}`,
-      title: "Confraternização Universal",
-      description:
-        "Celebração do início do ano e dos votos de paz e prosperidade.",
-      startDate: toIso(0, 1),
-      endDate: toIso(0, 1),
-    },
-    {
-      id: `default-evangelico-${year}`,
-      title: "Dia do Evangélico",
-      description: "Celebração municipal dedicada à comunidade evangélica.",
-      startDate: toIso(0, 16),
-      endDate: toIso(0, 16),
-    },
-    {
-      id: `default-aniversario-${year}`,
-      title: "Aniversário de Padre Marcos",
-      description: "Comemoração da emancipação política do município.",
-      startDate: toIso(0, 17),
-      endDate: toIso(0, 17),
-    },
-    {
-      id: `default-tiradentes-${year}`,
-      title: "Dia de Tiradentes",
-      description:
-        "Feriado nacional em memória do mártir da Inconfidência Mineira.",
-      startDate: toIso(3, 21),
-      endDate: toIso(3, 21),
-    },
-    {
-      id: `default-dia-trabalhador-${year}`,
-      title: "Dia do Trabalhador",
-      description:
-        "Celebra as conquistas dos trabalhadores brasileiros em todas as áreas.",
-      startDate: toIso(4, 1),
-      endDate: toIso(4, 1),
-    },
-    {
-      id: `default-santo-antonio-${year}`,
-      title: "Festejos de Santo Antônio",
-      description: "Tradicionais festejos do padroeiro da cidade.",
-      startDate: toIso(4, 31),
-      endDate: toIso(5, 13),
-    },
-    {
-      id: `default-sao-joao-${year}`,
-      title: "São João",
-      description:
-        "Celebração junina com quadrilhas, comidas típicas e forró para toda a família.",
-      startDate: toIso(5, 24),
-      endDate: toIso(5, 24),
-    },
-    {
-      id: `default-sao-benedito-${year}`,
-      title: "Festejos de São Benedito",
-      description: "Programação religiosa e cultural em honra a São Benedito.",
-      startDate: toIso(7, 18),
-      endDate: toIso(7, 26),
-    },
-    {
-      id: `default-independencia-${year}`,
-      title: "Independência do Brasil",
-      description:
-        "Desfiles cívicos e atividades escolares celebram a independência nacional.",
-      startDate: toIso(8, 7),
-      endDate: toIso(8, 7),
-    },
-    {
-      id: `default-nossa-senhora-${year}`,
-      title: "Nossa Senhora Aparecida",
-      description:
-        "Dia da padroeira do Brasil, celebrado com missas e procissões.",
-      startDate: toIso(9, 12),
-      endDate: toIso(9, 12),
-    },
-    {
-      id: `default-finados-${year}`,
-      title: "Finados",
-      description: "Momento de homenagear familiares e amigos que já partiram.",
-      startDate: toIso(10, 2),
-      endDate: toIso(10, 2),
-    },
-    {
-      id: `default-proclamacao-${year}`,
-      title: "Proclamação da República",
-      description: "Comemoração cívica da proclamação da República brasileira.",
-      startDate: toIso(10, 15),
-      endDate: toIso(10, 15),
-    },
-    {
-      id: `default-natal-${year}`,
-      title: "Natal",
-      description:
-        "Celebração do nascimento de Jesus Cristo com família e tradições locais.",
-      startDate: toIso(11, 25),
-      endDate: toIso(11, 25),
-    },
-  ];
+const RECURRING_EVENTS: RecurringEventDefinition[] = [
+  {
+    id: "default-confraternizacao",
+    title: "Confraternização Universal",
+    description:
+      "Celebração do início do ano e dos votos de paz e prosperidade.",
+    start: { month: 0, day: 1 },
+  },
+  {
+    id: "default-evangelico",
+    title: "Dia do Evangélico",
+    description: "Celebração municipal dedicada à comunidade evangélica.",
+    start: { month: 0, day: 16 },
+  },
+  {
+    id: "default-aniversario",
+    title: "Aniversário de Padre Marcos",
+    description: "Comemoração da emancipação política do município.",
+    start: { month: 0, day: 17 },
+  },
+  {
+    id: "default-tiradentes",
+    title: "Dia de Tiradentes",
+    description:
+      "Feriado nacional em memória do mártir da Inconfidência Mineira.",
+    start: { month: 3, day: 21 },
+  },
+  {
+    id: "default-dia-trabalhador",
+    title: "Dia do Trabalhador",
+    description:
+      "Celebra as conquistas dos trabalhadores brasileiros em todas as áreas.",
+    start: { month: 4, day: 1 },
+  },
+  {
+    id: "default-santo-antonio",
+    title: "Festejos de Santo Antônio",
+    description: "Tradicionais festejos do padroeiro da cidade.",
+    start: { month: 4, day: 31 },
+    end: { month: 5, day: 13 },
+  },
+  {
+    id: "default-sao-joao",
+    title: "São João",
+    description:
+      "Celebração junina com quadrilhas, comidas típicas e forró para toda a família.",
+    start: { month: 5, day: 24 },
+  },
+  {
+    id: "default-sao-benedito",
+    title: "Festejos de São Benedito",
+    description: "Programação religiosa e cultural em honra a São Benedito.",
+    start: { month: 7, day: 18 },
+    end: { month: 7, day: 26 },
+  },
+  {
+    id: "default-independencia",
+    title: "Independência do Brasil",
+    description:
+      "Desfiles cívicos e atividades escolares celebram a independência nacional.",
+    start: { month: 8, day: 7 },
+  },
+  {
+    id: "default-nossa-senhora",
+    title: "Nossa Senhora Aparecida",
+    description:
+      "Dia da padroeira do Brasil, celebrado com missas e procissões.",
+    start: { month: 9, day: 12 },
+  },
+  {
+    id: "default-finados",
+    title: "Finados",
+    description: "Momento de homenagear familiares e amigos que já partiram.",
+    start: { month: 10, day: 2 },
+  },
+  {
+    id: "default-proclamacao",
+    title: "Proclamação da República",
+    description: "Comemoração cívica da proclamação da República brasileira.",
+    start: { month: 10, day: 15 },
+  },
+  {
+    id: "default-natal",
+    title: "Natal",
+    description:
+      "Celebração do nascimento de Jesus Cristo com família e tradições locais.",
+    start: { month: 11, day: 25 },
+  },
+];
+
+const toUtcDate = (year: number, month: number, day: number) =>
+  new Date(Date.UTC(year, month, day, 12, 0, 0));
+
+const resolveNextOccurrence = (
+  definition: RecurringEventDefinition,
+  referenceDate: Date
+) => {
+  const { start, end = start } = definition;
+  const referenceYear = referenceDate.getFullYear();
+
+  const startCurrentYear = toUtcDate(referenceYear, start.month, start.day);
+  let endCurrentYear = toUtcDate(referenceYear, end.month, end.day);
+
+  if (endCurrentYear.getTime() < startCurrentYear.getTime()) {
+    endCurrentYear = toUtcDate(referenceYear + 1, end.month, end.day);
+  }
+
+  if (endCurrentYear.getTime() < referenceDate.getTime()) {
+    const nextYear = referenceYear + 1;
+    const nextStart = toUtcDate(nextYear, start.month, start.day);
+    let nextEnd = toUtcDate(nextYear, end.month, end.day);
+
+    if (nextEnd.getTime() < nextStart.getTime()) {
+      nextEnd = toUtcDate(nextYear + 1, end.month, end.day);
+    }
+
+    return { start: nextStart, end: nextEnd };
+  }
+
+  return { start: startCurrentYear, end: endCurrentYear };
 };
 
 const buildFallbackEvents = (): EventItem[] => {
-  const now = Date.now();
-  const currentYear = new Date().getFullYear();
+  const now = new Date();
 
-  const candidates = [
-    ...getDefaultEventsForYear(currentYear),
-    ...getDefaultEventsForYear(currentYear + 1),
-  ]
+  const upcoming = RECURRING_EVENTS.map((event) => {
+    const { start, end } = resolveNextOccurrence(event, now);
+
+    return {
+      id: `${event.id}-${start.getUTCFullYear()}`,
+      title: event.title,
+      description: event.description,
+      location: event.location,
+      startDate: start.toISOString(),
+      endDate: end.toISOString(),
+    } satisfies EventItem;
+  })
     .filter((event) => {
       const endTime = Date.parse(event.endDate);
-      return Number.isFinite(endTime) ? endTime >= now : true;
+      return Number.isFinite(endTime) ? endTime >= now.getTime() : true;
     })
     .sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate));
 
-  if (candidates.length > 0) {
-    return candidates.slice(0, 4);
-  }
-
-  return getDefaultEventsForYear(currentYear + 1).slice(0, 4);
+  return upcoming.slice(0, 4);
 };
 
 async function getEvents(): Promise<EventItem[]> {
