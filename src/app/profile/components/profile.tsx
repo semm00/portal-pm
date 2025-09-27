@@ -11,6 +11,24 @@ const PLACEHOLDER_TEXT = {
   city: "Adicione sua cidade",
 };
 
+const getInitials = (name?: string) => {
+  if (!name) {
+    return "?";
+  }
+
+  const parts = name.trim().split(/\s+/);
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+
+  const first = String(parts[0]?.[0] ?? "");
+  const last = String(parts[parts.length - 1]?.[0] ?? "");
+
+  const initials = `${first}${last}`.trim();
+  return initials.length > 0 ? initials.toUpperCase() : "?";
+};
+
 type StatusState = { type: "success" | "error"; message: string } | null;
 
 type ProfileProps = {
@@ -43,7 +61,6 @@ export default function Profile({
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
-  const [hasLoadedProfile, setHasLoadedProfile] = useState(false);
 
   useEffect(() => {
     setProfileData((prev) => ({
@@ -323,7 +340,7 @@ export default function Profile({
       <div className="bg-gradient-to-r from-[#0b203a] to-[#153b69] h-40 relative">
         <div className="absolute -bottom-20 left-8 flex items-end gap-4">
           <div className="relative">
-            {avatarUrl ? (
+            {avatarUrl && avatarUrl.trim() ? (
               <Image
                 key={avatarUrl}
                 src={avatarUrl}
@@ -331,15 +348,12 @@ export default function Profile({
                 width={144}
                 height={144}
                 className="rounded-full border-4 border-white shadow-lg object-cover"
+                unoptimized
               />
             ) : (
-              <Image
-                src="/images/imagem-padrao.png"
-                alt={`Foto padrão de ${displayName}`}
-                width={144}
-                height={144}
-                className="rounded-full border-4 border-white shadow-lg object-cover"
-              />
+              <div className="flex h-36 w-36 items-center justify-center rounded-full border-4 border-white bg-slate-200 text-3xl font-semibold text-slate-600 shadow-lg select-none">
+                {getInitials(displayName)}
+              </div>
             )}
 
             <label
