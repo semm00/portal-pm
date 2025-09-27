@@ -19,7 +19,46 @@ type EventItem = {
   location?: string;
 };
 
+const getDefaultEventsForYear = (year: number): EventItem[] => {
+  const toIso = (month: number, day: number) =>
+    new Date(Date.UTC(year, month, day, 12, 0, 0)).toISOString();
+
+  return [
+    {
+      id: "default-evangelico",
+      title: "Dia do Evangélico",
+      description: "Celebração municipal dedicada à comunidade evangélica.",
+      startDate: toIso(0, 16),
+      endDate: toIso(0, 16),
+    },
+    {
+      id: "default-aniversario",
+      title: "Aniversário de Padre Marcos",
+      description: "Comemoração da emancipação política do município.",
+      startDate: toIso(0, 17),
+      endDate: toIso(0, 17),
+    },
+    {
+      id: "default-santo-antonio",
+      title: "Festejos de Santo Antônio",
+      description: "Tradicionais festejos do padroeiro da cidade.",
+      startDate: toIso(4, 31),
+      endDate: toIso(5, 13),
+    },
+    {
+      id: "default-sao-benedito",
+      title: "Festejos de São Benedito",
+      description: "Programação religiosa e cultural em honra a São Benedito.",
+      startDate: toIso(7, 18),
+      endDate: toIso(7, 26),
+    },
+  ];
+};
+
 async function getEvents(): Promise<EventItem[]> {
+  const currentYear = new Date().getFullYear();
+  const fallback = getDefaultEventsForYear(currentYear);
+
   try {
     const response = await fetch(buildApiUrl("/api/events?limit=8"), {
       cache: "no-store",
@@ -34,7 +73,7 @@ async function getEvents(): Promise<EventItem[]> {
     const events = (data.events as ApiEvent[] | undefined) ?? [];
     const now = Date.now();
 
-    return events
+    const sorted = events
       .map((event) => ({
         id: event.id,
         title: event.title,
@@ -49,9 +88,15 @@ async function getEvents(): Promise<EventItem[]> {
       })
       .sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate))
       .slice(0, 4);
+
+    if (sorted.length === 0) {
+      return fallback;
+    }
+
+    return sorted;
   } catch (error) {
     console.error(error);
-    return [];
+    return fallback;
   }
 }
 
@@ -99,7 +144,6 @@ export default async function Events() {
         )}
         {display.map((ev) => {
           const startDate = new Date(ev.startDate);
-          const endDate = new Date(ev.endDate);
 
           return (
             <article
