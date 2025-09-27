@@ -166,8 +166,9 @@ const buildFallbackEvents = (): EventItem[] => {
     } satisfies EventItem;
   })
     .filter((event) => {
-      const endTime = Date.parse(event.endDate);
-      return Number.isFinite(endTime) ? endTime >= now.getTime() : true;
+      // Só mostra eventos cujo início é no futuro (>= agora)
+      const startTime = Date.parse(event.startDate);
+      return Number.isFinite(startTime) ? startTime >= now.getTime() : true;
     })
     .sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate));
 
