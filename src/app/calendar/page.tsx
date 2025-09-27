@@ -130,12 +130,10 @@ export default function CalendarPage() {
       }
 
       // Corrige o envio da data para o backend, usando fuso local
-      function toLocalIso(dateStr?: string) {
+      function toIsoDate(dateStr?: string) {
         if (!dateStr) return undefined;
-        const [year, month, day] = dateStr.split("-").map(Number);
-        if (!year || !month || !day) return dateStr;
-        const localDate = new Date(year, month - 1, day, 12, 0, 0);
-        return localDate.toISOString().slice(0, 10);
+        // Garante que o ISO sempre será do dia correto, sem offset de fuso
+        return dateStr + "T00:00:00";
       }
 
       const body = {
@@ -143,8 +141,8 @@ export default function CalendarPage() {
         category: payload.category,
         description: payload.description,
         location: payload.location,
-        startDate: toLocalIso(payload.startDate),
-        endDate: toLocalIso(payload.endDate ?? payload.startDate),
+        startDate: toIsoDate(payload.startDate),
+        endDate: toIsoDate(payload.endDate ?? payload.startDate),
         startTime: payload.startTime,
         endTime: payload.endTime,
       };
