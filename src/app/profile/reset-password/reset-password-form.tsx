@@ -20,8 +20,8 @@ export default function ResetPasswordForm({
 }: ResetPasswordFormProps) {
   const sanitizedPropToken = sanitizeToken(accessToken);
   const [token, setToken] = useState<string | undefined>(sanitizedPropToken);
-  const [tokenChecked, setTokenChecked] = useState<boolean>(
-    () => Boolean(sanitizedPropToken)
+  const [tokenChecked, setTokenChecked] = useState<boolean>(() =>
+    Boolean(sanitizedPropToken)
   );
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

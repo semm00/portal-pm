@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Script from "next/script";
 import { AtSign, Lock, User, LogIn, Mail } from "lucide-react";
+import type { AuthUser } from "../types";
 
 // Declarar tipos para Google Identity Services
 declare global {
@@ -24,14 +25,6 @@ declare global {
       };
     };
   }
-}
-
-export interface AuthUser {
-  name: string;
-  email?: string;
-  username?: string;
-  avatarUrl?: string;
-  token?: string;
 }
 
 type LoginPayload = {
@@ -190,7 +183,12 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         response = await handleLogin(payload);
 
         if (response.success && response.user) {
-          onLoginSuccess(response.user);
+          const userWithTokens: AuthUser = {
+            ...response.user,
+            token: response.token ?? response.user.token,
+            refreshToken: response.refreshToken,
+          };
+          onLoginSuccess(userWithTokens);
         } else if (response.code === "EMAIL_NOT_VERIFIED") {
           setError(response.message ?? "E-mail não verificado.");
           setShowResend(true);
@@ -268,7 +266,12 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         const data = await res.json();
         console.log("Resposta do backend:", data);
         if (res.ok && data.user) {
-          onLoginSuccess(data.user);
+          const userWithTokens: AuthUser = {
+            ...data.user,
+            token: data.token ?? data.user.token,
+            refreshToken: data.refreshToken,
+          };
+          onLoginSuccess(userWithTokens);
         } else {
           setError(data.message ?? "Falha no login com Google.");
         }
@@ -389,10 +392,10 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       )}
 
       {/* Botão Google */}
-      <div className="relative w-full min-h-[46px]">
+      <div className="relative w-full min-h-[46px] flex items-center justify-center">
         <div
           id="gsi-button"
-          className="w-full inline-flex items-center justify-center"
+          className="flex w-full max-w-sm items-center justify-center"
         />
         {googleLoading && (
           <div className="absolute inset-0 flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white/80 backdrop-blur-[1px] px-4 py-2.5 text-sm font-semibold text-slate-700">

@@ -1,0 +1,18 @@
+export interface AuthUser {
+  name: string;
+  email?: string;
+  username?: string;
+  avatarUrl?: string;
+  token?: string;
+  refreshToken?: string;
+  expiresAt?: number;
+}
+
+export type ProfileResponse = {
+  fullName: string;
+  email: string;
+  username: string;
+  avatarUrl?: string;
+  bio?: string;
+  city?: string;
+};
