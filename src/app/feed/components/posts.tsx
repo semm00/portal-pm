@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
   AlertTriangle,
@@ -14,11 +14,13 @@ import {
   Megaphone,
   MoreVertical,
   RefreshCcw,
+  Search,
   Share2,
   Tag,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { buildApiUrl } from "@/lib/api";
+import type { FilterType } from "./header";
 
 type PollData = {
   question: string;
@@ -50,13 +52,33 @@ const FALLBACK_AVATAR = "/images/logo-portal.png";
 
 const categoryConfigs: Record<
   string,
-  { icon: LucideIcon; label: string; color: string }
+  { icon: LucideIcon; label: string; badgeClass: string }
 > = {
-  avisos: { icon: Megaphone, label: "Aviso", color: "text-red-500" },
-  eventos: { icon: Calendar, label: "Evento", color: "text-blue-500" },
-  enquetes: { icon: BarChart3, label: "Enquete", color: "text-green-500" },
-  locais: { icon: MapPin, label: "Local", color: "text-purple-500" },
-  outro: { icon: Tag, label: "Outro", color: "text-slate-500" },
+  avisos: {
+    icon: Megaphone,
+    label: "Aviso",
+    badgeClass: "border border-[#fcd5a6] bg-[#fff5e7] text-[#a04b03]",
+  },
+  eventos: {
+    icon: Calendar,
+    label: "Evento",
+    badgeClass: "border border-[#c6dcff] bg-[#eef3ff] text-[#1d4ed8]",
+  },
+  enquetes: {
+    icon: BarChart3,
+    label: "Enquete",
+    badgeClass: "border border-[#c8f2d8] bg-[#f0fff5] text-[#15803d]",
+  },
+  locais: {
+    icon: MapPin,
+    label: "Local",
+    badgeClass: "border border-[#e0d5ff] bg-[#f6f3ff] text-[#6d28d9]",
+  },
+  outro: {
+    icon: Tag,
+    label: "Outro",
+    badgeClass: "border border-slate-200 bg-slate-50 text-slate-600",
+  },
 };
 
 const slugifyHandle = (value: string) =>
@@ -123,9 +145,23 @@ const getCategoryConfig = (category: string) => {
     categoryConfigs[normalized] ?? {
       icon: Tag,
       label: category || "Outro",
-      color: "text-slate-500",
+      badgeClass: "border border-slate-200 bg-slate-50 text-slate-600",
     }
   );
+};
+
+const formatDisplayName = (value?: string | null) => {
+  if (!value) return "Morador";
+
+  return value
+    .trim()
+    .split(/\s+/)
+    .map(
+      (part) =>
+        part.charAt(0).toLocaleUpperCase("pt-BR") +
+        part.slice(1).toLocaleLowerCase("pt-BR")
+    )
+    .join(" ");
 };
 
 interface PollProps {
@@ -336,6 +372,48 @@ function PostCard({
     [post.category]
   );
   const CategoryIcon = categoryConfig.icon;
+  const displayName = useMemo(
+    () => formatDisplayName(post.authorName),
+    [post.authorName]
+  );
+  const userHandle = useMemo(() => slugifyHandle(displayName), [displayName]);
+  const eventLabel = useMemo(
+    () => formatEventDate(post.eventDate),
+    [post.eventDate]
+  );
+
+  const infoItems = useMemo(() => {
+    const items: Array<{ key: string; icon: LucideIcon; label: string }> = [];
+
+    if (post.location) {
+      items.push({ key: "location", icon: MapPin, label: post.location });
+    }
+
+    if (eventLabel) {
+      items.push({ key: "eventDate", icon: Calendar, label: eventLabel });
+    }
+
+    return items;
+  }, [eventLabel, post.location]);
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const actionMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const handleClickOutside = (event: globalThis.MouseEvent) => {
+      if (
+        actionMenuRef.current &&
+        !actionMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMenuOpen]);
 
   const handleLikeClick = () => {
     if (!likePending) {
@@ -343,49 +421,101 @@ function PostCard({
     }
   };
 
+  const handleMenuShare = () => {
+    setIsMenuOpen(false);
+    if (!sharePending) {
+      onShare(post);
+    }
+  };
+
+  const handleMenuReport = () => {
+    setIsMenuOpen(false);
+    if (!reportPending) {
+      onReport(post);
+    }
+  };
+
+  const likeButtonLabel = isLiked ? "Remover curtida" : "Curtir";
+  const likeCountWord = post.likes === 1 ? "curtida" : "curtidas";
+  const shareCountWord =
+    post.shares === 1 ? "compartilhamento" : "compartilhamentos";
+
   return (
-    <article className="rounded-3xl border border-[#0b203a]/10 bg-white p-5 shadow-sm shadow-[#0b203a]/10 transition-shadow hover:shadow-md">
-      <header className="flex flex-col gap-3 border-b border-slate-200/70 pb-4 sm:flex-row sm:items-start sm:justify-between">
+    <article className="rounded-3xl border border-[#0b203a]/10 bg-white p-5 shadow-sm shadow-[#0b203a]/10 transition-shadow hover:shadow-lg">
+      <header className="flex flex-col gap-4 border-b border-slate-200/60 pb-4 md:flex-row md:items-start md:justify-between">
         <div className="flex items-start gap-3">
           <Image
             src={post.authorAvatarUrl || FALLBACK_AVATAR}
-            alt={`Avatar de ${post.authorName}`}
-            width={48}
-            height={48}
+            alt={`Avatar de ${displayName}`}
+            width={52}
+            height={52}
             className="h-12 w-12 rounded-full border border-slate-200 object-cover"
           />
-          <div>
+          <div className="space-y-1">
             <h3 className="text-base font-semibold text-[#0b203a]">
-              {post.authorName || "Morador"}
+              {displayName}
             </h3>
-            <p className="text-sm text-slate-500">
-              {slugifyHandle(post.authorName || "Morador")}
-            </p>
-            <p className="text-xs text-slate-400">
-              {formatRelativeTime(post.createdAt)}
-            </p>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <span>{userHandle}</span>
+              <span className="inline-block h-1 w-1 rounded-full bg-slate-300" />
+              <span>{formatRelativeTime(post.createdAt)}</span>
+            </div>
+            {post.alertUsers && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#fce8d7] px-2 py-1 text-[11px] font-semibold text-[#a04b03]">
+                <Megaphone className="h-3.5 w-3.5" />
+                Destaque para todos
+              </span>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-wide">
-          {post.alertUsers && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#fca311]/10 px-3 py-1 text-[#c25700]">
-              <Megaphone className="h-3.5 w-3.5" />
-              Alerta
-            </span>
-          )}
+        <div className="flex items-center gap-3">
           <span
-            className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 ${categoryConfig.color} border-current`}
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${categoryConfig.badgeClass}`}
           >
             <CategoryIcon className="h-3.5 w-3.5" />
             {categoryConfig.label}
           </span>
-          <button
-            type="button"
-            className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-            aria-label="Mais ações"
-          >
-            <MoreVertical className="h-5 w-5" />
-          </button>
+          <div ref={actionMenuRef} className="relative">
+            <button
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={isMenuOpen}
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            >
+              <MoreVertical className="h-5 w-5" />
+            </button>
+            {isMenuOpen && (
+              <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-[#0b203a]/10">
+                <button
+                  type="button"
+                  onClick={handleMenuShare}
+                  disabled={sharePending}
+                  className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {sharePending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Share2 className="h-4 w-4" />
+                  )}
+                  Compartilhar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleMenuReport}
+                  disabled={reportPending}
+                  className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {reportPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Flag className="h-4 w-4" />
+                  )}
+                  Denunciar post
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -394,20 +524,17 @@ function PostCard({
           {post.content}
         </p>
 
-        {(post.location || post.eventDate) && (
+        {infoItems.length > 0 && (
           <div className="flex flex-wrap gap-2 text-xs text-slate-600">
-            {post.location && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1">
-                <MapPin className="h-3.5 w-3.5 text-[#0b203a]" />
-                {post.location}
+            {infoItems.map((item) => (
+              <span
+                key={item.key}
+                className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1"
+              >
+                <item.icon className="h-3 w-3" />
+                {item.label}
               </span>
-            )}
-            {formatEventDate(post.eventDate) && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1">
-                <Calendar className="h-3.5 w-3.5 text-[#0b203a]" />
-                {formatEventDate(post.eventDate)}
-              </span>
-            )}
+            ))}
           </div>
         )}
 
@@ -422,62 +549,53 @@ function PostCard({
         )}
       </div>
 
-      <footer className="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-3">
+      <footer className="mt-6 flex flex-col gap-3 border-t border-slate-200/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={handleLikeClick}
             disabled={likePending}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 font-medium transition-colors ${
-              isLiked
-                ? "border-[#fca311] bg-[#fca311]/20 text-[#b76808]"
-                : "border-slate-200 hover:border-[#fca311] hover:bg-[#fca311]/10 hover:text-[#b76808]"
-            } disabled:cursor-not-allowed disabled:opacity-60`}
+            aria-pressed={isLiked}
+            aria-label={likeButtonLabel}
+            className={`inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-60 ${
+              isLiked ? "bg-rose-50 text-rose-600" : "text-slate-600"
+            }`}
           >
             {likePending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Heart
-                className={`h-4 w-4 transition-colors ${
-                  isLiked ? "fill-current" : "fill-none"
+                className={`h-4 w-4 ${
+                  isLiked ? "fill-rose-500 text-rose-500" : "text-slate-500"
                 }`}
               />
             )}
             <span>{post.likes}</span>
+            <span className="text-xs font-normal text-slate-400">
+              {likeCountWord}
+            </span>
           </button>
 
           <button
             type="button"
             onClick={() => !sharePending && onShare(post)}
             disabled={sharePending}
-            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 font-medium transition-colors hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {sharePending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Share2 className="h-4 w-4" />
             )}
-            <span>{post.shares}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => !reportPending && onReport(post)}
-            disabled={reportPending}
-            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 font-medium text-slate-500 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {reportPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Flag className="h-4 w-4" />
-            )}
-            Denunciar
+            <span>Compartilhar</span>
           </button>
         </div>
 
         <div className="flex items-center gap-2 text-xs text-slate-400">
-          <AlertTriangle className="h-3.5 w-3.5" />
-          Conteúdo enviado pela comunidade
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-slate-500">
+            <Share2 className="h-3 w-3" />
+            {post.shares} {shareCountWord}
+          </span>
         </div>
       </footer>
     </article>
@@ -486,9 +604,15 @@ function PostCard({
 
 interface PostsProps {
   refreshKey?: number;
+  searchQuery?: string;
+  activeFilter?: FilterType;
 }
 
-export default function Posts({ refreshKey = 0 }: PostsProps) {
+export default function Posts({
+  refreshKey = 0,
+  searchQuery = "",
+  activeFilter = "todos",
+}: PostsProps) {
   const [posts, setPosts] = useState<ApiPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -497,6 +621,7 @@ export default function Posts({ refreshKey = 0 }: PostsProps) {
   const [likePending, setLikePending] = useState<string | null>(null);
   const [sharePending, setSharePending] = useState<string | null>(null);
   const [reportPending, setReportPending] = useState<string | null>(null);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -512,6 +637,7 @@ export default function Posts({ refreshKey = 0 }: PostsProps) {
 
       setPosts(Array.isArray(data.posts) ? data.posts : []);
       setLikedPosts({});
+      setLastUpdatedAt(new Date());
     } catch (err) {
       setError(
         err instanceof Error
@@ -603,9 +729,15 @@ export default function Posts({ refreshKey = 0 }: PostsProps) {
     try {
       if (typeof window !== "undefined") {
         const shareUrl = `${window.location.origin}/feed?post=${post.id}`;
+        const authorDisplay = formatDisplayName(post.authorName);
+        const rawSummary = post.content.replace(/\s+/g, " ").trim();
+        const summary =
+          rawSummary.length > 180 ? `${rawSummary.slice(0, 177)}…` : rawSummary;
         const shareData = {
-          title: "Mural Digital - Portal PM",
-          text: post.content,
+          title: `${authorDisplay} no Mural Digital`,
+          text: summary
+            ? summary
+            : `Confira a publicação de ${authorDisplay} no Portal PM.`,
           url: shareUrl,
         };
 
@@ -702,6 +834,37 @@ export default function Posts({ refreshKey = 0 }: PostsProps) {
   };
 
   const renderContent = () => {
+    const normalizedFilter = activeFilter?.toLowerCase?.() ?? "todos";
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    const filteredPosts = posts.filter((post) => {
+      const category = post.category?.toLowerCase?.() ?? "";
+      const matchesFilter =
+        normalizedFilter === "todos" || category === normalizedFilter;
+
+      if (!matchesFilter) {
+        return false;
+      }
+
+      if (!normalizedQuery) {
+        return true;
+      }
+
+      const tokens: string[] = [
+        post.content,
+        post.authorName,
+        post.location ?? "",
+        post.category ?? "",
+        formatEventDate(post.eventDate) ?? "",
+        post.poll?.question ?? "",
+        ...(post.poll?.options ?? []).map((option) => option.text),
+      ]
+        .filter(Boolean)
+        .map((value) => value.toLowerCase());
+
+      return tokens.some((token) => token.includes(normalizedQuery));
+    });
+
     if (loading) {
       return (
         <div className="space-y-4">
@@ -757,9 +920,25 @@ export default function Posts({ refreshKey = 0 }: PostsProps) {
       );
     }
 
+    if (filteredPosts.length === 0) {
+      return (
+        <div className="rounded-3xl border border-slate-200 bg-white px-6 py-10 text-center text-slate-500">
+          <Search className="mx-auto mb-3 h-8 w-8 text-[#0b203a]" />
+          <p className="text-sm">
+            Não encontramos resultados para a sua busca.
+          </p>
+          {normalizedQuery && (
+            <p className="mt-2 text-xs text-slate-400">
+              Tente ajustar as palavras-chave ou limpar os filtros ativos.
+            </p>
+          )}
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-4">
-        {posts.map((post) => (
+        {filteredPosts.map((post) => (
           <PostCard
             key={post.id}
             post={post}
@@ -799,10 +978,12 @@ export default function Posts({ refreshKey = 0 }: PostsProps) {
       <div className="flex items-center justify-between text-xs text-slate-500">
         <span>
           Atualizado em{" "}
-          {new Date().toLocaleString("pt-BR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {lastUpdatedAt
+            ? lastUpdatedAt.toLocaleString("pt-BR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "--:--"}
         </span>
         <button
           type="button"

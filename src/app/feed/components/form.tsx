@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
   UserCircle2,
   Image as ImageIcon,
@@ -13,6 +14,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   Paperclip,
+  X,
 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -34,6 +36,28 @@ const categories: Array<{ label: string; value: Category }> = [
   { label: "Locais", value: "locais" },
   { label: "Outro", value: "outro" },
 ];
+
+const FALLBACK_AVATAR = "/images/logo-portal.png";
+const MAX_ATTACHMENTS = 6;
+
+const formatDisplayName = (value?: string | null) => {
+  if (!value) return "Morador";
+
+  return value
+    .trim()
+    .split(/\s+/)
+    .map(
+      (part) =>
+        part.charAt(0).toLocaleUpperCase("pt-BR") +
+        part.slice(1).toLocaleLowerCase("pt-BR")
+    )
+    .join(" ");
+};
+
+const getFirstName = (value?: string | null) => {
+  const formatted = formatDisplayName(value);
+  return formatted.split(" ")[0] ?? formatted;
+};
 
 export default function FeedForm({
   onSubmitted,
@@ -61,6 +85,13 @@ export default function FeedForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [session, setSession] = useState<AuthUser | null>(() => loadSession());
+  const displayName = formatDisplayName(session?.name);
+  const firstName = getFirstName(session?.name);
+  const avatarUrl = session?.avatarUrl || FALLBACK_AVATAR;
+  const isLogged = Boolean(session?.token);
+  const contentPlaceholder = isLogged
+    ? `${firstName}, o que deseja compartilhar hoje?`
+    : "O que está acontecendo em Padre Marcos?";
 
   const syncSession = useCallback(() => {
     setSession(loadSession());
@@ -99,8 +130,14 @@ export default function FeedForm({
 
   const handleFileChange = (files: FileList | null) => {
     if (!files) return;
-    const fileArray = Array.from(files).slice(0, 6); // limita 6 uploads
+    const fileArray = Array.from(files).slice(0, MAX_ATTACHMENTS);
     setAttachments(fileArray);
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    setAttachments((prev) =>
+      prev.filter((_, fileIndex) => fileIndex !== index)
+    );
   };
 
   const handleAddPollOption = () => {
@@ -247,15 +284,49 @@ export default function FeedForm({
       )}
       <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
         <header className="flex items-start gap-4">
-          <UserCircle2 className="h-12 w-12 text-slate-400" />
+          {isLogged ? (
+            <div className="relative h-12 w-12 overflow-hidden rounded-full border border-slate-200">
+              <Image
+                src={avatarUrl}
+                alt={`Avatar de ${displayName}`}
+                fill
+                className="object-cover"
+                sizes="48px"
+                priority
+              />
+            </div>
+          ) : (
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-slate-500">
+              <UserCircle2 className="h-7 w-7" />
+            </div>
+          )}
           <div className="flex-1 space-y-3">
+            {isLogged && (
+              <div className="flex items-center justify-between text-xs text-[#0b203a]/60">
+                <span className="font-semibold uppercase tracking-wide">
+                  Publicando como
+                </span>
+                <span className="font-medium text-[#0b203a]">
+                  {displayName}
+                </span>
+              </div>
+            )}
             <textarea
               value={content}
               onChange={(event) => setContent(event.target.value)}
-              placeholder="O que está acontecendo em Padre Marcos?"
+              placeholder={contentPlaceholder}
               rows={3}
-              className="w-full resize-none rounded-2xl bg-slate-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0b203a] px-4 py-3 text-slate-900 placeholder:text-slate-500"
+              className="w-full resize-none rounded-2xl bg-slate-100 px-4 py-3 text-slate-900 placeholder:text-slate-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0b203a]"
             />
+
+            <div className="flex items-center justify-between text-xs text-[#0b203a]/50">
+              <span>{content.length} caracteres</span>
+              {attachments.length > 0 && (
+                <span>
+                  {attachments.length}/{MAX_ATTACHMENTS} anexos
+                </span>
+              )}
+            </div>
 
             <div className="flex flex-wrap items-center gap-3 text-sm text-[#0b203a]/80">
               <button
@@ -321,13 +392,21 @@ export default function FeedForm({
 
             {attachments.length > 0 && (
               <div className="flex flex-wrap gap-2 text-xs text-[#0b203a]/70">
-                {attachments.map((file) => (
+                {attachments.map((file, index) => (
                   <span
-                    key={file.name}
+                    key={`${file.name}-${index}`}
                     className="inline-flex items-center gap-2 rounded-full bg-[#0b203a]/5 px-3 py-1 text-[#0b203a]"
                   >
                     <Paperclip className="h-3.5 w-3.5 text-slate-400" />
-                    {file.name}
+                    <span className="max-w-[180px] truncate">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAttachment(index)}
+                      className="rounded-full bg-white/60 p-1 text-slate-400 transition-colors hover:text-slate-600"
+                      aria-label="Remover arquivo"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </span>
                 ))}
               </div>

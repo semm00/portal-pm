@@ -8,8 +8,8 @@ export default function Footer() {
         {/* Propaganda */}
         <div className="text-center mb-6">
           <p className="text-lg font-semibold">
-            Se você deseja um site tão bonito quanto esse para seu negócio,
-            entre em contato por e-mail
+            Tem alguma dúvida ou gostaria de ter um site como esse? Entre
+            em contato!
           </p>
         </div>
 

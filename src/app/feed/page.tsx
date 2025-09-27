@@ -16,16 +16,26 @@ explicação: essa página serve como um hub central para todas as atualizaçõe
 import { useState } from "react";
 import { PlusCircle, XCircle } from "lucide-react";
 import FeedForm from "./components/form";
-import FeedHeader from "./components/header";
+import FeedHeader, { type FilterType } from "./components/header";
 import Posts from "./components/posts";
 
 export default function Feed() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<FilterType>("todos");
 
   const handlePostSubmitted = () => {
     setIsFormOpen(false);
     setRefreshKey((prev) => prev + 1);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleFilterChange = (filter: FilterType) => {
+    setActiveFilter(filter);
   };
 
   return (
@@ -49,7 +59,12 @@ export default function Feed() {
           </div>
         </div>
 
-        <FeedHeader />
+        <FeedHeader
+          onSearch={handleSearchChange}
+          onFilter={handleFilterChange}
+          searchQuery={searchQuery}
+          activeFilter={activeFilter}
+        />
 
         <div className="rounded-3xl border border-[#0b203a]/15 bg-gradient-to-br from-white via-white to-slate-50/60 shadow-lg shadow-[#0b203a]/10 backdrop-blur-sm px-5 py-6 sm:px-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -89,7 +104,11 @@ export default function Feed() {
         </div>
 
         {/* Seção de Posts */}
-        <Posts refreshKey={refreshKey} />
+        <Posts
+          refreshKey={refreshKey}
+          searchQuery={searchQuery}
+          activeFilter={activeFilter}
+        />
       </div>
     </div>
   );
