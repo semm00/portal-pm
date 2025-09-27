@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   UserCircle2,
   Image as ImageIcon,
@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { buildApiUrl } from "@/lib/api";
+import { loadSession } from "@/app/profile/utils/session";
+import type { AuthUser } from "@/app/profile/types";
 
 interface NominatimResult {
   display_name: string;
@@ -32,7 +35,11 @@ const categories: Array<{ label: string; value: Category }> = [
   { label: "Outro", value: "outro" },
 ];
 
-export default function FeedForm() {
+export default function FeedForm({
+  onSubmitted,
+}: {
+  onSubmitted?: () => void;
+}) {
   const mediaInputRef = useRef<HTMLInputElement | null>(null);
   const [content, setContent] = useState("");
   const [category, setCategory] = useState<Category | "">("");
@@ -53,6 +60,24 @@ export default function FeedForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [session, setSession] = useState<AuthUser | null>(() => loadSession());
+
+  const syncSession = useCallback(() => {
+    setSession(loadSession());
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    syncSession();
+    window.addEventListener("storage", syncSession);
+
+    return () => {
+      window.removeEventListener("storage", syncSession);
+    };
+  }, [syncSession]);
 
   const resetForm = () => {
     setContent("");
@@ -145,6 +170,11 @@ export default function FeedForm() {
       return;
     }
 
+    if (!session?.token) {
+      setError("Faça login para publicar no mural.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const formData = new FormData();
@@ -154,6 +184,7 @@ export default function FeedForm() {
         formData.append("customCategory", customCategory.trim());
       }
       formData.append("isImportant", String(isImportant));
+      formData.append("alertUsers", String(isImportant));
 
       attachments.forEach((file) => {
         formData.append("media", file);
@@ -179,10 +210,12 @@ export default function FeedForm() {
         formData.append("eventDate", dateTime.toISOString());
       }
 
-      // Endpoint de moderação (ajustar conforme backend)
-      const response = await fetch("/api/feed/posts", {
+      const response = await fetch(buildApiUrl("/api/posts"), {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${session.token}`,
+        },
       });
 
       if (!response.ok) {
@@ -193,6 +226,7 @@ export default function FeedForm() {
         "Post enviado para moderação! Assim que aprovado, aparecerá no feed."
       );
       resetForm();
+      onSubmitted?.();
     } catch (err) {
       setError(
         err instanceof Error
@@ -206,6 +240,11 @@ export default function FeedForm() {
 
   return (
     <section className="w-full bg-gradient-to-r from-white via-[#f8fbff] pt-5">
+      {!session?.token && (
+        <div className="mb-4 rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-3 text-sm text-slate-600">
+          Faça login na área de Perfil para publicar no mural digital.
+        </div>
+      )}
       <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
         <header className="flex items-start gap-4">
           <UserCircle2 className="h-12 w-12 text-slate-400" />
@@ -477,7 +516,7 @@ export default function FeedForm() {
           </span>
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !session?.token}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-[#0b203a] px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-[#13335c] hover:shadow-[#fca311]/20 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? (

@@ -16,7 +16,7 @@ import News from "./components/news";
 import Events from "./components/events";
 import Footer from "./components/footer";
 import Image from "next/image";
-import { Bell } from "lucide-react";
+import NotificationsBell from "./components/notifications-bell";
 
 export default function Home() {
   return (
@@ -35,18 +35,7 @@ export default function Home() {
               priority
             />
           </div>
-          {/* Botão de notificações */}
-          <button
-            type="button"
-            aria-label="Notificações"
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors text-[#0b203a] hover:text-[#0b203a] border-gray-200 dark:border-[#0a4ea1] dark:text-neutral-200"
-          >
-            <Bell className="h-6 w-6 text-[#0a4ea1]" />
-            {/* badge opcional */}
-            <span className="absolute -top-1 -right-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[#fca311] px-1 text-[10px] font-bold text-white">
-              3
-            </span>
-          </button>
+          <NotificationsBell />
         </div>
       </div>
 

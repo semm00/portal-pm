@@ -21,6 +21,12 @@ import Posts from "./components/posts";
 
 export default function Feed() {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handlePostSubmitted = () => {
+    setIsFormOpen(false);
+    setRefreshKey((prev) => prev + 1);
+  };
 
   return (
     <div className="mx-auto w-full max-w-6xl xl:max-w-7xl px-4 py-10 lg:px-8">
@@ -77,13 +83,13 @@ export default function Feed() {
 
           {isFormOpen && (
             <div className="mt-6">
-              <FeedForm />
+              <FeedForm onSubmitted={handlePostSubmitted} />
             </div>
           )}
         </div>
 
         {/* Seção de Posts */}
-        <Posts />
+        <Posts refreshKey={refreshKey} />
       </div>
     </div>
   );
