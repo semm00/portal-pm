@@ -130,11 +130,10 @@ export default function Profile({
   }, [onLogout, persistUser, user.token]);
 
   useEffect(() => {
-    if (!hasLoadedProfile) {
-      void fetchProfile();
-      setHasLoadedProfile(true);
-    }
-  }, [fetchProfile, hasLoadedProfile]);
+    // Chama fetchProfile apenas uma vez ao montar
+    void fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFieldChange = (
     field: "fullName" | "bio" | "city",
