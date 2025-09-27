@@ -11,15 +11,6 @@ const PLACEHOLDER_TEXT = {
   city: "Adicione sua cidade",
 };
 
-const initialsFromName = (name?: string) => {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase();
-  }
-  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-};
-
 type StatusState = { type: "success" | "error"; message: string } | null;
 
 type ProfileProps = {
@@ -52,6 +43,7 @@ export default function Profile({
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
+  const [hasLoadedProfile, setHasLoadedProfile] = useState(false);
 
   useEffect(() => {
     setProfileData((prev) => ({
@@ -138,8 +130,11 @@ export default function Profile({
   }, [onLogout, persistUser, user.token]);
 
   useEffect(() => {
-    void fetchProfile();
-  }, [fetchProfile]);
+    if (!hasLoadedProfile) {
+      void fetchProfile();
+      setHasLoadedProfile(true);
+    }
+  }, [fetchProfile, hasLoadedProfile]);
 
   const handleFieldChange = (
     field: "fullName" | "bio" | "city",
@@ -339,9 +334,13 @@ export default function Profile({
                 className="rounded-full border-4 border-white shadow-lg object-cover"
               />
             ) : (
-              <div className="flex h-36 w-36 items-center justify-center rounded-full border-4 border-white bg-slate-200 text-3xl font-semibold text-slate-600 shadow-lg">
-                {initialsFromName(displayName)}
-              </div>
+              <Image
+                src="/images/imagem-padrao.png"
+                alt={`Foto padrão de ${displayName}`}
+                width={144}
+                height={144}
+                className="rounded-full border-4 border-white shadow-lg object-cover"
+              />
             )}
 
             <label
