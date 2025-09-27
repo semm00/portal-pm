@@ -25,7 +25,7 @@ type StatusState = { type: "success" | "error"; message: string } | null;
 type ProfileProps = {
   user: AuthUser;
   onLogout: () => void;
-  onUserUpdate: (user: AuthUser) => void;
+  onUserUpdate: (updater: (user: AuthUser) => AuthUser) => void;
 };
 
 export default function Profile({
@@ -65,16 +65,15 @@ export default function Profile({
 
   const persistUser = useCallback(
     (profile: ProfileResponse) => {
-      const updatedUser: AuthUser = {
-        ...user,
+      onUserUpdate((currentUser) => ({
+        ...currentUser,
         name: profile.fullName,
         email: profile.email,
         username: profile.username,
         avatarUrl: profile.avatarUrl ?? undefined,
-      };
-      onUserUpdate(updatedUser);
+      }));
     },
-    [onUserUpdate, user]
+    [onUserUpdate]
   );
 
   const fetchProfile = useCallback(async () => {

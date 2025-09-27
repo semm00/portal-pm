@@ -7,16 +7,18 @@ import Profile from "./components/profile";
 import type { AuthUser } from "./types";
 import { clearSession, loadSession, saveSession } from "./utils/session";
 
-const SESSION_DURATION_MS = 50 * 60 * 60 * 1000; // 50 minutos (renovar antes do token expirar)
+const SESSION_DURATION_MS = 50 * 60 * 60 * 1000; //
 
 export default function ProfilePage() {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const stored = loadSession();
     if (stored) {
       setUser(stored);
     }
+    setIsLoading(false);
   }, []);
 
   const handleLoginSuccess = (loggedUser: AuthUser) => {
@@ -24,15 +26,27 @@ export default function ProfilePage() {
     setUser(persisted);
   };
 
-  const handleUserUpdate = (updatedUser: AuthUser) => {
-    const persisted = saveSession(updatedUser, SESSION_DURATION_MS);
-    setUser(persisted);
+  const handleUserUpdate = (updater: (currentUser: AuthUser) => AuthUser) => {
+    setUser((currentUser) => {
+      if (!currentUser) return null;
+      const updated = updater(currentUser);
+      saveSession(updated, SESSION_DURATION_MS);
+      return updated;
+    });
   };
 
   const handleLogout = () => {
     clearSession();
     setUser(null);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <div className="text-slate-500">Carregando sessão...</div>
+      </div>
+    );
+  }
 
   // Se o usuário não estiver logado, mostra a tela de login
   if (!user) {
