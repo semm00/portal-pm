@@ -20,6 +20,11 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { buildApiUrl } from "@/lib/api";
 
+type PollData = {
+  question: string;
+  options: Array<{ id: string; text: string; votes: number }>;
+};
+
 type ApiPost = {
   id: string;
   authorName: string;
@@ -28,10 +33,7 @@ type ApiPost = {
   category: string;
   location?: string | null;
   eventDate?: string | null;
-  poll?: {
-    question: string;
-    options: Array<{ id: string; text: string; votes: number }>;
-  } | null;
+  poll?: PollData | null;
   alertUsers: boolean;
   likes: number;
   shares: number;
@@ -126,20 +128,116 @@ const getCategoryConfig = (category: string) => {
   );
 };
 
-function Poll({ poll }: { poll: NonNullable<ApiPost["poll"]> }) {
-  if (!poll || poll.options.length === 0) return null;
-  const totalVotes = poll.options.reduce(
+interface PollProps {
+  postId: string;
+  poll: NonNullable<ApiPost["poll"]>;
+  onPollUpdated?: (poll: PollData) => void;
+}
+
+function Poll({ postId, poll, onPollUpdated }: PollProps) {
+  const [currentPoll, setCurrentPoll] = useState<PollData>(poll);
+  const [isVoting, setIsVoting] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [voteError, setVoteError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCurrentPoll(poll);
+  }, [poll]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem(`portalpm.poll.vote.${postId}`);
+    setHasVoted(Boolean(stored));
+  }, [postId]);
+
+  if (!currentPoll || currentPoll.options.length === 0) return null;
+
+  const totalVotes = currentPoll.options.reduce(
     (sum, option) => sum + option.votes,
     0
   );
 
+  const handleVote = async (optionId: string) => {
+    if (hasVoted || isVoting) return;
+    setIsVoting(true);
+    setVoteError(null);
+
+    try {
+      const response = await fetch(
+        buildApiUrl(`/api/posts/${postId}/poll/vote`),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ optionId }),
+        }
+      );
+
+      const data = await response.json().catch(() => ({ success: false }));
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "Não foi possível registrar seu voto agora."
+        );
+      }
+
+      const updatedPoll: PollData = {
+        question: data.poll?.question ?? currentPoll.question,
+        options: Array.isArray(data.poll?.options)
+          ? data.poll.options
+          : currentPoll.options,
+      };
+
+      setCurrentPoll(updatedPoll);
+      onPollUpdated?.(updatedPoll);
+
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(`portalpm.poll.vote.${postId}`, optionId);
+      }
+
+      setHasVoted(true);
+    } catch (error) {
+      setVoteError(
+        error instanceof Error
+          ? error.message
+          : "Ocorreu um erro ao registrar seu voto."
+      );
+    } finally {
+      setIsVoting(false);
+    }
+  };
+
   return (
     <div className="mt-4 space-y-2 rounded-2xl border border-[#0b203a]/15 bg-[#0b203a]/5 p-4">
-      <h4 className="font-semibold text-[#0b203a]">{poll.question}</h4>
+      <h4 className="font-semibold text-[#0b203a]">{currentPoll.question}</h4>
+      {voteError && (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+          {voteError}
+        </p>
+      )}
       <div className="space-y-2">
-        {poll.options.map((option) => {
+        {currentPoll.options.map((option) => {
           const percent =
             totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
+
+          if (!hasVoted) {
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => handleVote(option.id)}
+                disabled={isVoting}
+                className="flex w-full items-center justify-between rounded-full border border-[#0b203a]/15 bg-white px-4 py-2 text-sm font-medium text-[#0b203a] transition-colors hover:bg-[#0b203a]/10 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span>{option.text}</span>
+                {isVoting && (
+                  <Loader2 className="h-4 w-4 animate-spin text-[#0b203a]" />
+                )}
+              </button>
+            );
+          }
+
           return (
             <div
               key={option.id}
@@ -163,6 +261,7 @@ function Poll({ poll }: { poll: NonNullable<ApiPost["poll"]> }) {
       </div>
       <p className="text-xs text-[#0b203a]/70">
         {totalVotes} {totalVotes === 1 ? "voto" : "votos"}
+        {hasVoted && " · Você já votou"}
       </p>
     </div>
   );
@@ -218,6 +317,7 @@ interface PostCardProps {
   likePending: boolean;
   sharePending: boolean;
   reportPending: boolean;
+  onPollUpdated: (postId: string, poll: PollData) => void;
 }
 
 function PostCard({
@@ -229,6 +329,7 @@ function PostCard({
   likePending,
   sharePending,
   reportPending,
+  onPollUpdated,
 }: PostCardProps) {
   const categoryConfig = useMemo(
     () => getCategoryConfig(post.category),
@@ -312,7 +413,13 @@ function PostCard({
 
         <MediaCarousel media={post.media} />
 
-        {post.poll && <Poll poll={post.poll} />}
+        {post.poll && (
+          <Poll
+            postId={post.id}
+            poll={post.poll}
+            onPollUpdated={(updated) => onPollUpdated(post.id, updated)}
+          />
+        )}
       </div>
 
       <footer className="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
@@ -434,6 +541,13 @@ export default function Posts({ refreshKey = 0 }: PostsProps) {
     setPosts((prev) =>
       prev.map((item) => (item.id === postId ? updater(item) : item))
     );
+  };
+
+  const handlePollUpdated = (postId: string, poll: PollData) => {
+    updatePostList(postId, (post) => ({
+      ...post,
+      poll,
+    }));
   };
 
   const handleToggleLike = async (postId: string, currentlyLiked: boolean) => {
@@ -656,6 +770,7 @@ export default function Posts({ refreshKey = 0 }: PostsProps) {
             likePending={likePending === post.id}
             sharePending={sharePending === post.id}
             reportPending={reportPending === post.id}
+            onPollUpdated={handlePollUpdated}
           />
         ))}
       </div>
