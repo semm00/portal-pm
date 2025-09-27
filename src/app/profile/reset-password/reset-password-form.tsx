@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type ResetPasswordFormProps = {
   accessToken?: string | null;
@@ -18,18 +18,59 @@ const sanitizeToken = (token?: string | null) => {
 export default function ResetPasswordForm({
   accessToken,
 }: ResetPasswordFormProps) {
-  const safeToken = useMemo(() => sanitizeToken(accessToken), [accessToken]);
+  const sanitizedPropToken = sanitizeToken(accessToken);
+  const [token, setToken] = useState<string | undefined>(sanitizedPropToken);
+  const [tokenChecked, setTokenChecked] = useState<boolean>(
+    () => Boolean(sanitizedPropToken)
+  );
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error"
-  >(safeToken ? "idle" : "error");
-  const API = process.env.NEXT_PUBLIC_API_URL || "";
+  >("idle");
+  const apiEnv = process.env.NEXT_PUBLIC_API_URL || "";
+  const cleanedBase = apiEnv.endsWith("/") ? apiEnv.slice(0, -1) : apiEnv;
+  const endpoint = cleanedBase
+    ? `${cleanedBase}/api/users/reset-password`
+    : "/api/users/reset-password";
+
+  useEffect(() => {
+    const sanitized = sanitizeToken(accessToken);
+    if (sanitized) {
+      setToken(sanitized);
+      setTokenChecked(true);
+      setStatus((prev) => (prev === "success" ? prev : "idle"));
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      setToken(undefined);
+      setTokenChecked(true);
+      setStatus((prev) => (prev === "success" ? prev : "error"));
+      return;
+    }
+
+    const hashString = window.location.hash.startsWith("#")
+      ? window.location.hash.slice(1)
+      : window.location.hash;
+    const hashParams = new URLSearchParams(hashString);
+    const hashToken = sanitizeToken(
+      hashParams.get("access_token") ?? hashParams.get("token")
+    );
+
+    setToken(hashToken);
+    setTokenChecked(true);
+    if (!hashToken) {
+      setStatus((prev) => (prev === "success" ? prev : "error"));
+    } else {
+      setStatus((prev) => (prev === "success" ? prev : "idle"));
+    }
+  }, [accessToken]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!safeToken) {
+    if (!token) {
       setStatus("error");
       return;
     }
@@ -42,10 +83,10 @@ export default function ResetPasswordForm({
     setStatus("submitting");
 
     try {
-      const response = await fetch(`${API}/api/users/reset-password`, {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accessToken: safeToken, password }),
+        body: JSON.stringify({ accessToken: token, password }),
       });
 
       if (response.ok) {
@@ -59,7 +100,18 @@ export default function ResetPasswordForm({
     }
   };
 
-  if (!safeToken) {
+  if (!tokenChecked) {
+    return (
+      <div className="max-w-md mx-auto py-12">
+        <h1 className="text-2xl font-bold mb-4">Redefinir senha</h1>
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded">
+          Verificando link de recuperação...
+        </div>
+      </div>
+    );
+  }
+
+  if (!token) {
     return (
       <div className="max-w-md mx-auto py-12">
         <h1 className="text-2xl font-bold mb-4">Redefinir senha</h1>
