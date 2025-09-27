@@ -36,6 +36,11 @@ export const loadSession = (): AuthUser | null => {
 
     const parsed = JSON.parse(raw) as AuthUser;
 
+    if (!parsed.token) {
+      window.localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+
     if (parsed.expiresAt && parsed.expiresAt < Date.now()) {
       window.localStorage.removeItem(STORAGE_KEY);
       return null;

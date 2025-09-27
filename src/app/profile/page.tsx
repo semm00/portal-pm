@@ -7,7 +7,7 @@ import Profile from "./components/profile";
 import type { AuthUser } from "./types";
 import { clearSession, loadSession, saveSession } from "./utils/session";
 
-const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 horas
+const SESSION_DURATION_MS = 50 * 60 * 60 * 1000; // 50 minutos (renovar antes do token expirar)
 
 export default function ProfilePage() {
   const [user, setUser] = useState<AuthUser | null>(null);

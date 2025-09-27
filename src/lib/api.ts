@@ -9,19 +9,33 @@ export const getApiBaseUrl = (): string => {
     return DEFAULT_API_BASE_URL;
   }
 
-  const withoutTrailingSlash = stripTrailingSlashes(raw);
+  let normalized = stripTrailingSlashes(raw);
 
-  if (withoutTrailingSlash.toLowerCase().endsWith("/api")) {
-    return withoutTrailingSlash.slice(0, -4) || DEFAULT_API_BASE_URL;
+  if (normalized.toLowerCase().endsWith("/api")) {
+    normalized = stripTrailingSlashes(normalized.slice(0, -4));
   }
 
-  return withoutTrailingSlash;
+  return normalized || DEFAULT_API_BASE_URL;
 };
 
 export const buildApiUrl = (path: string): string => {
-  const baseUrl = getApiBaseUrl();
-  if (!path.startsWith("/")) {
-    return `${baseUrl}/${path}`;
+  if (!path) {
+    return getApiBaseUrl();
   }
-  return `${baseUrl}${path}`;
+
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  const baseUrl = getApiBaseUrl();
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+  if (
+    baseUrl.toLowerCase().endsWith("/api") &&
+    normalizedPath.startsWith("/api/")
+  ) {
+    return `${baseUrl}${normalizedPath.slice(4)}`;
+  }
+
+  return `${baseUrl}${normalizedPath}`;
 };

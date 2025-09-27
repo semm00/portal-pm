@@ -97,7 +97,7 @@ export default function Profile({
         },
       });
 
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         setStatus({
           type: "error",
           message: "Sessão expirada. Faça login novamente.",
@@ -107,7 +107,15 @@ export default function Profile({
       }
 
       if (!response.ok) {
-        throw new Error("Falha ao carregar o perfil.");
+        const errorBody = (await response.json().catch(() => null)) as {
+          message?: string;
+        } | null;
+        setStatus({
+          type: "error",
+          message:
+            errorBody?.message ?? "Não foi possível carregar seu perfil agora.",
+        });
+        return;
       }
 
       const data = (await response.json()) as {
@@ -173,7 +181,7 @@ export default function Profile({
         body: JSON.stringify(payload),
       });
 
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         setStatus({
           type: "error",
           message: "Sessão expirada. Faça login novamente.",
@@ -183,7 +191,14 @@ export default function Profile({
       }
 
       if (!response.ok) {
-        throw new Error("Falha ao atualizar o perfil.");
+        const errorBody = (await response.json().catch(() => null)) as {
+          message?: string;
+        } | null;
+        setStatus({
+          type: "error",
+          message: errorBody?.message ?? "Não foi possível atualizar o perfil.",
+        });
+        return;
       }
 
       const data = (await response.json()) as {
@@ -241,7 +256,7 @@ export default function Profile({
         body: formData,
       });
 
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         setStatus({
           type: "error",
           message: "Sessão expirada. Faça login novamente.",
@@ -251,7 +266,14 @@ export default function Profile({
       }
 
       if (!response.ok) {
-        throw new Error("Falha ao atualizar a foto de perfil.");
+        const errorBody = (await response.json().catch(() => null)) as {
+          message?: string;
+        } | null;
+        setStatus({
+          type: "error",
+          message: errorBody?.message ?? "Não foi possível enviar a nova foto.",
+        });
+        return;
       }
 
       const data = (await response.json()) as {
@@ -276,6 +298,25 @@ export default function Profile({
     } finally {
       event.target.value = "";
       setIsUploading(false);
+    }
+  };
+
+  const handleLogoutClick = async () => {
+    setStatus(null);
+
+    try {
+      await fetch(buildApiUrl("/api/users/logout"), {
+        method: "POST",
+        headers: user.token
+          ? {
+              Authorization: `Bearer ${user.token}`,
+            }
+          : undefined,
+      }).catch((error) => {
+        console.error("Falha ao encerrar sessão no servidor:", error);
+      });
+    } finally {
+      onLogout();
     }
   };
 
@@ -335,7 +376,7 @@ export default function Profile({
           {isEditing ? "Cancelar" : "Editar Perfil"}
         </button>
         <button
-          onClick={onLogout}
+          onClick={handleLogoutClick}
           className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-all"
         >
           <LogOut className="h-4 w-4" />
