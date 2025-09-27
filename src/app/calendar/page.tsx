@@ -15,52 +15,185 @@ Página do Calendário Anual de Padre Marcos, Piauí
 
 "use client";
 
-import { useState } from "react";
-import { PlusCircle } from "lucide-react";
-import Calendar from "./components/calendar";
-import AddEventForm from "./components/add-event";
-import { Event } from "./components/calendar";
+import { useCallback, useEffect, useState } from "react";
+import { PlusCircle, RotateCw } from "lucide-react";
+import Calendar, { type CalendarEvent } from "./components/calendar";
+import AddEventForm, { type EventSubmission } from "./components/add-event";
+import { buildApiUrl } from "@/lib/api";
+
+type FeedbackState = {
+  type: "success" | "error";
+  message: string;
+} | null;
+
+type ApiEvent = {
+  id: string;
+  title: string;
+  description?: string | null;
+  category: string;
+  location?: string | null;
+  startDate: string;
+  endDate: string;
+};
+
+const mapToCalendarEvent = (event: ApiEvent): CalendarEvent | null => {
+  const start = new Date(event.startDate);
+  const end = new Date(event.endDate ?? event.startDate);
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return null;
+  }
+
+  return {
+    id: event.id,
+    title: event.title,
+    start,
+    end,
+    category: (event.category || "evento") as CalendarEvent["category"],
+    description: event.description ?? undefined,
+    location: event.location ?? undefined,
+  };
+};
 
 export default function CalendarPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [userEvents, setUserEvents] = useState<Event[]>([]);
+  const [approvedEvents, setApprovedEvents] = useState<CalendarEvent[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
+  const [feedback, setFeedback] = useState<FeedbackState>(null);
 
-  const handleAddEvent = (event: Omit<Event, "id">) => {
-    const newEvent: Event = {
-      ...event,
-      id: `user-${Date.now()}`,
+  const fetchApprovedEvents = useCallback(async () => {
+    setIsLoadingEvents(true);
+
+    try {
+      const response = await fetch(buildApiUrl("/api/events"), {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(
+          data.message || "Não foi possível carregar os eventos aprovados."
+        );
+      }
+
+      const data = await response.json();
+      const normalized: CalendarEvent[] = (data.events ?? [])
+        .map(mapToCalendarEvent)
+        .filter(Boolean) as CalendarEvent[];
+
+      setApprovedEvents(normalized);
+      setFeedback(null);
+    } catch (error) {
+      console.error(error);
+      setFeedback({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erro inesperado ao carregar os eventos.",
+      });
+    } finally {
+      setIsLoadingEvents(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchApprovedEvents();
+  }, [fetchApprovedEvents]);
+
+  const handleSubmitEvent = useCallback(async (payload: EventSubmission) => {
+    const body = {
+      title: payload.title,
+      category: payload.category,
+      description: payload.description,
+      location: payload.location,
+      startDate: payload.startDate,
+      endDate: payload.endDate ?? payload.startDate,
     };
-    setUserEvents((prevEvents) => [...prevEvents, newEvent]);
-  };
+
+    const response = await fetch(buildApiUrl("/api/events"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(
+        data.message || "Não foi possível enviar o evento para aprovação."
+      );
+    }
+
+    setFeedback({
+      type: "success",
+      message:
+        "Evento enviado para aprovação! Assim que liberado pela equipe, ele aparecerá no calendário.",
+    });
+  }, []);
 
   return (
     <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 lg:px-8">
       <div className="space-y-6">
         <div className="flex flex-col gap-3 text-center lg:text-left lg:flex-row lg:items-center lg:justify-between">
-          <div>
+          <div className="space-y-1">
             <h1 className="text-3xl font-bold text-[#153b69] leading-tight">
               Calendário Anual
             </h1>
             <p className="text-md text-[#0b203a]/70">
               Eventos e feriados importantes de Padre Marcos, Piauí.
             </p>
+            <p className="text-sm text-slate-500">
+              Envie um evento para aprovação da prefeitura e acompanhe os
+              eventos já confirmados.
+            </p>
           </div>
-          <button
-            onClick={() => setIsFormOpen(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#fca311] px-5 py-2.5 text-sm font-semibold text-[#0b203a] shadow-md transition-all hover:bg-amber-500"
-          >
-            <PlusCircle className="h-5 w-5" />
-            Adicionar Evento
-          </button>
+          <div className="flex flex-col items-center gap-2 sm:flex-row">
+            <button
+              onClick={() => setIsFormOpen(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#fca311] px-5 py-2.5 text-sm font-semibold text-[#0b203a] shadow-md transition-all hover:bg-amber-500"
+            >
+              <PlusCircle className="h-5 w-5" />
+              Adicionar Evento
+            </button>
+            <button
+              onClick={fetchApprovedEvents}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#0b203a]/20 px-4 py-2 text-sm font-semibold text-[#0b203a] transition-all hover:bg-[#0b203a] hover:text-white"
+            >
+              <RotateCw className="h-4 w-4" />
+              Atualizar eventos
+            </button>
+          </div>
         </div>
 
-        <Calendar events={userEvents} onAddEvent={handleAddEvent} />
+        {feedback && (
+          <div
+            className={`rounded-xl border px-4 py-3 text-sm shadow-sm ${
+              feedback.type === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border-red-200 bg-red-50 text-red-700"
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+
+        {isLoadingEvents ? (
+          <div className="flex min-h-[200px] items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white/50">
+            <p className="text-sm text-slate-500">
+              Carregando eventos aprovados...
+            </p>
+          </div>
+        ) : (
+          <Calendar events={approvedEvents} />
+        )}
 
         {isFormOpen && (
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
             <AddEventForm
               onClose={() => setIsFormOpen(false)}
-              onAddEvent={handleAddEvent}
+              onSubmit={handleSubmitEvent}
             />
           </div>
         )}

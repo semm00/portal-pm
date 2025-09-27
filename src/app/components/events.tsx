@@ -1,68 +1,83 @@
 import React from "react";
+import { buildApiUrl } from "@/lib/api";
 
-export type EventItem = {
+type ApiEvent = {
   id: string;
-  date: string; // ISO date
   title: string;
+  description?: string | null;
+  location?: string | null;
+  startDate: string;
+  endDate: string;
+};
+
+type EventItem = {
+  id: string;
+  title: string;
+  startDate: string;
+  endDate: string;
   description?: string;
   location?: string;
 };
 
-// Mock temporário — substituir por fetch para a API quando disponível
 async function getEvents(): Promise<EventItem[]> {
-  const mock: EventItem[] = [
-    {
-      id: "e1",
-      date: "2025-10-05T18:00:00Z",
-      title: "Festa da Cultura Local",
-      description:
-        "Apresentações musicais, comidas típicas e feira de artesanato.",
-      location: "Praça Central",
-    },
-    {
-      id: "e2",
-      date: "2025-10-12T08:00:00Z",
-      title: "Corrida Rústica 5K",
-      description:
-        "Inscrições abertas para todas as idades. Premiação para os 3 primeiros.",
-      location: "Parque Municipal",
-    },
-    {
-      id: "e3",
-      date: "2025-10-20T19:30:00Z",
-      title: "Concerto da Orquestra Jovem",
-      description: "Concerto com repertório clássico e popular.",
-      location: "Teatro Municipal",
-    },
-    {
-      id: "e4",
-      date: "2025-11-03T09:00:00Z",
-      title: "Feira de Empreendedorismo",
-      description: "Oficinas e palestras para microempreendedores locais.",
-      location: "Centro de Convenções",
-    },
-  ];
+  try {
+    const response = await fetch(buildApiUrl("/api/events?limit=8"), {
+      cache: "no-store",
+    });
 
-  // ordena por data crescente (próximos eventos primeiro)
-  return mock.sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.message || "Falha ao carregar eventos.");
+    }
+
+    const data = await response.json();
+    const events = (data.events as ApiEvent[] | undefined) ?? [];
+    const now = Date.now();
+
+    return events
+      .map((event) => ({
+        id: event.id,
+        title: event.title,
+        description: event.description ?? undefined,
+        location: event.location ?? undefined,
+        startDate: event.startDate,
+        endDate: event.endDate ?? event.startDate,
+      }))
+      .filter((event) => {
+        const endTime = Date.parse(event.endDate);
+        return Number.isFinite(endTime) ? endTime >= now : true;
+      })
+      .sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate))
+      .slice(0, 4);
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }
 
-function formatDate(iso: string) {
+function formatDateRange(startIso: string, endIso: string) {
   try {
-    const d = new Date(iso);
-    return d.toLocaleDateString("pt-BR", {
+    const start = new Date(startIso);
+    const end = new Date(endIso);
+
+    const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
+
+    if (start.toDateString() === end.toDateString()) {
+      return dateFormatter.format(start);
+    }
+
+    return `${dateFormatter.format(start)} até ${dateFormatter.format(end)}`;
   } catch {
-    return iso;
+    return startIso;
   }
 }
 
 export default async function Events() {
-  const items = await getEvents();
-  const display = items.slice(0, 4);
+  const display = await getEvents();
 
   return (
     <section
@@ -77,48 +92,62 @@ export default async function Events() {
       </h2>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {display.map((ev) => (
-          <article
-            key={ev.id}
-            className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-transform hover:shadow-md hover:-translate-y-1"
-            style={{
-              backgroundColor: "#ffffff",
-              borderColor: "#e5e7eb",
-              color: "#1f2937",
-            }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-sky-200 to-amber-200 text-sky-700 font-semibold">
-                <time dateTime={ev.date} className="text-sm">
-                  <span className="block text-xs">
-                    {new Date(ev.date).toLocaleDateString("pt-BR", {
-                      day: "2-digit",
-                    })}
-                  </span>
-                  <span className="block text-[12px]">
-                    {new Date(ev.date).toLocaleDateString("pt-BR", {
-                      month: "short",
-                    })}
-                  </span>
-                </time>
+        {display.length === 0 && (
+          <p className="col-span-full rounded-lg border border-dashed border-slate-300 bg-slate-50 py-6 text-center text-sm text-slate-500">
+            Nenhum evento aprovado foi encontrado. Volte em breve!
+          </p>
+        )}
+        {display.map((ev) => {
+          const startDate = new Date(ev.startDate);
+          const endDate = new Date(ev.endDate);
+
+          return (
+            <article
+              key={ev.id}
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md"
+              style={{
+                backgroundColor: "#ffffff",
+                borderColor: "#e5e7eb",
+                color: "#1f2937",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-sky-200 to-amber-200 text-sky-700 font-semibold">
+                  <time dateTime={ev.startDate} className="text-sm">
+                    <span className="block text-xs">
+                      {startDate.toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                      })}
+                    </span>
+                    <span className="block text-[12px]">
+                      {startDate.toLocaleDateString("pt-BR", {
+                        month: "short",
+                      })}
+                    </span>
+                  </time>
+                </div>
+
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    {ev.title}
+                  </h3>
+                  <p className="mt-1 text-[13px] text-gray-600 line-clamp-2">
+                    {ev.description}
+                  </p>
+                </div>
               </div>
 
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold text-slate-900">
-                  {ev.title}
-                </h3>
-                <p className="mt-1 text-[13px] text-gray-600 line-clamp-2">
-                  {ev.description}
-                </p>
+              <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+                <span>{formatDateRange(ev.startDate, ev.endDate)}</span>
+                {ev.location && (
+                  <span className="truncate" title={ev.location}>
+                    {ev.location}
+                  </span>
+                )}
               </div>
-            </div>
-
-            <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-              <span>{formatDate(ev.date)}</span>
-              {ev.location && <span className="truncate">{ev.location}</span>}
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </section>
   );

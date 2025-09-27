@@ -1,24 +1,25 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
+  Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Calendar as CalendarIcon,
 } from "lucide-react";
 
 // --- TIPOS E DADOS INICIAIS ---
 
-export interface Event {
+export interface CalendarEvent {
   id: string;
   title: string;
   start: Date;
   end: Date;
   category: "feriado" | "religioso" | "aniversario" | "evento" | string;
   description?: string;
+  location?: string | null;
 }
 
-const getInitialEventsForYear = (year: number): Event[] => [
+const getInitialEventsForYear = (year: number): CalendarEvent[] => [
   {
     id: "1",
     title: "Dia do Evangélico",
@@ -68,44 +69,43 @@ const months = [
   "Dezembro",
 ];
 
-const categoryStyles: { [key: string]: { bg: string; text: string } } = {
+const categoryStyles: Record<string, { bg: string; text: string }> = {
   feriado: { bg: "bg-red-100", text: "text-red-800" },
   religioso: { bg: "bg-sky-100", text: "text-sky-800" },
   aniversario: { bg: "bg-amber-100", text: "text-amber-800" },
   evento: { bg: "bg-green-100", text: "text-green-800" },
+  cultural: { bg: "bg-purple-100", text: "text-purple-800" },
+  esportivo: { bg: "bg-emerald-100", text: "text-emerald-800" },
   default: { bg: "bg-slate-100", text: "text-slate-800" },
 };
 
 // --- COMPONENTE PRINCIPAL DO CALENDÁRIO ---
 
-export default function Calendar({
-  events,
-  onAddEvent,
-}: {
-  events: Event[];
-  onAddEvent: (event: Omit<Event, "id">) => void;
-}) {
+export default function Calendar({ events }: { events: CalendarEvent[] }) {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
 
   const allEvents = useMemo(() => {
     const yearEvents = getInitialEventsForYear(currentYear);
-    // Em um app real, os 'events' viriam de uma API e seriam combinados aqui
     return [
       ...yearEvents,
-      ...events.filter((e) => e.start.getFullYear() === currentYear),
+      ...events.filter((event) => event.start.getFullYear() === currentYear),
     ];
   }, [currentYear, events]);
 
   const eventsByMonth = useMemo(() => {
-    return allEvents.filter(
-      (event) =>
-        event.start.getFullYear() === currentYear &&
-        (event.start.getMonth() === selectedMonth ||
-          event.end.getMonth() === selectedMonth ||
-          (event.start.getMonth() < selectedMonth &&
-            event.end.getMonth() > selectedMonth))
-    );
+    return allEvents.filter((event) => {
+      const startsThisYear = event.start.getFullYear() === currentYear;
+      if (!startsThisYear) return false;
+
+      const startMonth = event.start.getMonth();
+      const endMonth = event.end.getMonth();
+      return (
+        startMonth === selectedMonth ||
+        endMonth === selectedMonth ||
+        (startMonth < selectedMonth && endMonth > selectedMonth)
+      );
+    });
   }, [allEvents, currentYear, selectedMonth]);
 
   const renderMonth = (monthIndex: number) => {
@@ -113,49 +113,52 @@ export default function Calendar({
     const daysInMonth = new Date(currentYear, monthIndex + 1, 0).getDate();
     const startingDay = firstDay.getDay();
 
-    const monthEvents = allEvents.filter(
-      (e) =>
-        e.start.getFullYear() === currentYear &&
-        (e.start.getMonth() === monthIndex ||
-          e.end.getMonth() === monthIndex ||
-          (e.start.getMonth() < monthIndex && e.end.getMonth() > monthIndex))
-    );
+    const monthEvents = allEvents.filter((event) => {
+      if (event.start.getFullYear() !== currentYear) return false;
+      const startMonth = event.start.getMonth();
+      const endMonth = event.end.getMonth();
+      return (
+        startMonth === monthIndex ||
+        endMonth === monthIndex ||
+        (startMonth < monthIndex && endMonth > monthIndex)
+      );
+    });
 
     return (
       <div
         key={monthIndex}
         onClick={() => setSelectedMonth(monthIndex)}
-        className={`cursor-pointer p-3 rounded-2xl transition-all duration-200 ${
+        className={`cursor-pointer rounded-2xl p-3 transition-all duration-200 ${
           selectedMonth === monthIndex
-            ? "bg-[#0b203a] text-white shadow-lg scale-105"
+            ? "scale-105 bg-[#0b203a] text-white shadow-lg"
             : "bg-white hover:bg-slate-50 hover:shadow-md"
         }`}
       >
-        <h3 className="font-bold text-center text-sm mb-2">
+        <h3 className="mb-2 text-center text-sm font-bold">
           {months[monthIndex]}
         </h3>
-        <div className="grid grid-cols-7 gap-1 text-xs text-center">
-          {Array.from({ length: startingDay }).map((_, i) => (
-            <div key={`empty-${i}`} />
+        <div className="grid grid-cols-7 gap-1 text-center text-xs">
+          {Array.from({ length: startingDay }).map((_, index) => (
+            <div key={`empty-${index}`} />
           ))}
           {Array.from({ length: daysInMonth }).map((_, day) => {
             const dayNumber = day + 1;
             const currentDate = new Date(currentYear, monthIndex, dayNumber);
             currentDate.setHours(0, 0, 0, 0);
 
-            const isEvent = monthEvents.some((e) => {
-              const startDate = new Date(e.start);
+            const hasEvent = monthEvents.some((event) => {
+              const startDate = new Date(event.start);
               startDate.setHours(0, 0, 0, 0);
-              const endDate = new Date(e.end);
+              const endDate = new Date(event.end);
               endDate.setHours(0, 0, 0, 0);
               return currentDate >= startDate && currentDate <= endDate;
             });
 
             return (
               <div
-                key={day}
-                className={`h-5 w-5 rounded-full flex items-center justify-center ${
-                  isEvent
+                key={dayNumber}
+                className={`flex h-5 w-5 items-center justify-center rounded-full ${
+                  hasEvent
                     ? selectedMonth === monthIndex
                       ? "bg-[#fca311] text-[#0b203a]"
                       : "bg-slate-200"
@@ -172,70 +175,80 @@ export default function Calendar({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Coluna do Calendário Anual */}
-      <div className="lg:col-span-2 bg-slate-50/80 p-4 sm:p-6 rounded-3xl border border-slate-200/80">
-        <div className="flex items-center justify-between mb-4">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="lg:col-span-2 rounded-3xl border border-slate-200/80 bg-slate-50/80 p-4 sm:p-6">
+        <div className="mb-4 flex items-center justify-between">
           <button
-            onClick={() => setCurrentYear(currentYear - 1)}
-            className="p-2 rounded-full hover:bg-slate-200"
+            onClick={() => setCurrentYear((year) => year - 1)}
+            className="rounded-full p-2 hover:bg-slate-200"
+            aria-label="Ano anterior"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
           <h2 className="text-2xl font-bold text-[#0b203a]">{currentYear}</h2>
           <button
-            onClick={() => setCurrentYear(currentYear + 1)}
-            className="p-2 rounded-full hover:bg-slate-200"
+            onClick={() => setCurrentYear((year) => year + 1)}
+            className="rounded-full p-2 hover:bg-slate-200"
+            aria-label="Próximo ano"
           >
             <ChevronRight className="h-6 w-6" />
           </button>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
           {months.map((_, index) => renderMonth(index))}
         </div>
       </div>
 
-      {/* Coluna de Eventos do Mês */}
-      <div className="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm">
-        <h3 className="text-xl font-bold text-[#0b203a] mb-4">
+      <div className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-6">
+        <h3 className="mb-4 text-xl font-bold text-[#0b203a]">
           Eventos em {months[selectedMonth]}
         </h3>
-        <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+        <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-2">
           {eventsByMonth.length > 0 ? (
             eventsByMonth.map((event) => {
               const style =
                 categoryStyles[event.category] || categoryStyles.default;
+              const startDate = new Date(event.start);
+              const endDate = new Date(event.end);
+              const isSameDay =
+                startDate.toDateString() === endDate.toDateString();
+
               return (
-                <div key={event.id} className={`p-3 rounded-lg ${style.bg}`}>
-                  <p className={`font-bold text-sm ${style.text}`}>
+                <div key={event.id} className={`rounded-lg p-3 ${style.bg}`}>
+                  <p className={`text-sm font-bold ${style.text}`}>
                     {event.title}
                   </p>
                   <div
-                    className={`flex items-center gap-2 text-xs mt-1 ${style.text}/80`}
+                    className={`mt-1 flex items-center gap-2 text-xs ${style.text}/80`}
                   >
                     <CalendarIcon className="h-3 w-3" />
                     <span>
-                      {event.start.toLocaleDateString("pt-BR", {
+                      {startDate.toLocaleDateString("pt-BR", {
                         day: "2-digit",
                         month: "2-digit",
                       })}
-                      {event.end.getDate() !== event.start.getDate() &&
-                        ` a ${event.end.toLocaleDateString("pt-BR", {
+                      {!isSameDay &&
+                        ` a ${endDate.toLocaleDateString("pt-BR", {
                           day: "2-digit",
                           month: "2-digit",
                         })}`}
                     </span>
                   </div>
                   {event.description && (
-                    <p className={`text-xs mt-2 ${style.text}/90`}>
+                    <p className={`mt-2 text-xs ${style.text}/90`}>
                       {event.description}
+                    </p>
+                  )}
+                  {event.location && (
+                    <p className={`mt-1 text-xs font-medium ${style.text}`}>
+                      📍 {event.location}
                     </p>
                   )}
                 </div>
               );
             })
           ) : (
-            <p className="text-sm text-slate-500 text-center py-8">
+            <p className="py-8 text-center text-sm text-slate-500">
               Nenhum evento para este mês.
             </p>
           )}

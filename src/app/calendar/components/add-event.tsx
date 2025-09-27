@@ -2,48 +2,81 @@
 
 import { useState } from "react";
 import { Calendar as CalendarIcon, X } from "lucide-react";
-// Definição do tipo Event localmente
-export type Event = {
-  id: string;
+import type { CalendarEvent } from "./calendar";
+
+export type EventSubmission = {
   title: string;
-  start: Date;
-  end: Date;
-  category: string;
+  startDate: string;
+  endDate?: string;
   description?: string;
+  category: CalendarEvent["category"];
+  location?: string;
 };
 
-// Este componente seria idealmente renderizado dentro de um modal.
 export default function AddEventForm({
   onClose,
-  onAddEvent,
+  onSubmit,
 }: {
   onClose: () => void;
-  onAddEvent: (event: Omit<Event, "id">) => void;
+  onSubmit: (event: EventSubmission) => Promise<void>;
 }) {
   const [eventName, setEventName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("evento");
+  const [category, setCategory] = useState<CalendarEvent["category"]>("evento");
+  const [location, setLocation] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!startDate) {
-      alert("Por favor, insira a data de início.");
+
+    if (!eventName.trim()) {
+      setError("Informe um título para o evento.");
       return;
     }
-    // Lógica para adicionar o evento
-    const newEvent = {
-      title: eventName,
-      start: new Date(startDate + "T00:00:00"), // Adiciona T00:00:00 para evitar problemas de fuso horário
-      end: endDate
-        ? new Date(endDate + "T00:00:00")
-        : new Date(startDate + "T00:00:00"),
-      category,
-      description,
-    };
-    onAddEvent(newEvent);
-    onClose(); // Fecha o formulário após a submissão
+
+    if (!startDate) {
+      setError("Por favor, insira a data de início.");
+      return;
+    }
+
+    if (endDate && endDate < startDate) {
+      setError("A data final não pode ser anterior à inicial.");
+      return;
+    }
+
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      await onSubmit({
+        title: eventName.trim(),
+        startDate,
+        endDate: endDate || undefined,
+        description: description.trim() || undefined,
+        category,
+        location: location.trim() || undefined,
+      });
+
+      setEventName("");
+      setStartDate("");
+      setEndDate("");
+      setDescription("");
+      setCategory("evento");
+      setLocation("");
+      onClose();
+    } catch (submitError) {
+      console.error(submitError);
+      const message =
+        submitError instanceof Error
+          ? submitError.message
+          : "Não foi possível enviar o evento.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -75,8 +108,8 @@ export default function AddEventForm({
           />
         </div>
 
-        <div className="flex gap-4">
-          <div className="w-1/2">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="sm:w-1/2">
             <label
               htmlFor="start-date"
               className="block text-sm font-medium text-slate-700"
@@ -92,7 +125,7 @@ export default function AddEventForm({
               required
             />
           </div>
-          <div className="w-1/2">
+          <div className="sm:w-1/2">
             <label
               htmlFor="end-date"
               className="block text-sm font-medium text-slate-700"
@@ -107,6 +140,23 @@ export default function AddEventForm({
               className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
             />
           </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="location"
+            className="block text-sm font-medium text-slate-700"
+          >
+            Local (Opcional)
+          </label>
+          <input
+            type="text"
+            id="location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
+            placeholder="Ex: Praça do evento"
+          />
         </div>
 
         <div>
@@ -135,7 +185,9 @@ export default function AddEventForm({
           <select
             id="category"
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) =>
+              setCategory(e.target.value as CalendarEvent["category"])
+            }
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm rounded-md"
           >
             <option value="evento">Evento Comunitário</option>
@@ -146,13 +198,20 @@ export default function AddEventForm({
           </select>
         </div>
 
+        {error && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+            {error}
+          </p>
+        )}
+
         <div className="flex justify-end pt-2">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#0b203a] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#13335c] transition-all"
+            disabled={isSubmitting}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#0b203a] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#13335c] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <CalendarIcon className="h-4 w-4" />
-            Salvar Evento
+            {isSubmitting ? "Enviando..." : "Enviar para aprovação"}
           </button>
         </div>
       </form>

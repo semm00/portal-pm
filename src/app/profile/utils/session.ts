@@ -1,7 +1,7 @@
 import type { AuthUser } from "../types";
 
 const STORAGE_KEY = "portalpm.session";
-const DEFAULT_SESSION_DURATION_MS = 60 * 60 * 1000; // 1 hora
+const DEFAULT_SESSION_DURATION_MS = 60 * 60 * 72 * 1000; // 72 horas
 
 const isBrowser = () => typeof window !== "undefined";
 
