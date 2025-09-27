@@ -659,11 +659,11 @@ function PostCard({
               <Share2 className="h-4 w-4" />
             )}
             <span>Compartilhar</span>
-            <span>{post.shares}</span>
-            <span className="text-xs font-normal text-slate-400">
-              {shareCountWord}
-            </span>
           </button>
+        </div>
+
+        <div className="text-sm text-slate-500">
+          {post.shares} {shareCountWord}
         </div>
       </footer>
     </article>
@@ -716,6 +716,10 @@ export default function Posts({
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   useEffect(() => {
     if (!feedback) return;

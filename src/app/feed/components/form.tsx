@@ -1,9 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import {
-  UserCircle2,
   Image as ImageIcon,
   Video,
   BarChart3,
@@ -37,7 +35,6 @@ const categories: Array<{ label: string; value: Category }> = [
   { label: "Outro", value: "outro" },
 ];
 
-const FALLBACK_AVATAR = "/images/logo-portal.png";
 const MAX_ATTACHMENTS = 6;
 
 const formatDisplayName = (value?: string | null) => {
@@ -81,9 +78,7 @@ export default function FeedForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [session, setSession] = useState<AuthUser | null>(() => loadSession());
-  const displayName = formatDisplayName(session?.name);
   const firstName = getFirstName(session?.name);
-  const avatarUrl = session?.avatarUrl || FALLBACK_AVATAR;
   const isLogged = Boolean(session?.token);
   const contentPlaceholder = isLogged
     ? `${firstName}, o que está acontecendo em Padre Marcos?`
@@ -278,126 +273,108 @@ export default function FeedForm() {
         </div>
       )}
       <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-        <header className="flex flex-col items-center gap-4">
-          {isLogged ? (
-            <div className="relative h-16 w-16 overflow-hidden rounded-full border border-slate-200">
-              <Image
-                src={avatarUrl}
-                alt={`Avatar de ${displayName}`}
-                fill
-                className="object-cover"
-                sizes="64px"
-                priority
-              />
-            </div>
-          ) : (
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-200 text-slate-500">
-              <UserCircle2 className="h-10 w-10" />
-            </div>
-          )}
-          <div className="w-full space-y-3">
-            <textarea
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              placeholder={contentPlaceholder}
-              rows={3}
-              className="w-full resize-none rounded-2xl bg-slate-100 px-4 py-3 text-slate-900 placeholder:text-slate-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0b203a]"
-            />
+        <div className="w-full space-y-3">
+          <textarea
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+            placeholder={contentPlaceholder}
+            rows={3}
+            className="w-full resize-none rounded-2xl bg-slate-100 px-4 py-3 text-slate-900 placeholder:text-slate-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0b203a]"
+          />
 
-            <div className="flex items-center justify-between text-xs text-[#0b203a]/50">
-              <span>{content.length} caracteres</span>
-              {attachments.length > 0 && (
-                <span>
-                  {attachments.length}/{MAX_ATTACHMENTS} anexos
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 text-sm text-[#0b203a]/80">
-              <button
-                type="button"
-                onClick={() => mediaInputRef.current?.click()}
-                className="flex items-center gap-2 rounded-full border border-dashed border-[#0b203a]/30 px-3 py-1.5 text-[#0b203a] hover:border-[#fca311] hover:bg-[#fca311]/15 transition-colors"
-              >
-                <ImageIcon className="h-4 w-4" />
-                Fotos/Vídeos
-              </button>
-              <button
-                type="button"
-                onClick={() => mediaInputRef.current?.click()}
-                className="hidden" // Vídeo já coberto pelo input de mídia
-              >
-                <Video className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowPoll((prev) => !prev)}
-                className={`flex items-center gap-2 rounded-full px-3 py-1.5 border transition-colors ${
-                  showPoll
-                    ? "bg-[#0b203a] text-white border-[#0b203a]"
-                    : "border-[#0b203a]/30 text-[#0b203a] hover:border-[#fca311] hover:bg-[#fca311]/15"
-                }`}
-              >
-                <BarChart3 className="h-4 w-4" />
-                Enquete
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowLocation((prev) => !prev)}
-                className={`flex items-center gap-2 rounded-full px-3 py-1.5 border transition-colors ${
-                  showLocation
-                    ? "bg-[#0b203a] text-white border-[#0b203a]"
-                    : "border-[#0b203a]/30 text-[#0b203a] hover:border-[#fca311] hover:bg-[#fca311]/15"
-                }`}
-              >
-                <MapPin className="h-4 w-4" />
-                Local
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowDate((prev) => !prev)}
-                className={`flex items-center gap-2 rounded-full px-3 py-1.5 border transition-colors ${
-                  showDate
-                    ? "bg-[#0b203a] text-white border-[#0b203a]"
-                    : "border-[#0b203a]/30 text-[#0b203a] hover:border-[#fca311] hover:bg-[#fca311]/15"
-                }`}
-              >
-                <Calendar className="h-4 w-4" />
-                Data
-              </button>
-              <input
-                ref={mediaInputRef}
-                onChange={(event) => handleFileChange(event.target.files)}
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                className="hidden"
-              />
-            </div>
-
+          <div className="flex items-center justify-between text-xs text-[#0b203a]/50">
+            <span>{content.length} caracteres</span>
             {attachments.length > 0 && (
-              <div className="flex flex-wrap gap-2 text-xs text-[#0b203a]/70">
-                {attachments.map((file, index) => (
-                  <span
-                    key={`${file.name}-${index}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#0b203a]/5 px-3 py-1 text-[#0b203a]"
-                  >
-                    <Paperclip className="h-3.5 w-3.5 text-slate-400" />
-                    <span className="max-w-[180px] truncate">{file.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveAttachment(index)}
-                      className="rounded-full bg-white/60 p-1 text-slate-400 transition-colors hover:text-slate-600"
-                      aria-label="Remover arquivo"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
+              <span>
+                {attachments.length}/{MAX_ATTACHMENTS} anexos
+              </span>
             )}
           </div>
-        </header>
+
+          <div className="flex flex-wrap items-center gap-3 text-sm text-[#0b203a]/80">
+            <button
+              type="button"
+              onClick={() => mediaInputRef.current?.click()}
+              className="flex items-center gap-2 rounded-full border border-dashed border-[#0b203a]/30 px-3 py-1.5 text-[#0b203a] hover:border-[#fca311] hover:bg-[#fca311]/15 transition-colors"
+            >
+              <ImageIcon className="h-4 w-4" />
+              Fotos/Vídeos
+            </button>
+            <button
+              type="button"
+              onClick={() => mediaInputRef.current?.click()}
+              className="hidden" // Vídeo já coberto pelo input de mídia
+            >
+              <Video className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPoll((prev) => !prev)}
+              className={`flex items-center gap-2 rounded-full px-3 py-1.5 border transition-colors ${
+                showPoll
+                  ? "bg-[#0b203a] text-white border-[#0b203a]"
+                  : "border-[#0b203a]/30 text-[#0b203a] hover:border-[#fca311] hover:bg-[#fca311]/15"
+              }`}
+            >
+              <BarChart3 className="h-4 w-4" />
+              Enquete
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowLocation((prev) => !prev)}
+              className={`flex items-center gap-2 rounded-full px-3 py-1.5 border transition-colors ${
+                showLocation
+                  ? "bg-[#0b203a] text-white border-[#0b203a]"
+                  : "border-[#0b203a]/30 text-[#0b203a] hover:border-[#fca311] hover:bg-[#fca311]/15"
+              }`}
+            >
+              <MapPin className="h-4 w-4" />
+              Local
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowDate((prev) => !prev)}
+              className={`flex items-center gap-2 rounded-full px-3 py-1.5 border transition-colors ${
+                showDate
+                  ? "bg-[#0b203a] text-white border-[#0b203a]"
+                  : "border-[#0b203a]/30 text-[#0b203a] hover:border-[#fca311] hover:bg-[#fca311]/15"
+              }`}
+            >
+              <Calendar className="h-4 w-4" />
+              Data
+            </button>
+            <input
+              ref={mediaInputRef}
+              onChange={(event) => handleFileChange(event.target.files)}
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              className="hidden"
+            />
+          </div>
+
+          {attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2 text-xs text-[#0b203a]/70">
+              {attachments.map((file, index) => (
+                <span
+                  key={`${file.name}-${index}`}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#0b203a]/5 px-3 py-1 text-[#0b203a]"
+                >
+                  <Paperclip className="h-3.5 w-3.5 text-slate-400" />
+                  <span className="max-w-[180px] truncate">{file.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAttachment(index)}
+                    className="rounded-full bg-white/60 p-1 text-slate-400 transition-colors hover:text-slate-600"
+                    aria-label="Remover arquivo"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="border-t border-slate-200" />
 
