@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { buildApiUrl } from "@/lib/api";
 import NewsCarousel from "./news-carousel";
 
 // Tipagem das notícias para futura integração com o back-end
@@ -11,85 +12,50 @@ export type NewsItem = {
   publishedAt?: string; // ISO date
 };
 
-// TODO: Substituir por fetch do back-end quando a API estiver disponível
-// Ex.: const res = await fetch(process.env.NEWS_API_URL + '/news?limit=8', { cache: 'no-store' })
-//      const items: NewsItem[] = await res.json();
-async function getNews(): Promise<NewsItem[]> {
-  // Mock inicial (ordem decrescente por data)
-  const mock: NewsItem[] = [
-    {
-      id: "n1",
-      title: "Obras de infraestrutura avançam em Padre Marcos",
-      url: "https://exemplo.site/noticia/obras-infraestrutura",
-      imageUrl: "/images/bandeira-municipio.jpg",
-      source: "Portal Externo",
-      publishedAt: "2025-09-20T10:30:00Z",
-    },
-    {
-      id: "n2",
-      title: "Campanha de vacinação atinge meta no município",
-      url: "https://exemplo.site/noticia/vacinacao-meta",
-      imageUrl: "/images/slide-1.jpg",
-      source: "Agência Saúde",
-      publishedAt: "2025-09-19T09:00:00Z",
-    },
-    {
-      id: "n3",
-      title: "Evento cultural reúne artistas locais",
-      url: "https://exemplo.site/noticia/evento-cultural",
-      imageUrl: "/images/slide-2.jpg",
-      source: "Cultura News",
-      publishedAt: "2025-09-18T18:10:00Z",
-    },
-    {
-      id: "n4",
-      title: "Educação: novo programa de apoio aos estudantes",
-      url: "https://exemplo.site/noticia/apoio-estudantes",
-      imageUrl: "/images/slide-3.png",
-      source: "Educa+",
-      publishedAt: "2025-09-17T12:00:00Z",
-    },
-    {
-      id: "n5",
-      title: "Turismo: rota ecológica é destaque regional",
-      url: "https://exemplo.site/noticia/rota-ecologica",
-      imageUrl: "/images/slide-1.jpg",
-      source: "Viagens Hoje",
-      publishedAt: "2025-09-16T15:20:00Z",
-    },
-    {
-      id: "n6",
-      title: "Agronegócio: feira movimenta a economia local",
-      url: "https://exemplo.site/noticia/feira-agronegocio",
-      imageUrl: "/images/slide-2.jpg",
-      source: "Agro Brasil",
-      publishedAt: "2025-09-15T08:45:00Z",
-    },
-    {
-      id: "n7",
-      title: "Saúde: novo posto é inaugurado no bairro",
-      url: "https://exemplo.site/noticia/novo-posto",
-      imageUrl: "/images/bandeira-municipio.jpg",
-      source: "Agência Saúde",
-      publishedAt: "2025-09-14T11:05:00Z",
-    },
-    {
-      id: "n8",
-      title: "Empreendedorismo: capacitação gratuita para MEIs",
-      url: "https://exemplo.site/noticia/capacitacao-mei",
-      imageUrl: "/images/slide-3.png",
-      source: "Economia +",
-      publishedAt: "2025-09-13T17:40:00Z",
-    },
-  ];
+type NewsApiItem = {
+  id: string;
+  title: string;
+  source?: string | null;
+  url: string;
+  imageUrl?: string | null;
+  createdAt?: string | null;
+};
 
-  // ordena do mais recente para o mais antigo
-  const sorted = mock.sort((a, b) => {
-    const da = a.publishedAt ? Date.parse(a.publishedAt) : 0;
-    const db = b.publishedAt ? Date.parse(b.publishedAt) : 0;
-    return db - da;
-  });
-  return sorted;
+type NewsApiResponse = {
+  success?: boolean;
+  news?: NewsApiItem[];
+};
+
+async function getNews(): Promise<NewsItem[]> {
+  try {
+    const response = await fetch(buildApiUrl("/api/news"), {
+      cache: "no-store",
+      next: { revalidate: 0 },
+    });
+
+    if (!response.ok) {
+      console.error("Falha ao carregar notícias", response.statusText);
+      return [];
+    }
+
+    const data: NewsApiResponse = await response.json();
+
+    if (!data?.news || !Array.isArray(data.news)) {
+      return [];
+    }
+
+    return data.news.map((item) => ({
+      id: item.id,
+      title: item.title,
+      url: item.url,
+      imageUrl: item.imageUrl ?? undefined,
+      source: item.source ?? undefined,
+      publishedAt: item.createdAt ?? undefined,
+    }));
+  } catch (error) {
+    console.error("Erro ao buscar notícias", error);
+    return [];
+  }
 }
 
 export default async function News() {
