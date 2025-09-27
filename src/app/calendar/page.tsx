@@ -129,13 +129,24 @@ export default function CalendarPage() {
         throw new Error("Faça login para enviar um evento.");
       }
 
+      // Corrige o envio da data para o backend, usando fuso local
+      function toLocalIso(dateStr?: string) {
+        if (!dateStr) return undefined;
+        const [year, month, day] = dateStr.split("-").map(Number);
+        if (!year || !month || !day) return dateStr;
+        const localDate = new Date(year, month - 1, day, 12, 0, 0);
+        return localDate.toISOString().slice(0, 10);
+      }
+
       const body = {
         title: payload.title,
         category: payload.category,
         description: payload.description,
         location: payload.location,
-        startDate: payload.startDate,
-        endDate: payload.endDate ?? payload.startDate,
+        startDate: toLocalIso(payload.startDate),
+        endDate: toLocalIso(payload.endDate ?? payload.startDate),
+        startTime: payload.startTime,
+        endTime: payload.endTime,
       };
 
       const response = await fetch(buildApiUrl("/api/events"), {
@@ -231,8 +242,8 @@ export default function CalendarPage() {
             >
               Perfil
             </Link>{" "}
-            e faça login. Depois, clique em &quot;Adicionar Evento&quot; para enviar a sua
-            proposta.
+            e faça login. Depois, clique em &quot;Adicionar Evento&quot; para
+            enviar a sua proposta.
           </div>
         )}
 
