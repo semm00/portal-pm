@@ -30,13 +30,6 @@ type RecurringEventDefinition = {
 
 const RECURRING_EVENTS: RecurringEventDefinition[] = [
   {
-    id: "default-confraternizacao",
-    title: "Confraternização Universal",
-    description:
-      "Celebração do início do ano e dos votos de paz e prosperidade.",
-    start: { month: 0, day: 1 },
-  },
-  {
     id: "default-evangelico",
     title: "Dia do Evangélico",
     description: "Celebração municipal dedicada à comunidade evangélica.",
@@ -47,20 +40,6 @@ const RECURRING_EVENTS: RecurringEventDefinition[] = [
     title: "Aniversário de Padre Marcos",
     description: "Comemoração da emancipação política do município.",
     start: { month: 0, day: 17 },
-  },
-  {
-    id: "default-tiradentes",
-    title: "Dia de Tiradentes",
-    description:
-      "Feriado nacional em memória do mártir da Inconfidência Mineira.",
-    start: { month: 3, day: 21 },
-  },
-  {
-    id: "default-dia-trabalhador",
-    title: "Dia do Trabalhador",
-    description:
-      "Celebra as conquistas dos trabalhadores brasileiros em todas as áreas.",
-    start: { month: 4, day: 1 },
   },
   {
     id: "default-santo-antonio",
@@ -82,39 +61,6 @@ const RECURRING_EVENTS: RecurringEventDefinition[] = [
     description: "Programação religiosa e cultural em honra a São Benedito.",
     start: { month: 7, day: 18 },
     end: { month: 7, day: 26 },
-  },
-  {
-    id: "default-independencia",
-    title: "Independência do Brasil",
-    description:
-      "Desfiles cívicos e atividades escolares celebram a independência nacional.",
-    start: { month: 8, day: 7 },
-  },
-  {
-    id: "default-nossa-senhora",
-    title: "Nossa Senhora Aparecida",
-    description:
-      "Dia da padroeira do Brasil, celebrado com missas e procissões.",
-    start: { month: 9, day: 12 },
-  },
-  {
-    id: "default-finados",
-    title: "Finados",
-    description: "Momento de homenagear familiares e amigos que já partiram.",
-    start: { month: 10, day: 2 },
-  },
-  {
-    id: "default-proclamacao",
-    title: "Proclamação da República",
-    description: "Comemoração cívica da proclamação da República brasileira.",
-    start: { month: 10, day: 15 },
-  },
-  {
-    id: "default-natal",
-    title: "Natal",
-    description:
-      "Celebração do nascimento de Jesus Cristo com família e tradições locais.",
-    start: { month: 11, day: 25 },
   },
 ];
 

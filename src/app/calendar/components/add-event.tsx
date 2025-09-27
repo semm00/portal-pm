@@ -8,6 +8,8 @@ export type EventSubmission = {
   title: string;
   startDate: string;
   endDate?: string;
+  startTime?: string;
+  endTime?: string;
   description?: string;
   category: CalendarEvent["category"];
   location?: string;
@@ -26,6 +28,8 @@ export default function AddEventForm({
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<CalendarEvent["category"]>("evento");
   const [location, setLocation] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,6 +50,10 @@ export default function AddEventForm({
       setError("A data final não pode ser anterior à inicial.");
       return;
     }
+    if (startTime && endTime && endTime < startTime) {
+      setError("O horário final não pode ser anterior ao inicial.");
+      return;
+    }
 
     setError(null);
     setIsSubmitting(true);
@@ -55,6 +63,8 @@ export default function AddEventForm({
         title: eventName.trim(),
         startDate,
         endDate: endDate || undefined,
+        startTime: startTime || undefined,
+        endTime: endTime || undefined,
         description: description.trim() || undefined,
         category,
         location: location.trim() || undefined,
@@ -63,6 +73,8 @@ export default function AddEventForm({
       setEventName("");
       setStartDate("");
       setEndDate("");
+      setStartTime("");
+      setEndTime("");
       setDescription("");
       setCategory("evento");
       setLocation("");
@@ -124,6 +136,19 @@ export default function AddEventForm({
               className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
               required
             />
+            <label
+              htmlFor="start-time"
+              className="block mt-2 text-xs font-medium text-slate-700"
+            >
+              Horário de Início (Opcional)
+            </label>
+            <input
+              type="time"
+              id="start-time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
+            />
           </div>
           <div className="sm:w-1/2">
             <label
@@ -137,6 +162,19 @@ export default function AddEventForm({
               id="end-date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
+            />
+            <label
+              htmlFor="end-time"
+              className="block mt-2 text-xs font-medium text-slate-700"
+            >
+              Horário de Fim (Opcional)
+            </label>
+            <input
+              type="time"
+              id="end-time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
               className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
             />
           </div>
