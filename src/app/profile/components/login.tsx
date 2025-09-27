@@ -50,6 +50,8 @@ type AuthResponse = {
   message?: string;
   code?: string; // Adicionado para códigos de erro específicos
   emailSent?: boolean;
+  token?: string;
+  refreshToken?: string;
 };
 
 const API_BASE_URL =

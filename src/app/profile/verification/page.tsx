@@ -11,7 +11,12 @@ export default function VerificationPage() {
     const API = process.env.NEXT_PUBLIC_API_URL || "";
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
-    if (!token) return;
+    const email = params.get("email");
+    const typeParam = params.get("type") ?? undefined;
+    if (!token || !email) {
+      setStatus("error");
+      return;
+    }
 
     const verify = async () => {
       setStatus("verifying");
@@ -19,7 +24,7 @@ export default function VerificationPage() {
         const res = await fetch(`${API}/api/users/verify-email`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
+          body: JSON.stringify({ token, email, type: typeParam }),
         });
         if (res.ok) {
           setStatus("success");
@@ -50,6 +55,12 @@ export default function VerificationPage() {
         </div>
       )}
       {status === "idle" && <div>Processando verificação...</div>}
+      {status === "error" && (
+        <div className="mt-4 text-sm text-slate-600">
+          Caso o link não funcione, tente acessar novamente a partir do e-mail
+          recebido ou solicite um novo envio na tela de login.
+        </div>
+      )}
     </div>
   );
 }
