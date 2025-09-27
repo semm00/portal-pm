@@ -3,11 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Mail, MapPin, Edit, LogOut, Shield, Bell, Upload } from "lucide-react";
+import { buildApiUrl } from "@/lib/api";
 import type { AuthUser, ProfileResponse } from "../types";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:4000";
 
 const PLACEHOLDER_TEXT = {
   bio: "Adicione uma descrição",
@@ -94,7 +91,7 @@ export default function Profile({
     setStatus(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/profile/me`, {
+      const response = await fetch(buildApiUrl("/api/profile/me"), {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -167,7 +164,7 @@ export default function Profile({
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/profile/me`, {
+      const response = await fetch(buildApiUrl("/api/profile/me"), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -236,7 +233,7 @@ export default function Profile({
       const formData = new FormData();
       formData.append("avatar", file);
 
-      const response = await fetch(`${API_BASE_URL}/api/profile/me/avatar`, {
+      const response = await fetch(buildApiUrl("/api/profile/me/avatar"), {
         method: "POST",
         headers: {
           Authorization: `Bearer ${user.token}`,

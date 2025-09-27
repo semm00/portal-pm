@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
+import { buildApiUrl } from "@/lib/api";
 
 type VerificationStatus =
   | "idle"
@@ -127,11 +128,7 @@ export default function VerificationPage() {
   const [email, setEmail] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    const apiEnv = process.env.NEXT_PUBLIC_API_URL || "";
-    const cleanedBase = apiEnv.endsWith("/") ? apiEnv.slice(0, -1) : apiEnv;
-    const endpoint = cleanedBase
-      ? `${cleanedBase}/api/users/verify-email`
-      : "/api/users/verify-email";
+    const endpoint = buildApiUrl("/api/users/verify-email");
     const params = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(
       window.location.hash.startsWith("#")

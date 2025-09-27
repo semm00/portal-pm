@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { buildApiUrl } from "@/lib/api";
 
 type ResetPasswordFormProps = {
   accessToken?: string | null;
@@ -28,11 +29,7 @@ export default function ResetPasswordForm({
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
-  const apiEnv = process.env.NEXT_PUBLIC_API_URL || "";
-  const cleanedBase = apiEnv.endsWith("/") ? apiEnv.slice(0, -1) : apiEnv;
-  const endpoint = cleanedBase
-    ? `${cleanedBase}/api/users/reset-password`
-    : "/api/users/reset-password";
+  const endpoint = buildApiUrl("/api/users/reset-password");
 
   useEffect(() => {
     const sanitized = sanitizeToken(accessToken);

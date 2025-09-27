@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Script from "next/script";
 import { AtSign, Lock, User, LogIn, Mail } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/api";
 import type { AuthUser } from "../types";
 
 // Declarar tipos para Google Identity Services
@@ -47,9 +48,7 @@ type AuthResponse = {
   refreshToken?: string;
 };
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 const handleLogin = async (
   credentials: LoginPayload

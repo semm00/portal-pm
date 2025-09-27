@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
+import { buildApiUrl } from "@/lib/api";
 
 export default function RecoverPage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle"
   );
-  const API = process.env.NEXT_PUBLIC_API_URL || "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setStatus("sending");
     try {
-      const res = await fetch(`${API}/api/users/forgot-password`, {
+      const res = await fetch(buildApiUrl("/api/users/forgot-password"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
