@@ -127,15 +127,30 @@ export default function VerificationPage() {
   const [email, setEmail] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    const API = process.env.NEXT_PUBLIC_API_URL || "";
+    const apiEnv = process.env.NEXT_PUBLIC_API_URL || "";
+    const cleanedBase = apiEnv.endsWith("/") ? apiEnv.slice(0, -1) : apiEnv;
+    const endpoint = cleanedBase
+      ? `${cleanedBase}/api/users/verify-email`
+      : "/api/users/verify-email";
     const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-    const emailParam = params.get("email") ?? undefined;
-    const typeParam = params.get("type") ?? undefined;
+    const hashParams = new URLSearchParams(
+      window.location.hash.startsWith("#")
+        ? window.location.hash.slice(1)
+        : window.location.hash
+    );
 
-    setEmail(emailParam ?? undefined);
+    const tokenParam = params.get("token") ?? hashParams.get("token");
+    const accessTokenParam =
+      hashParams.get("access_token") ?? params.get("access_token");
+    const emailParam =
+      params.get("email") ?? hashParams.get("email") ?? undefined;
+    const typeParam = params.get("type") ?? hashParams.get("type") ?? undefined;
 
-    if (!token || !emailParam) {
+    if (emailParam) {
+      setEmail(emailParam);
+    }
+
+    if (!tokenParam && !accessTokenParam) {
       setStatus("error");
       return;
     }
@@ -143,16 +158,35 @@ export default function VerificationPage() {
     const verify = async () => {
       setStatus("verifying");
       try {
-        const res = await fetch(`${API}/api/users/verify-email`, {
+        const payload: Record<string, unknown> = {};
+        if (typeParam) {
+          payload.type = typeParam;
+        }
+        if (tokenParam) {
+          payload.token = tokenParam;
+        }
+        if (emailParam) {
+          payload.email = emailParam;
+        }
+        if (accessTokenParam) {
+          payload.accessToken = accessTokenParam;
+        }
+
+        const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, email: emailParam, type: typeParam }),
+          body: JSON.stringify(payload),
         });
 
         const data = (await res.json().catch(() => null)) as {
           success: boolean;
           alreadyVerified?: boolean;
+          email?: string;
         } | null;
+
+        if (data?.email) {
+          setEmail(data.email);
+        }
 
         if (res.ok) {
           const already = data?.alreadyVerified ?? false;
