@@ -2,7 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { Mail, MapPin, Edit, LogOut, Shield, Bell, Upload } from "lucide-react";
+import {
+  Mail,
+  MapPin,
+  Edit,
+  LogOut,
+  Shield,
+  Bell,
+  Upload,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { buildApiUrl } from "@/lib/api";
 import type { AuthUser, ProfileResponse } from "../types";
 
@@ -29,6 +39,38 @@ const getInitials = (name?: string) => {
   return initials.length > 0 ? initials.toUpperCase() : "?";
 };
 
+type Theme = "light" | "dark";
+
+function useTheme(): [Theme, () => void, boolean] {
+  const [theme, setTheme] = useState<Theme>("light");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const stored = localStorage.getItem("theme") as Theme | null;
+      const initial: Theme = stored === "dark" ? "dark" : "light";
+      setTheme(initial);
+      document.documentElement.classList.toggle("dark", initial === "dark");
+    } catch {
+      // noop
+    }
+  }, []);
+
+  const toggle = () => {
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch {
+      // noop
+    }
+    document.documentElement.classList.toggle("dark", next === "dark");
+  };
+
+  return [theme, toggle, mounted];
+}
+
 type StatusState = { type: "success" | "error"; message: string } | null;
 
 type ProfileProps = {
@@ -42,6 +84,7 @@ export default function Profile({
   onLogout,
   onUserUpdate,
 }: ProfileProps) {
+  const [theme, toggleTheme, mounted] = useTheme();
   const baseProfile: ProfileResponse = useMemo(
     () => ({
       fullName: user.name ?? "Usuário",
@@ -338,7 +381,7 @@ export default function Profile({
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
       <div className="bg-gradient-to-r from-[#0b203a] to-[#153b69] h-40 relative">
-        <div className="absolute -bottom-20 left-8 flex items-end gap-4">
+        <div className="absolute -bottom-20 left-4 sm:left-8 flex items-end gap-4">
           <div className="relative">
             {avatarUrl && avatarUrl.trim() ? (
               <Image
@@ -347,11 +390,11 @@ export default function Profile({
                 alt={`Foto de ${displayName}`}
                 width={144}
                 height={144}
-                className="rounded-full border-4 border-white shadow-lg object-cover"
+                className="w-24 h-24 sm:w-36 sm:h-36 rounded-full border-4 border-white shadow-lg object-cover"
                 unoptimized
               />
             ) : (
-              <div className="flex h-36 w-36 items-center justify-center rounded-full border-4 border-white bg-slate-200 text-3xl font-semibold text-slate-600 shadow-lg select-none">
+              <div className="flex w-24 h-24 sm:w-36 sm:h-36 items-center justify-center rounded-full border-4 border-white bg-slate-200 text-xl sm:text-3xl font-semibold text-slate-600 shadow-lg select-none">
                 {getInitials(displayName)}
               </div>
             )}
@@ -375,13 +418,25 @@ export default function Profile({
         </div>
       </div>
 
-      <div className="flex justify-end p-4 mt-6">
+      <div className="flex justify-end p-4 mt-6 gap-2">
+        <button
+          onClick={toggleTheme}
+          className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all"
+          aria-label="Alternar tema claro/escuro"
+        >
+          {mounted && theme === "dark" ? (
+            <Sun className="h-4 w-4 text-yellow-500" />
+          ) : (
+            <Moon className="h-4 w-4 text-sky-700" />
+          )}
+          {mounted && theme === "dark" ? "Modo claro" : "Modo escuro"}
+        </button>
         <button
           onClick={() => {
             setStatus(null);
             setIsEditing((prev) => !prev);
           }}
-          className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all mr-2"
+          className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all"
         >
           <Edit className="h-4 w-4" />
           {isEditing ? "Cancelar" : "Editar Perfil"}

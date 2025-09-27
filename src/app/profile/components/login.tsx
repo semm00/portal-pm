@@ -302,11 +302,12 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           window.google.accounts.id.renderButton(element, {
             theme: "outline",
             size: "large",
-            width: "320",
+            width: window.innerWidth < 640 ? "250" : "320",
           });
           const googleButton = element.firstElementChild as HTMLElement | null;
           if (googleButton) {
             googleButton.style.width = "100%";
+            googleButton.style.maxWidth = "320px";
           }
           console.log("Botão do Google renderizado.");
         } else {
@@ -394,7 +395,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       <div className="relative w-full min-h-[46px] flex items-center justify-center">
         <div
           id="gsi-button"
-          className="flex w-full max-w-sm items-center justify-center"
+          className="flex w-full items-center justify-center"
         />
         {googleLoading && (
           <div className="absolute inset-0 flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white/80 backdrop-blur-[1px] px-4 py-2.5 text-sm font-semibold text-slate-700">

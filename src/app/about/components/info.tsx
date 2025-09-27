@@ -70,7 +70,7 @@ export default function Info() {
                 <button
                   type="button"
                   onClick={() => setExpandedHistoria(!expandedHistoria)}
-                  className="text-slate-900 text-xl"
+                  className="text-slate-900 text-xl p-2 -m-2 hover:bg-slate-100 rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 >
                   {expandedHistoria ? (
                     <ChevronUp size={20} />
@@ -121,7 +121,7 @@ export default function Info() {
                 <button
                   type="button"
                   onClick={() => setExpandedPovoados(!expandedPovoados)}
-                  className="text-slate-900 text-xl"
+                  className="text-slate-900 text-xl p-2 -m-2 hover:bg-slate-100 rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 >
                   {expandedPovoados ? (
                     <ChevronUp size={20} />
@@ -167,7 +167,7 @@ Foi primazia orgulhando o nosso Estado,
                           <button
                             type="button"
                             onClick={() => setExpanded(true)}
-                            className="text-sm text-[#0a4ea1] underline"
+                            className="text-sm text-[#0a4ea1] underline hover:text-[#08326b] transition-colors px-2 py-1 -mx-2 rounded min-h-[44px] flex items-center"
                           >
                             Ver mais
                           </button>
@@ -224,7 +224,7 @@ Me dá prazer externar todo este amor. (repete)`}
                           <button
                             type="button"
                             onClick={() => setExpanded(false)}
-                            className="text-sm text-[#0a4ea1] underline"
+                            className="text-sm text-[#0a4ea1] underline hover:text-[#08326b] transition-colors px-2 py-1 -mx-2 rounded min-h-[44px] flex items-center"
                           >
                             Ver menos
                           </button>
@@ -242,7 +242,7 @@ Me dá prazer externar todo este amor. (repete)`}
                 <button
                   type="button"
                   onClick={() => setExpandedHino(!expandedHino)}
-                  className="text-slate-900 text-xl"
+                  className="text-slate-900 text-xl p-2 -m-2 hover:bg-slate-100 rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 >
                   {expandedHino ? (
                     <ChevronUp size={20} />
@@ -345,7 +345,7 @@ Foi primazia orgulhando o nosso Estado,
                   onClick={() =>
                     setExpandedConsideracoes(!expandedConsideracoes)
                   }
-                  className="text-slate-900 text-xl"
+                  className="text-slate-900 text-xl p-2 -m-2 hover:bg-slate-100 rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 >
                   {expandedConsideracoes ? (
                     <ChevronUp size={20} />
@@ -409,6 +409,9 @@ Foi primazia orgulhando o nosso Estado,
                   height={320}
                   sizes="(max-width: 768px) 160px, 520px"
                   className="object-contain w-[160px] h-[200px] md:w-[520px] md:h-[320px]"
+                  priority={false}
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
                 />
                 <figcaption className="text-xs text-gray-500 p-2 text-center">
                   Mapa de localização de Padre Marcos
@@ -424,6 +427,9 @@ Foi primazia orgulhando o nosso Estado,
                     height={250}
                     sizes="(max-width: 768px) 180px, 520px"
                     className="object-contain w-[180px] h-[120px] md:w-[440px] md:h-[240px]"
+                    priority={false}
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
                   />
                   <figcaption className="text-xs text-gray-500 p-2 text-center">
                     Bandeira do Município
@@ -437,6 +443,9 @@ Foi primazia orgulhando o nosso Estado,
                     height={200}
                     sizes="(max-width: 768px) 160px, 400px"
                     className="object-contain w-[160px] h-[120px] md:w-[300px] md:h-[200px]"
+                    priority={false}
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
                   />
                   <figcaption className="text-xs text-gray-500 p-2 text-center">
                     Brasão Municipal

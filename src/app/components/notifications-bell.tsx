@@ -118,6 +118,13 @@ export default function NotificationsBell() {
     if (shouldRefresh && !loading) {
       fetchAlerts().catch(() => null);
     }
+
+    // Fechar automaticamente após 5 segundos (simulando leitura)
+    const autoCloseTimer = setTimeout(() => {
+      setOpen(false);
+    }, 5000);
+
+    return () => clearTimeout(autoCloseTimer);
   }, [open, fetchAlerts, lastFetchedAt, loading]);
 
   useEffect(() => {

@@ -412,11 +412,6 @@ function PostCard({
   const session = loadSession();
 
   const isAuthor = session?.id === post.authorId;
-  console.log("Debug delete:", {
-    sessionId: session?.id,
-    postAuthorId: post.authorId,
-    isAuthor,
-  });
 
   useEffect(() => {
     if (!isMenuOpen) return;
