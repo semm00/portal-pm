@@ -17,9 +17,12 @@ Página do Calendário Anual de Padre Marcos, Piauí
 
 import { useCallback, useEffect, useState } from "react";
 import { PlusCircle, RotateCw } from "lucide-react";
+import Link from "next/link";
 import Calendar, { type CalendarEvent } from "./components/calendar";
 import AddEventForm, { type EventSubmission } from "./components/add-event";
 import { buildApiUrl } from "@/lib/api";
+import type { AuthUser } from "../profile/types";
+import { loadSession } from "../profile/utils/session";
 
 type FeedbackState = {
   type: "success" | "error";
@@ -60,6 +63,25 @@ export default function CalendarPage() {
   const [approvedEvents, setApprovedEvents] = useState<CalendarEvent[]>([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+
+  useEffect(() => {
+    const syncSession = () => {
+      const current = loadSession();
+      setUser(current);
+    };
+
+    syncSession();
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.addEventListener("storage", syncSession);
+    return () => {
+      window.removeEventListener("storage", syncSession);
+    };
+  }, []);
 
   const fetchApprovedEvents = useCallback(async () => {
     setIsLoadingEvents(true);
@@ -101,37 +123,57 @@ export default function CalendarPage() {
     fetchApprovedEvents();
   }, [fetchApprovedEvents]);
 
-  const handleSubmitEvent = useCallback(async (payload: EventSubmission) => {
-    const body = {
-      title: payload.title,
-      category: payload.category,
-      description: payload.description,
-      location: payload.location,
-      startDate: payload.startDate,
-      endDate: payload.endDate ?? payload.startDate,
-    };
+  const handleSubmitEvent = useCallback(
+    async (payload: EventSubmission) => {
+      if (!user || !user.token) {
+        throw new Error("Faça login para enviar um evento.");
+      }
 
-    const response = await fetch(buildApiUrl("/api/events"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+      const body = {
+        title: payload.title,
+        category: payload.category,
+        description: payload.description,
+        location: payload.location,
+        startDate: payload.startDate,
+        endDate: payload.endDate ?? payload.startDate,
+      };
 
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      throw new Error(
-        data.message || "Não foi possível enviar o evento para aprovação."
-      );
+      const response = await fetch(buildApiUrl("/api/events"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(
+          data.message || "Não foi possível enviar o evento para aprovação."
+        );
+      }
+
+      setFeedback({
+        type: "success",
+        message:
+          "Evento enviado para aprovação! Assim que liberado pela equipe, ele aparecerá no calendário.",
+      });
+    },
+    [user]
+  );
+
+  const handleOpenForm = useCallback(() => {
+    if (!user || !user.token) {
+      setFeedback({
+        type: "error",
+        message: "Faça login na área de Perfil para cadastrar um evento.",
+      });
+      return;
     }
 
-    setFeedback({
-      type: "success",
-      message:
-        "Evento enviado para aprovação! Assim que liberado pela equipe, ele aparecerá no calendário.",
-    });
-  }, []);
+    setIsFormOpen(true);
+  }, [user]);
 
   return (
     <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 lg:px-8">
@@ -145,14 +187,15 @@ export default function CalendarPage() {
               Eventos e feriados importantes de Padre Marcos, Piauí.
             </p>
             <p className="text-sm text-slate-500">
-              Envie um evento para aprovação da prefeitura e acompanhe os
-              eventos já confirmados.
+              Envie um evento para aprovação e acompanhe os eventos já
+              confirmados.
             </p>
           </div>
           <div className="flex flex-col items-center gap-2 sm:flex-row">
             <button
-              onClick={() => setIsFormOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#fca311] px-5 py-2.5 text-sm font-semibold text-[#0b203a] shadow-md transition-all hover:bg-amber-500"
+              onClick={handleOpenForm}
+              disabled={!user || !user.token}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#fca311] px-5 py-2.5 text-sm font-semibold text-[#0b203a] shadow-md transition-all hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <PlusCircle className="h-5 w-5" />
               Adicionar Evento
@@ -176,6 +219,20 @@ export default function CalendarPage() {
             }`}
           >
             {feedback.message}
+          </div>
+        )}
+
+        {(!user || !user.token) && (
+          <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-3 text-sm text-slate-600">
+            Para cadastrar um evento, acesse a área de{" "}
+            <Link
+              href="/profile"
+              className="font-semibold text-[#0b203a] underline-offset-2 hover:underline"
+            >
+              Perfil
+            </Link>{" "}
+            e faça login. Depois, clique em &quot;Adicionar Evento&quot; para enviar a sua
+            proposta.
           </div>
         )}
 

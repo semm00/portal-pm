@@ -25,39 +25,129 @@ const getDefaultEventsForYear = (year: number): EventItem[] => {
 
   return [
     {
-      id: "default-evangelico",
+      id: `default-confraternizacao-${year}`,
+      title: "Confraternização Universal",
+      description:
+        "Celebração do início do ano e dos votos de paz e prosperidade.",
+      startDate: toIso(0, 1),
+      endDate: toIso(0, 1),
+    },
+    {
+      id: `default-evangelico-${year}`,
       title: "Dia do Evangélico",
       description: "Celebração municipal dedicada à comunidade evangélica.",
       startDate: toIso(0, 16),
       endDate: toIso(0, 16),
     },
     {
-      id: "default-aniversario",
+      id: `default-aniversario-${year}`,
       title: "Aniversário de Padre Marcos",
       description: "Comemoração da emancipação política do município.",
       startDate: toIso(0, 17),
       endDate: toIso(0, 17),
     },
     {
-      id: "default-santo-antonio",
+      id: `default-tiradentes-${year}`,
+      title: "Dia de Tiradentes",
+      description:
+        "Feriado nacional em memória do mártir da Inconfidência Mineira.",
+      startDate: toIso(3, 21),
+      endDate: toIso(3, 21),
+    },
+    {
+      id: `default-dia-trabalhador-${year}`,
+      title: "Dia do Trabalhador",
+      description:
+        "Celebra as conquistas dos trabalhadores brasileiros em todas as áreas.",
+      startDate: toIso(4, 1),
+      endDate: toIso(4, 1),
+    },
+    {
+      id: `default-santo-antonio-${year}`,
       title: "Festejos de Santo Antônio",
       description: "Tradicionais festejos do padroeiro da cidade.",
       startDate: toIso(4, 31),
       endDate: toIso(5, 13),
     },
     {
-      id: "default-sao-benedito",
+      id: `default-sao-joao-${year}`,
+      title: "São João",
+      description:
+        "Celebração junina com quadrilhas, comidas típicas e forró para toda a família.",
+      startDate: toIso(5, 24),
+      endDate: toIso(5, 24),
+    },
+    {
+      id: `default-sao-benedito-${year}`,
       title: "Festejos de São Benedito",
       description: "Programação religiosa e cultural em honra a São Benedito.",
       startDate: toIso(7, 18),
       endDate: toIso(7, 26),
     },
+    {
+      id: `default-independencia-${year}`,
+      title: "Independência do Brasil",
+      description:
+        "Desfiles cívicos e atividades escolares celebram a independência nacional.",
+      startDate: toIso(8, 7),
+      endDate: toIso(8, 7),
+    },
+    {
+      id: `default-nossa-senhora-${year}`,
+      title: "Nossa Senhora Aparecida",
+      description:
+        "Dia da padroeira do Brasil, celebrado com missas e procissões.",
+      startDate: toIso(9, 12),
+      endDate: toIso(9, 12),
+    },
+    {
+      id: `default-finados-${year}`,
+      title: "Finados",
+      description: "Momento de homenagear familiares e amigos que já partiram.",
+      startDate: toIso(10, 2),
+      endDate: toIso(10, 2),
+    },
+    {
+      id: `default-proclamacao-${year}`,
+      title: "Proclamação da República",
+      description: "Comemoração cívica da proclamação da República brasileira.",
+      startDate: toIso(10, 15),
+      endDate: toIso(10, 15),
+    },
+    {
+      id: `default-natal-${year}`,
+      title: "Natal",
+      description:
+        "Celebração do nascimento de Jesus Cristo com família e tradições locais.",
+      startDate: toIso(11, 25),
+      endDate: toIso(11, 25),
+    },
   ];
 };
 
-async function getEvents(): Promise<EventItem[]> {
+const buildFallbackEvents = (): EventItem[] => {
+  const now = Date.now();
   const currentYear = new Date().getFullYear();
-  const fallback = getDefaultEventsForYear(currentYear);
+
+  const candidates = [
+    ...getDefaultEventsForYear(currentYear),
+    ...getDefaultEventsForYear(currentYear + 1),
+  ]
+    .filter((event) => {
+      const endTime = Date.parse(event.endDate);
+      return Number.isFinite(endTime) ? endTime >= now : true;
+    })
+    .sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate));
+
+  if (candidates.length > 0) {
+    return candidates.slice(0, 4);
+  }
+
+  return getDefaultEventsForYear(currentYear + 1).slice(0, 4);
+};
+
+async function getEvents(): Promise<EventItem[]> {
+  const fallback = buildFallbackEvents();
 
   try {
     const response = await fetch(buildApiUrl("/api/events?limit=8"), {
@@ -89,11 +179,7 @@ async function getEvents(): Promise<EventItem[]> {
       .sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate))
       .slice(0, 4);
 
-    if (sorted.length === 0) {
-      return fallback;
-    }
-
-    return sorted;
+    return sorted.length > 0 ? sorted : fallback;
   } catch (error) {
     console.error(error);
     return fallback;

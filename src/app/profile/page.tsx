@@ -5,9 +5,12 @@ import { useEffect, useState } from "react";
 import Login from "./components/login";
 import Profile from "./components/profile";
 import type { AuthUser } from "./types";
-import { clearSession, loadSession, saveSession } from "./utils/session";
-
-const SESSION_DURATION_MS = 50 * 60 * 60 * 1000; //
+import {
+  clearSession,
+  loadSession,
+  saveSession,
+  DEFAULT_SESSION_DURATION_MS,
+} from "./utils/session";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -22,7 +25,7 @@ export default function ProfilePage() {
   }, []);
 
   const handleLoginSuccess = (loggedUser: AuthUser) => {
-    const persisted = saveSession(loggedUser, SESSION_DURATION_MS);
+    const persisted = saveSession(loggedUser, DEFAULT_SESSION_DURATION_MS);
     setUser(persisted);
   };
 
@@ -30,7 +33,7 @@ export default function ProfilePage() {
     setUser((currentUser) => {
       if (!currentUser) return null;
       const updated = updater(currentUser);
-      saveSession(updated, SESSION_DURATION_MS);
+      saveSession(updated, DEFAULT_SESSION_DURATION_MS);
       return updated;
     });
   };
