@@ -33,15 +33,15 @@ export default function Feed() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl xl:max-w-7xl px-4 py-10 lg:px-8 text-slate-900 transition-colors duration-300 dark:text-neutral-100">
+    <div className="mx-auto w-full max-w-6xl xl:max-w-7xl px-4 py-10 lg:px-8">
       <div className="space-y-6">
         <div className="flex flex-col gap-3 text-center lg:text-left lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center justify-center gap-3 lg:justify-start">
             <div>
-              <h1 className="text-2xl font-bold text-[#153b69] leading-tight dark:text-sky-300">
+              <h1 className="text-2xl font-bold text-[#153b69] leading-tight">
                 Mural Digital
               </h1>
-              <p className="text-sm text-[#0b203a]/70 dark:text-neutral-300">
+              <p className="text-sm text-[#0b203a]/70">
                 Compartilhe atualizações, eventos e avisos com a comunidade de
                 Padre Marcos.
               </p>
@@ -60,10 +60,10 @@ export default function Feed() {
           activeFilter={activeFilter}
         />
 
-        <div className="surface-card px-5 py-6 sm:px-6">
+        <div className="rounded-3xl border border-[#0b203a]/15 bg-gradient-to-br from-white via-white to-slate-50/60 shadow-lg shadow-[#0b203a]/10 backdrop-blur-sm px-5 py-6 sm:px-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-[#0b203a] dark:text-sky-200">
+              <h2 className="text-lg font-semibold text-[#0b203a]">
                 Compartilhe uma nova atualização
               </h2>
             </div>

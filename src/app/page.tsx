@@ -49,10 +49,10 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-neutral-50 text-[#0b203a] transition-colors duration-300 dark:bg-neutral-950 dark:text-neutral-100">
+    <main>
       {/* Top bar: logo à esquerda e notificações à direita */}
       <div className="px-3 sm:px-4 md:px-6">
-        <div className="mx-auto py-5 flex items-center justify-between rounded-2xl border border-transparent bg-white shadow-sm transition-colors duration-300 dark:border-neutral-800 dark:bg-neutral-900/80 dark:shadow-[0_20px_45px_rgba(15,23,42,0.35)]">
+        <div className="mx-auto py-5 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
             <Image
@@ -77,11 +77,13 @@ export default function Home() {
 
       {/* Últimas notícias */}
       <div className="my-10">
-        <div className="mx-auto space-y-8">
+        <div className="mx-auto">
           {/* Server component pronto para back-end */}
           <News />
           {/* Próximos eventos */}
-          <Events />
+          <div className="mt-8">
+            <Events />
+          </div>
           {/* Contato rápido */}
         </div>
       </div>

@@ -2,19 +2,19 @@
 
 export default function References() {
   return (
-    <section className="bg-[#0b203a] py-12 px-5 text-white transition-colors duration-300 dark:bg-slate-900 dark:text-neutral-100 sm:px-8 md:px-10">
+    <section className="py-12 px-5 sm:px-8 md:px-10 bg-[#0b203a] text-white">
       <div className="mx-auto max-w-4xl">
-        <h2 className="mb-6 text-center text-2xl font-bold text-white dark:text-neutral-50 md:text-left">
+        <h2 className="text-2xl font-bold text-white mb-6 text-center md:text-left">
           Referências
         </h2>
-        <ol className="list-inside list-decimal space-y-4 text-sm text-white/80 marker:text-[#fca311] dark:text-neutral-300">
+        <ol className="list-decimal list-inside space-y-4 text-sm text-white/80 marker:text-[#fca311]">
           <li>
             <span className="italic">«Padre Marcos».</span>{" "}
             <a
               href="https://cidades.ibge.gov.br/brasil/pi/padre-marcos/panorama"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#fca311] underline transition-colors hover:text-[#fca311]/80"
+              className="text-[#fca311] hover:text-[#fca311]/80 underline"
             >
               IBGE Cidades
             </a>

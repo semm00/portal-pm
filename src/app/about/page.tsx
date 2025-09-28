@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 
 export default function About() {
   return (
-    <main className="bg-slate-50 transition-colors duration-300 dark:bg-neutral-950">
+    <main>
       <Info />
       <MayorLine />
       <References />

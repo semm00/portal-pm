@@ -188,18 +188,18 @@ export default async function Events() {
   return (
     <section
       aria-labelledby="events-heading"
-      className="surface-card px-5 sm:px-8 md:px-10 py-6"
+      className="px-5 sm:px-8 md:px-10 py-6"
     >
       <h2
         id="events-heading"
-        className="mb-4 inline-flex items-center gap-2 text-xl font-bold text-[#0a4ea1] dark:text-sky-300"
+        className="mb-4 text-xl font-bold text-[#0a4ea1] border-b-2 border-[#0a4ea1] pb-1 w-fit"
       >
         Próximos Eventos
       </h2>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {display.length === 0 && (
-          <p className="col-span-full rounded-lg border border-dashed border-slate-300 bg-slate-50 py-6 text-center text-sm text-slate-500 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-300">
+          <p className="col-span-full rounded-lg border border-dashed border-slate-300 bg-slate-50 py-6 text-center text-sm text-slate-500">
             Nenhum evento aprovado foi encontrado. Volte em breve!
           </p>
         )}
@@ -209,10 +209,15 @@ export default async function Events() {
           return (
             <article
               key={ev.id}
-              className="group surface-panel relative flex flex-col overflow-hidden p-4 text-slate-900 transition-transform hover:-translate-y-1 hover:shadow-md dark:text-neutral-100"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md"
+              style={{
+                backgroundColor: "#ffffff",
+                borderColor: "#e5e7eb",
+                color: "#1f2937",
+              }}
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-sky-200 to-amber-200 text-sky-700 font-semibold dark:from-sky-500/20 dark:to-amber-500/20 dark:text-sky-200">
+                <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-sky-200 to-amber-200 text-sky-700 font-semibold">
                   <time dateTime={ev.startDate} className="text-sm">
                     <span className="block text-xs">
                       {startDate.toLocaleDateString("pt-BR", {
@@ -228,16 +233,16 @@ export default async function Events() {
                 </div>
 
                 <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-neutral-100">
+                  <h3 className="text-sm font-semibold text-slate-900">
                     {ev.title}
                   </h3>
-                  <p className="mt-1 text-[13px] text-gray-600 line-clamp-2 dark:text-neutral-400">
+                  <p className="mt-1 text-[13px] text-gray-600 line-clamp-2">
                     {ev.description}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-3 flex items-center justify-between text-xs text-gray-500 dark:text-neutral-400">
+              <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
                 <span>{formatDateRange(ev.startDate, ev.endDate)}</span>
                 {ev.location && (
                   <span className="truncate" title={ev.location}>

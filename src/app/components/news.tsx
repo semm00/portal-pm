@@ -63,17 +63,14 @@ export default async function News() {
 
   if (!items || items.length === 0) {
     return (
-      <section
-        aria-labelledby="news-heading"
-        className="py-6 text-slate-900 transition-colors duration-300 dark:text-neutral-100"
-      >
+      <section aria-labelledby="news-heading" className="py-6">
         <h1
           id="news-heading"
-          className="text-lg font-semibold text-[#0b203a] dark:text-sky-300"
+          className="text-lg font-semibold text-[#0b203a] dark:text-[#0a4ea1]"
         >
           Últimas Notícias
         </h1>
-        <p className="mt-2 text-sm text-gray-600 dark:text-neutral-400">
+        <p className="mt-2 text-sm text-gray-600 dark:text-neutral-300">
           Nenhuma notícia disponível no momento.
         </p>
       </section>
@@ -85,11 +82,11 @@ export default async function News() {
   return (
     <section
       aria-labelledby="news-heading"
-      className="surface-card px-5 sm:px-8 md:px-10 py-6"
+      className="px-5 sm:px-8 md:px-10 py-6 bg-[#ecececad]"
     >
       <h1
         id="news-heading"
-        className="mb-4 inline-flex items-center gap-2 text-xl font-bold text-[#0b203a] dark:text-sky-300"
+        className="mb-4 text-xl font-bold text-[#0b203a] dark:text-[#0a4ea1] border-b-3 border-[#0a4ea1]pb-1 w-fit"
       >
         Últimas Notícias
       </h1>
@@ -108,7 +105,12 @@ export default async function News() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={n.title}
-            className="group surface-panel overflow-hidden p-4 text-slate-900 transition-transform hover:-translate-y-1 hover:shadow-md dark:text-neutral-100"
+            className="group block overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-transform hover:shadow-md hover:-translate-y-1"
+            style={{
+              backgroundColor: "#ffffff",
+              borderColor: "#e5e7eb",
+              color: "#1f2937",
+            }}
           >
             <div className="relative aspect-[16/10] w-full mb-3">
               {n.imageUrl ? (
@@ -125,13 +127,11 @@ export default async function News() {
               )}
             </div>
             <div className="flex-1">
-              <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 transition-colors group-hover:text-[#0a4ea1] dark:text-neutral-100 dark:group-hover:text-amber-300">
+              <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-[#0a4ea1]">
                 {n.title}
               </h3>
               {n.source && (
-                <p className="mt-1 text-[11px] text-gray-500 dark:text-neutral-400">
-                  {n.source}
-                </p>
+                <p className="mt-1 text-[11px] text-gray-500">{n.source}</p>
               )}
             </div>
           </a>

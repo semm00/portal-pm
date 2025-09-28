@@ -57,8 +57,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br" suppressHydrationWarning>
-      <body className="md:flex md:min-h-screen bg-slate-50 text-[#0b203a] transition-colors duration-300 dark:bg-neutral-950 dark:text-neutral-100">
+    <html lang="pt-br">
+      <body className="md:flex md:min-h-screen">
         {/* Sidebar fixa no desktop; no mobile permanece fixa inferior via componente */}
         <Sidebar />
         {/* Conteúdo principal com margem dinâmica conforme largura da sidebar */}

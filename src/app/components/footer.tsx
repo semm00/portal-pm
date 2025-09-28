@@ -3,13 +3,13 @@ import { Mail, Instagram, Github, Facebook } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0b203a] text-white transition-colors duration-300 dark:bg-neutral-950 dark:text-neutral-100 py-8 px-5 sm:px-8 md:px-10">
+    <footer className="bg-[#0b203a] text-white py-8 px-5 sm:px-8 md:px-10">
       <div className="mx-auto max-w-7xl">
         {/* Propaganda */}
         <div className="text-center mb-6">
-          <p className="text-lg font-semibold text-white dark:text-neutral-100">
-            Tem alguma dúvida ou gostaria de ter um site como esse? Entre em
-            contato!
+          <p className="text-lg font-semibold">
+            Tem alguma dúvida ou gostaria de ter um site como esse? Entre
+            em contato!
           </p>
         </div>
 
@@ -55,7 +55,7 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="text-center text-sm text-white/80 dark:text-neutral-400">
+        <div className="text-center text-sm">
           <p>Este site é um portal independente</p>
           <p>&copy; 2025 Todos os direitos reservados a semm_dev</p>
         </div>
