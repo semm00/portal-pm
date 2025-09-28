@@ -519,82 +519,100 @@ export default function Profile({
   const displayCity = profileData.city?.trim() ?? "";
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-sky-200 to-amber-200 h-40 sm:h-48 relative">
-        <div className="absolute inset-x-4 sm:inset-x-auto sm:left-8 -bottom-20 sm:-bottom-28 flex flex-col items-center sm:flex-row sm:items-end sm:justify-start gap-4">
-          <div className="relative">
-            {avatarUrl && avatarUrl.trim() ? (
-              <Image
-                key={avatarUrl}
-                src={avatarUrl}
-                alt={`Foto de ${displayName}`}
-                width={144}
-                height={144}
-                className="w-24 h-24 sm:w-36 sm:h-36 rounded-full border-4 border-white shadow-lg object-cover"
-                unoptimized
-              />
-            ) : (
-              <div className="flex w-24 h-24 sm:w-36 sm:h-36 items-center justify-center rounded-full border-4 border-white bg-slate-200 text-xl sm:text-3xl font-semibold text-slate-600 shadow-lg select-none">
-                {getInitials(displayName)}
-              </div>
-            )}
+    <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden min-h-screen sm:min-h-0">
+      {/* Header Section */}
+      <div className="bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
+          <div className="absolute top-16 right-0 w-24 h-24 bg-white rounded-full translate-x-12"></div>
+          <div className="absolute bottom-0 left-16 w-20 h-20 bg-white rounded-full translate-y-10"></div>
+        </div>
 
-            <label
-              htmlFor="avatar-upload"
-              className="absolute -bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-slate-700 shadow hover:bg-white disabled:opacity-50"
-            >
-              <Upload className="h-4 w-4" />
-              {isUploading ? "Enviando..." : "Alterar foto"}
-            </label>
-            <input
-              id="avatar-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarChange}
-              disabled={isUploading}
-            />
-          </div>
+        <div className="relative px-6 py-8 sm:px-8 sm:py-12">
+          {/* Avatar and Basic Info */}
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="relative">
+              {avatarUrl && avatarUrl.trim() ? (
+                <div className="relative">
+                  <Image
+                    key={avatarUrl}
+                    src={avatarUrl}
+                    alt={`Foto de ${displayName}`}
+                    width={120}
+                    height={120}
+                    className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-xl object-cover"
+                    unoptimized
+                  />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-t from-black/20 to-transparent"></div>
+                </div>
+              ) : (
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-2xl sm:text-3xl font-bold text-gray-600 shadow-xl">
+                  {getInitials(displayName)}
+                </div>
+              )}
 
-          <div className="flex w-full max-w-full flex-col items-center gap-1 text-center sm:mb-8 sm:w-auto sm:items-start sm:text-left">
-            {isEditing ? (
+              <label
+                htmlFor="avatar-upload"
+                className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer border-2 border-gray-100"
+              >
+                <Upload className="h-4 w-4 text-gray-600" />
+              </label>
               <input
-                type="text"
-                value={profileData.fullName}
-                onChange={(event) =>
-                  handleFieldChange("fullName", event.target.value)
-                }
-                className="w-full max-w-full rounded-lg border border-slate-300 px-3 py-2 text-3xl font-bold text-[#0b203a] focus:border-[#fca311] focus:ring-1 focus:ring-[#fca311] sm:max-w-xl"
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+                disabled={isUploading}
               />
-            ) : (
-              <h1 className="text-3xl font-bold text-[#0b203a]">
-                {displayName}
-              </h1>
-            )}
-            <p className="text-md text-slate-500 break-words">
-              @{profileData.username}
-            </p>
+            </div>
+
+            <div className="space-y-2">
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={profileData.fullName}
+                  onChange={(event) =>
+                    handleFieldChange("fullName", event.target.value)
+                  }
+                  className="w-full text-center text-xl sm:text-2xl font-bold text-white bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 placeholder-white/70 focus:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  placeholder="Seu nome completo"
+                />
+              ) : (
+                <h1 className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg">
+                  {displayName}
+                </h1>
+              )}
+              <p className="text-sm sm:text-base text-white/90 font-medium">
+                @{profileData.username}
+              </p>
+            </div>
           </div>
 
-          <button
-            onClick={toggleTheme}
-            className="inline-flex items-center gap-2 rounded-lg bg-white/95 px-4 py-2 text-sm font-semibold text-slate-700 shadow hover:bg-white sm:hidden"
-            aria-label="Alternar tema claro/escuro"
-          >
-            {mounted && theme === "dark" ? (
-              <Sun className="h-4 w-4 text-yellow-500" />
-            ) : (
-              <Moon className="h-4 w-4 text-sky-700" />
-            )}
-            {mounted && theme === "dark" ? "Modo claro" : "Modo escuro"}
-          </button>
+          {/* Theme Toggle - Mobile Only */}
+          <div className="flex justify-center mt-6 sm:hidden">
+            <button
+              onClick={toggleTheme}
+              className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-white/30 transition-all"
+              aria-label="Alternar tema claro/escuro"
+            >
+              {mounted && theme === "dark" ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+              {mounted && theme === "dark" ? "Modo claro" : "Modo escuro"}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="px-4 sm:px-8 pt-40 sm:pt-24 lg:pt-28 pb-8">
+      {/* Content Section */}
+      <div className="px-6 py-6 sm:px-8 sm:py-8 space-y-6">
         {status && (
           <div
-            className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+            className={`rounded-xl border px-4 py-3 text-sm shadow-sm ${
               status.type === "success"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                 : "border-red-200 bg-red-50 text-red-700"
@@ -604,34 +622,58 @@ export default function Profile({
           </div>
         )}
 
-        <div className="mt-6 space-y-4">
+        {/* Bio Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            Sobre mim
+          </h3>
           {isEditing ? (
             <textarea
               name="bio"
               value={profileData.bio ?? ""}
               onChange={(event) => handleFieldChange("bio", event.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-700 focus:border-[#fca311] focus:ring-1 focus:ring-[#fca311]"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white shadow-sm"
               rows={4}
               placeholder={PLACEHOLDER_TEXT.bio}
             />
           ) : (
             <p
-              className={`text-slate-700 ${
-                displayBio ? "" : "italic text-slate-400"
+              className={`text-gray-700 leading-relaxed ${
+                displayBio ? "" : "italic text-gray-400"
               }`}
             >
               {displayBio || PLACEHOLDER_TEXT.bio}
             </p>
           )}
+        </div>
 
-          <div className="grid grid-cols-1 gap-4 pt-4 border-t border-slate-200 md:grid-cols-2">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-slate-600">
-                <Mail className="h-5 w-5 text-[#fca311]" />
-                <span>{profileData.email}</span>
+        {/* Contact Info */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            Informações de contato
+          </h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <Mail className="h-5 w-5 text-blue-600" />
               </div>
-              <div className="flex items-center gap-3 text-slate-600">
-                <MapPin className="h-5 w-5 text-[#fca311]" />
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                  Email
+                </p>
+                <p className="text-gray-800 font-medium">{profileData.email}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
+              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                <MapPin className="h-5 w-5 text-purple-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                  Cidade
+                </p>
                 {isEditing ? (
                   <input
                     type="text"
@@ -639,63 +681,91 @@ export default function Profile({
                     onChange={(event) =>
                       handleFieldChange("city", event.target.value)
                     }
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-[#fca311] focus:ring-1 focus:ring-[#fca311]"
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
                     placeholder={PLACEHOLDER_TEXT.city}
                   />
                 ) : (
-                  <span className={displayCity ? "" : "italic text-slate-400"}>
+                  <p
+                    className={`text-gray-800 font-medium ${
+                      displayCity ? "" : "italic text-gray-400"
+                    }`}
+                  >
                     {displayCity || PLACEHOLDER_TEXT.city}
-                  </span>
+                  </p>
                 )}
               </div>
-            </div>
-            <div className="space-y-3">
-              <button className="flex items-center gap-3 text-slate-600 hover:text-[#0b203a] w-full text-left">
-                <Shield className="h-5 w-5 text-slate-400" />
-                <span>Segurança e Privacidade</span>
-              </button>
-              <button className="flex items-center gap-3 text-slate-600 hover:text-[#0b203a] w-full text-left">
-                <Bell className="h-5 w-5 text-slate-400" />
-                <span>Notificações</span>
-              </button>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-start">
+        {/* Settings */}
+        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+            Configurações
+          </h3>
+          <div className="space-y-3">
+            <button className="w-full flex items-center gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-colors">
+              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                <Shield className="h-5 w-5 text-gray-600" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium text-gray-800">
+                  Segurança e Privacidade
+                </p>
+                <p className="text-sm text-gray-500">
+                  Gerencie suas configurações de segurança
+                </p>
+              </div>
+            </button>
+            <button className="w-full flex items-center gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-colors">
+              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                <Bell className="h-5 w-5 text-gray-600" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium text-gray-800">Notificações</p>
+                <p className="text-sm text-gray-500">
+                  Configure suas preferências de notificação
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="space-y-3 pt-4">
           <button
             onClick={() => {
               setStatus(null);
               setIsEditing((prev) => !prev);
             }}
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all"
           >
             <Edit className="h-4 w-4" />
-            {isEditing ? "Cancelar" : "Editar Perfil"}
+            {isEditing ? "Cancelar edição" : "Editar perfil"}
           </button>
-          <button
-            onClick={handleLogoutClick}
-            className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-all"
-          >
-            <LogOut className="h-4 w-4" />
-            Sair
-          </button>
-        </div>
 
-        {isEditing && (
-          <div className="mt-6 flex justify-end gap-3">
+          {isEditing && (
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#0b203a] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#13335c] transition-all disabled:opacity-50"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSaving ? "Salvando..." : "Salvar Alterações"}
+              {isSaving ? "Salvando..." : "Salvar alterações"}
             </button>
-          </div>
-        )}
+          )}
+
+          <button
+            onClick={handleLogoutClick}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-pink-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all"
+          >
+            <LogOut className="h-4 w-4" />
+            Sair da conta
+          </button>
+        </div>
 
         {isLoading && (
-          <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600 text-center">
             Carregando informações do perfil...
           </div>
         )}
