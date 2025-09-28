@@ -41,7 +41,7 @@ export default function Info() {
                 O Município de Padre Marcos, localizado na região sudeste do
                 Estado do Piauí, na microrregião do Alto Médio Canindé, teve
                 origem na Fazenda Boa Esperança, de propriedade do Padre Marcos
-                de Araújo Costa, que a herdou do seu pai, o português Marcos
+                de Araújo Costa, que a herdou do seu pai, Marcos
                 Francisco de Araújo Costa. Nessa época, pertencia ao município
                 de Jaicós. O Padre Marcos fixou residência na fazenda Boa
                 Esperança por volta do ano de 1820, para continuar a missão
