@@ -17,25 +17,11 @@ Página do Calendário Anual de Padre Marcos, Piauí
 
 import { useCallback, useEffect, useState } from "react";
 import { PlusCircle } from "lucide-react";
-import type { Metadata } from "next";
 import Calendar, { type CalendarEvent } from "./components/calendar";
 import AddEventForm, { type EventSubmission } from "./components/add-event";
 import { buildApiUrl } from "@/lib/api";
 import type { AuthUser } from "../profile/types";
 import { loadSession } from "../profile/utils/session";
-
-export const metadata: Metadata = {
-  title: "Calendário de Eventos de Padre Marcos | Portal PM",
-  description:
-    "Acompanhe os eventos oficiais e comunitários de Padre Marcos (PI), envie novas atividades para aprovação e mantenha-se informado.",
-  keywords: [
-    "Padre Marcos",
-    "calendário de eventos",
-    "eventos municipais",
-    "agenda cultural",
-    "Portal PM",
-  ],
-};
 
 type FeedbackState = {
   type: "success" | "error";
