@@ -2,17 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import {
-  Mail,
-  MapPin,
-  Edit,
-  LogOut,
-  Shield,
-  Bell,
-  Upload,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { Mail, MapPin, Edit, LogOut, Upload, Sun, Moon } from "lucide-react";
 import { buildApiUrl } from "@/lib/api";
 import type { AuthUser, ProfileResponse } from "../types";
 import { DEFAULT_SESSION_DURATION_MS } from "../utils/session";
@@ -521,7 +511,7 @@ export default function Profile({
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden min-h-screen sm:min-h-0">
       {/* Header Section */}
-      <div className="bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-blue-500 via-purple-600 to-amber-500 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
@@ -695,40 +685,6 @@ export default function Profile({
                 )}
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Settings */}
-        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-            Configurações
-          </h3>
-          <div className="space-y-3">
-            <button className="w-full flex items-center gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-colors">
-              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <Shield className="h-5 w-5 text-gray-600" />
-              </div>
-              <div className="text-left">
-                <p className="font-medium text-gray-800">
-                  Segurança e Privacidade
-                </p>
-                <p className="text-sm text-gray-500">
-                  Gerencie suas configurações de segurança
-                </p>
-              </div>
-            </button>
-            <button className="w-full flex items-center gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-colors">
-              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <Bell className="h-5 w-5 text-gray-600" />
-              </div>
-              <div className="text-left">
-                <p className="font-medium text-gray-800">Notificações</p>
-                <p className="text-sm text-gray-500">
-                  Configure suas preferências de notificação
-                </p>
-              </div>
-            </button>
           </div>
         </div>
 
