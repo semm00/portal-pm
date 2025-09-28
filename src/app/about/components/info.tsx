@@ -431,7 +431,7 @@ Me dá prazer externar todo este amor. (repete)`}
                     0,541
                   </li>
                   <li>
-                    <strong>Área da Unidade Territorial (2015):</strong> 278,637
+                    <strong>Área da Unidade Territorial (2025):</strong> 278,637
                     km² (Alto Médio Canindé).
                   </li>
                   <li>
