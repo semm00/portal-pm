@@ -318,13 +318,12 @@ function MediaCarousel({ media }: { media: ApiPost["media"] }) {
           return (
             <div
               key={item.id || `${item.url}-${index}`}
-              className="relative w-full flex-shrink-0 snap-center overflow-hidden bg-slate-950/5"
-              style={{ aspectRatio: "16 / 9" }}
+              className="relative w-full flex-shrink-0 snap-center overflow-hidden bg-slate-950/5 max-h-96"
             >
               {isVideo ? (
                 <video
                   controls
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain max-h-96"
                   preload="metadata"
                 >
                   <source src={item.url} type={item.mimeType || "video/mp4"} />
@@ -335,7 +334,7 @@ function MediaCarousel({ media }: { media: ApiPost["media"] }) {
                   src={item.url}
                   alt={`Mídia ${index + 1} do post`}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   sizes="(max-width: 768px) 100vw, 680px"
                   priority={index === 0}
                 />

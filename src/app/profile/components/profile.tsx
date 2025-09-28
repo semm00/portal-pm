@@ -521,7 +521,7 @@ export default function Profile({
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
       <div className="bg-gradient-to-r from-sky-200 to-amber-200 h-20 sm:h-40 relative">
-        <div className="absolute inset-x-4 sm:inset-x-auto sm:left-8 -bottom-20 sm:-bottom-24 flex flex-col sm:flex-row items-end justify-between sm:justify-start gap-4">
+        <div className="absolute inset-x-4 sm:inset-x-auto sm:left-8 -bottom-20 sm:-bottom-24 flex flex-col items-center sm:flex-row sm:items-end sm:justify-start gap-4">
           <div className="relative">
             {avatarUrl && avatarUrl.trim() ? (
               <Image
@@ -556,7 +556,7 @@ export default function Profile({
             />
           </div>
 
-          <div className="flex flex-col gap-2 sm:mb-6">
+          <div className="flex flex-col items-center gap-2 sm:mb-6 sm:items-start">
             {isEditing ? (
               <input
                 type="text"

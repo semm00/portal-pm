@@ -203,8 +203,11 @@ export default function CalendarPage() {
           <div className="flex flex-col items-center gap-2 sm:flex-row">
             <button
               onClick={handleOpenForm}
-              disabled={!user || !user.token}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#fca311] px-5 py-2.5 text-sm font-semibold text-[#0b203a] shadow-md transition-all hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className={`inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold shadow-md transition-all ${
+                !user || !user.token
+                  ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                  : "bg-[#fca311] text-[#0b203a] hover:bg-amber-500"
+              }`}
             >
               <PlusCircle className="h-5 w-5" />
               Adicionar Evento

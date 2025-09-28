@@ -8,7 +8,7 @@ export default function Head() {
       />
       <meta
         name="keywords"
-        content="Portal PM, login cidadão, perfil do usuário, Padre Marcos, serviços online"
+        content="Portal PM, login cidadão, perfil do usuário, Padre Marcos, serviços online, contato Padre Marcos PI, sugestões Padre Marcos, fale conosco Padre Marcos, newsletter Padre Marcos"
       />
     </>
   );

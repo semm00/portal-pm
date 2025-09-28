@@ -25,6 +25,11 @@ export const metadata: Metadata = {
     "prefeitos de Padre Marcos",
     "dados do município",
     "Portal PM",
+    "história de Padre Marcos PI",
+    "onde fica Padre Marcos",
+    "informações sobre Padre Marcos",
+    "mapa de Padre Marcos",
+    "curiosidades de Padre Marcos",
   ],
 };
 
