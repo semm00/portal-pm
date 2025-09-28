@@ -9,9 +9,24 @@ estrutura da página:
 - Responsividade para dispositivos móveis
 */
 
+import type { Metadata } from "next";
 import Info from "./components/info";
 import MayorLine from "./components/mayor-line";
 import References from "./components/references";
+
+export const metadata: Metadata = {
+  title: "Sobre Padre Marcos | Portal PM",
+  description:
+    "Conheça a história, geografia, gestores e curiosidades do município de Padre Marcos, Piauí, no Portal PM.",
+  keywords: [
+    "Padre Marcos",
+    "história de Padre Marcos",
+    "cultura",
+    "prefeitos de Padre Marcos",
+    "dados do município",
+    "Portal PM",
+  ],
+};
 
 export default function About() {
   return (

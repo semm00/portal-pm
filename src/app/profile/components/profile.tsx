@@ -521,7 +521,7 @@ export default function Profile({
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
       <div className="bg-gradient-to-r from-sky-200 to-amber-200 h-20 sm:h-40 relative">
-        <div className="absolute inset-x-4 sm:inset-x-auto sm:left-8 -bottom-20 sm:-bottom-24 flex items-end justify-between sm:justify-start gap-4">
+        <div className="absolute inset-x-4 sm:inset-x-auto sm:left-8 -bottom-20 sm:-bottom-24 flex flex-col sm:flex-row items-end justify-between sm:justify-start gap-4">
           <div className="relative">
             {avatarUrl && avatarUrl.trim() ? (
               <Image
@@ -555,6 +555,25 @@ export default function Profile({
               disabled={isUploading}
             />
           </div>
+
+          <div className="flex flex-col gap-2 sm:mb-6">
+            {isEditing ? (
+              <input
+                type="text"
+                value={profileData.fullName}
+                onChange={(event) =>
+                  handleFieldChange("fullName", event.target.value)
+                }
+                className="w-full max-w-xl rounded-lg border border-slate-300 px-3 py-2 text-3xl font-bold text-[#0b203a] focus:border-[#fca311] focus:ring-1 focus:ring-[#fca311]"
+              />
+            ) : (
+              <h1 className="text-3xl font-bold text-[#0b203a]">
+                {displayName}
+              </h1>
+            )}
+            <p className="text-md text-slate-500">@{profileData.username}</p>
+          </div>
+
           <button
             onClick={toggleTheme}
             className="inline-flex items-center gap-2 rounded-lg bg-white/95 px-4 py-2 text-sm font-semibold text-slate-700 shadow hover:bg-white sm:hidden"
@@ -582,22 +601,6 @@ export default function Profile({
             {status.message}
           </div>
         )}
-
-        <div className="flex flex-col gap-2">
-          {isEditing ? (
-            <input
-              type="text"
-              value={profileData.fullName}
-              onChange={(event) =>
-                handleFieldChange("fullName", event.target.value)
-              }
-              className="w-full max-w-xl rounded-lg border border-slate-300 px-3 py-2 text-3xl font-bold text-[#0b203a] focus:border-[#fca311] focus:ring-1 focus:ring-[#fca311]"
-            />
-          ) : (
-            <h1 className="text-3xl font-bold text-[#0b203a]">{displayName}</h1>
-          )}
-          <p className="text-md text-slate-500">@{profileData.username}</p>
-        </div>
 
         <div className="mt-6 space-y-4">
           {isEditing ? (

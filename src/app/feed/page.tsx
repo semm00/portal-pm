@@ -15,9 +15,24 @@ explicação: essa página serve como um hub central para todas as atualizaçõe
 
 import { useState } from "react";
 import { PlusCircle, XCircle } from "lucide-react";
+import type { Metadata } from "next";
 import FeedForm from "./components/form";
 import FeedHeader, { type FilterType } from "./components/header";
 import Posts from "./components/posts";
+
+export const metadata: Metadata = {
+  title: "Mural Digital de Padre Marcos | Portal PM",
+  description:
+    "Participe do mural colaborativo de Padre Marcos (PI). Compartilhe avisos, eventos, fotos e atualizações com a comunidade no Portal PM.",
+  keywords: [
+    "Padre Marcos",
+    "mural digital",
+    "rede comunitária",
+    "feed de notícias",
+    "Portal PM",
+    "participação cidadã",
+  ],
+};
 
 export default function Feed() {
   const [isFormOpen, setIsFormOpen] = useState(false);

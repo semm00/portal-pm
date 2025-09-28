@@ -1,7 +1,7 @@
 //  Calendário com os doze meses
 // Página dedicada a exibir um calendário anual com eventos e feriados importantes de Padre Marcos, Piauí.
 // Possibilidade de adicionar eventos ao calendário.
-// Adicionar descrição do evento, ao lado de cada mês aparece um parte com os eventos daquele mês e descrição
+// Adicionar descrição do even        {feedback && (cada mês aparece um parte com os eventos daquele mês e descrição
 // integração com atela home onde aparece os próximos eventos
 /*
 Página do Calendário Anual de Padre Marcos, Piauí
@@ -16,13 +16,26 @@ Página do Calendário Anual de Padre Marcos, Piauí
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { PlusCircle, RotateCw } from "lucide-react";
-import Link from "next/link";
+import { PlusCircle } from "lucide-react";
+import type { Metadata } from "next";
 import Calendar, { type CalendarEvent } from "./components/calendar";
 import AddEventForm, { type EventSubmission } from "./components/add-event";
 import { buildApiUrl } from "@/lib/api";
 import type { AuthUser } from "../profile/types";
 import { loadSession } from "../profile/utils/session";
+
+export const metadata: Metadata = {
+  title: "Calendário de Eventos de Padre Marcos | Portal PM",
+  description:
+    "Acompanhe os eventos oficiais e comunitários de Padre Marcos (PI), envie novas atividades para aprovação e mantenha-se informado.",
+  keywords: [
+    "Padre Marcos",
+    "calendário de eventos",
+    "eventos municipais",
+    "agenda cultural",
+    "Portal PM",
+  ],
+};
 
 type FeedbackState = {
   type: "success" | "error";
@@ -176,7 +189,8 @@ export default function CalendarPage() {
     if (!user || !user.token) {
       setFeedback({
         type: "error",
-        message: "Faça login na área de Perfil para cadastrar um evento.",
+        message:
+          "Para cadastrar um evento, acesse a área de Perfil e faça login. Depois, clique em 'Adicionar Evento' para enviar a sua proposta.",
       });
       return;
     }
@@ -209,13 +223,6 @@ export default function CalendarPage() {
               <PlusCircle className="h-5 w-5" />
               Adicionar Evento
             </button>
-            <button
-              onClick={fetchApprovedEvents}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#0b203a]/20 px-4 py-2 text-sm font-semibold text-[#0b203a] transition-all hover:bg-[#0b203a] hover:text-white"
-            >
-              <RotateCw className="h-4 w-4" />
-              Atualizar eventos
-            </button>
           </div>
         </div>
 
@@ -230,21 +237,6 @@ export default function CalendarPage() {
             {feedback.message}
           </div>
         )}
-
-        {(!user || !user.token) && (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 px-4 py-3 text-sm text-slate-600">
-            Para cadastrar um evento, acesse a área de{" "}
-            <Link
-              href="/profile"
-              className="font-semibold text-[#0b203a] underline-offset-2 hover:underline"
-            >
-              Perfil
-            </Link>{" "}
-            e faça login. Depois, clique em &quot;Adicionar Evento&quot; para
-            enviar a sua proposta.
-          </div>
-        )}
-
         {isLoadingEvents ? (
           <div className="flex min-h-[200px] items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white/50">
             <p className="text-sm text-slate-500">

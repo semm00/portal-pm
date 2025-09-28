@@ -11,12 +11,27 @@ estrutura da página:
 - Responsividade para dispositivos móveis
 */
 
+import type { Metadata } from "next";
+import Image from "next/image";
 import Slides from "./components/slides";
 import News from "./components/news";
 import Events from "./components/events";
 import Footer from "./components/footer";
-import Image from "next/image";
 import NotificationsBell from "./components/notifications-bell";
+
+export const metadata: Metadata = {
+  title: "Portal PM | Notícias e serviços de Padre Marcos",
+  description:
+    "Portal oficial de Padre Marcos (PI) com notícias, eventos, serviços públicos e informações úteis para moradores e visitantes.",
+  keywords: [
+    "Portal PM",
+    "Padre Marcos",
+    "notícias",
+    "eventos",
+    "serviços públicos",
+    "Prefeitura de Padre Marcos",
+  ],
+};
 
 export default function Home() {
   return (

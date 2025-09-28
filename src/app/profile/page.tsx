@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { Metadata } from "next";
 import Login from "./components/login";
 import Profile from "./components/profile";
 import type { AuthUser } from "./types";
@@ -11,6 +12,19 @@ import {
   saveSession,
   DEFAULT_SESSION_DURATION_MS,
 } from "./utils/session";
+
+export const metadata: Metadata = {
+  title: "Área do Cidadão | Portal PM",
+  description:
+    "Acesse a área de login do Portal PM para atualizar dados pessoais, acompanhar solicitações e gerenciar a conta de cidadão de Padre Marcos.",
+  keywords: [
+    "Portal PM",
+    "login cidadão",
+    "perfil do usuário",
+    "Padre Marcos",
+    "serviços online",
+  ],
+};
 
 export default function ProfilePage() {
   const [user, setUser] = useState<AuthUser | null>(null);
