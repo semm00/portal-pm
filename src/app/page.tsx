@@ -22,7 +22,7 @@ import NotificationsBell from "./components/notifications-bell";
 export const metadata: Metadata = {
   title: "Portal PM | Notícias e serviços de Padre Marcos",
   description:
-    "Portal oficial de Padre Marcos (PI) com notícias, eventos, serviços públicos e informações úteis para moradores e visitantes.",
+    "Portal de Padre Marcos (PI) com notícias, eventos, serviços públicos e informações úteis para moradores e visitantes.",
   keywords: [
     "Portal PM",
     "Padre Marcos",
