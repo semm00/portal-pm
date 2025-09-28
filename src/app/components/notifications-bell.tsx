@@ -152,6 +152,10 @@ export default function NotificationsBell() {
   useEffect(() => {
     if (user && user.token) {
       fetchAlerts();
+    } else {
+      // Clear alerts when user logs out
+      setAlerts([]);
+      setLastFetchedAt(0);
     }
   }, [fetchAlerts, user]);
 
@@ -197,9 +201,18 @@ export default function NotificationsBell() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const badgeCount = alerts.length;
+  const badgeCount = user && user.token ? alerts.length : 0;
 
   const dropdownContent = useMemo(() => {
+    if (!user || !user.token) {
+      return (
+        <div className="flex flex-col items-center gap-3 py-6 text-center text-sm text-slate-500">
+          <Bell className="h-6 w-6 text-[#fca311]" />
+          <span>Faça login para ver suas notificações</span>
+        </div>
+      );
+    }
+
     if (loading) {
       return (
         <div className="flex items-center justify-center gap-2 py-6 text-sm text-slate-500">
@@ -271,11 +284,7 @@ export default function NotificationsBell() {
         })}
       </ul>
     );
-  }, [alerts, error, fetchAlerts, loading]);
-
-  if (!user || !user.token) {
-    return null;
-  }
+  }, [alerts, error, fetchAlerts, loading, user]);
 
   return (
     <div ref={containerRef} className="relative">
@@ -299,26 +308,30 @@ export default function NotificationsBell() {
             <p className="text-sm font-semibold text-[#0b203a]">
               Alertas recentes
             </p>
-            <button
-              type="button"
-              onClick={fetchAlerts}
-              className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[#0b203a]/70 hover:text-[#0b203a]"
-            >
-              <RefreshCcw className="h-3.5 w-3.5" /> Atualizar
-            </button>
+            {user && user.token && (
+              <button
+                type="button"
+                onClick={fetchAlerts}
+                className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[#0b203a]/70 hover:text-[#0b203a]"
+              >
+                <RefreshCcw className="h-3.5 w-3.5" /> Atualizar
+              </button>
+            )}
           </div>
 
           {dropdownContent}
 
-          <div className="border-t border-slate-100 px-4 py-3 text-right">
-            <Link
-              href="/feed"
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#0a4ea1] hover:text-[#08326b]"
-              onClick={() => setOpen(false)}
-            >
-              Ver mural completo →
-            </Link>
-          </div>
+          {user && user.token && (
+            <div className="border-t border-slate-100 px-4 py-3 text-right">
+              <Link
+                href="/feed"
+                className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#0a4ea1] hover:text-[#08326b]"
+                onClick={() => setOpen(false)}
+              >
+                Ver mural completo →
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
