@@ -134,8 +134,17 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
   const handleGsiLoad = () => {
     setGsiLoaded(true);
+    setGoogleLoading(false);
     console.log("Script GSI carregado e pronto.");
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.google?.accounts?.id) {
+      setGsiLoaded(true);
+      setGoogleLoading(false);
+    }
+  }, []);
 
   const handleResendVerification = async () => {
     if (!emailForResend) return;
@@ -341,6 +350,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         async
         defer
         onLoad={handleGsiLoad}
+        onReady={handleGsiLoad}
         onError={() => {
           console.error("Falha ao carregar script GSI");
           setGoogleLoading(false);

@@ -63,22 +63,21 @@ export default function Info() {
             </div>
 
             <div className="md:hidden">
-              <div className="flex justify-between items-center mt-6 mb-2">
-                <h2 className="text-xl font-semibold text-slate-900">
+              <button
+                type="button"
+                onClick={() => setExpandedHistoria((prev) => !prev)}
+                className="flex w-full items-center justify-between mt-6 mb-2 rounded-lg px-2 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4ea1]/60 hover:bg-slate-100"
+                aria-expanded={expandedHistoria}
+              >
+                <span className="text-left text-xl font-semibold text-slate-900">
                   História
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => setExpandedHistoria(!expandedHistoria)}
-                  className="text-slate-900 text-xl p-2 -m-2 hover:bg-slate-100 rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                >
-                  {expandedHistoria ? (
-                    <ChevronUp size={20} />
-                  ) : (
-                    <ChevronDown size={20} />
-                  )}
-                </button>
-              </div>
+                </span>
+                {expandedHistoria ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
+              </button>
               {expandedHistoria && (
                 <p className="text-[15px] text-gray-700 mb-4 whitespace-pre-line">
                   O Município de Padre Marcos, localizado na região sudeste do
@@ -116,20 +115,19 @@ export default function Info() {
             </div>
 
             <div className="md:hidden">
-              <div className="flex justify-between items-center mt-4 mb-2">
-                <h3 className="text-lg font-medium">Povoados</h3>
-                <button
-                  type="button"
-                  onClick={() => setExpandedPovoados(!expandedPovoados)}
-                  className="text-slate-900 text-xl p-2 -m-2 hover:bg-slate-100 rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                >
-                  {expandedPovoados ? (
-                    <ChevronUp size={20} />
-                  ) : (
-                    <ChevronDown size={20} />
-                  )}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setExpandedPovoados((prev) => !prev)}
+                className="flex w-full items-center justify-between mt-4 mb-2 rounded-lg px-2 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4ea1]/60 hover:bg-slate-100"
+                aria-expanded={expandedPovoados}
+              >
+                <span className="text-left text-lg font-medium">Povoados</span>
+                {expandedPovoados ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
+              </button>
               {expandedPovoados && (
                 <p className="text-[15px] text-gray-700">
                   Riacho do Padre, Casa Nova, Jurema, Curral Velho, Barra, Canto
@@ -237,20 +235,19 @@ Me dá prazer externar todo este amor. (repete)`}
             </div>
 
             <div className="md:hidden">
-              <div className="flex justify-between items-center mt-6 mb-1">
-                <h3 className="text-lg font-medium">Hino</h3>
-                <button
-                  type="button"
-                  onClick={() => setExpandedHino(!expandedHino)}
-                  className="text-slate-900 text-xl p-2 -m-2 hover:bg-slate-100 rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                >
-                  {expandedHino ? (
-                    <ChevronUp size={20} />
-                  ) : (
-                    <ChevronDown size={20} />
-                  )}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setExpandedHino((prev) => !prev)}
+                className="flex w-full items-center justify-between mt-6 mb-1 rounded-lg px-2 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4ea1]/60 hover:bg-slate-100"
+                aria-expanded={expandedHino}
+              >
+                <span className="text-left text-lg font-medium">Hino</span>
+                {expandedHino ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
+              </button>
               {expandedHino && (
                 <>
                   <p className="text-sm text-gray-600 mb-3">
@@ -278,7 +275,7 @@ Foi primazia orgulhando o nosso Estado,
                           <button
                             type="button"
                             onClick={() => setExpanded(true)}
-                            className="text-sm text-[#0a4ea1] underline"
+                            className="text-sm text-[#0a4ea1] underline hover:text-[#08326b] transition-colors px-2 py-1 -mx-2 rounded min-h-[44px] flex items-center"
                           >
                             Ver mais
                           </button>
@@ -338,22 +335,21 @@ Foi primazia orgulhando o nosso Estado,
             </div>
 
             <div className="md:hidden">
-              <div className="flex justify-between items-center mt-6 mb-3">
-                <h3 className="text-lg font-medium">Considerações Gerais</h3>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setExpandedConsideracoes(!expandedConsideracoes)
-                  }
-                  className="text-slate-900 text-xl p-2 -m-2 hover:bg-slate-100 rounded transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                >
-                  {expandedConsideracoes ? (
-                    <ChevronUp size={20} />
-                  ) : (
-                    <ChevronDown size={20} />
-                  )}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setExpandedConsideracoes((prev) => !prev)}
+                className="flex w-full items-center justify-between mt-6 mb-3 rounded-lg px-2 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4ea1]/60 hover:bg-slate-100"
+                aria-expanded={expandedConsideracoes}
+              >
+                <span className="text-left text-lg font-medium">
+                  Considerações Gerais
+                </span>
+                {expandedConsideracoes ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
+              </button>
               {expandedConsideracoes && (
                 <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
                   <li>

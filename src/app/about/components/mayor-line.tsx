@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 
 interface Mayor {
@@ -34,61 +34,32 @@ const ImageWithFallback: React.FC<{
   onMouseEnter,
   onMouseLeave,
 }) => {
-  // fallback to the SVG placeholder that we created so there is always a valid image
   const fallbackSrc = "/images/placeholder.svg";
-  const [currentSrc, setCurrentSrc] = useState(fallbackSrc);
-  const [hasError, setHasError] = useState(false);
+  const sourceCandidates = useMemo(() => {
+    const exts = [".jpg", ".jpeg", ".png", ".webp"];
+    const unique = Array.from(
+      new Set(exts.map((ext) => `${src}${ext}`).concat(fallbackSrc))
+    );
+    return unique;
+  }, [src, fallbackSrc]);
 
-  // Probe available extensions in background and set currentSrc to first found
-  React.useEffect(() => {
-    let mounted = true;
-    const probe = async () => {
-      const exts = [".jpg", ".jpeg", ".png"];
-      if (mounted) {
-        setHasError(false);
-      }
-      for (const ext of exts) {
-        const url = `${src}${ext}`;
-        try {
-          const res = await fetch(url, { method: "HEAD" });
-          if (res.ok) {
-            if (mounted) setCurrentSrc(url);
-            return;
-          }
-        } catch {
-          // ignore network errors
-        }
-      }
-      // no image found; keep fallback
-    };
-    probe();
-    return () => {
-      mounted = false;
-    };
+  const [attemptIndex, setAttemptIndex] = useState(0);
+
+  useEffect(() => {
+    setAttemptIndex(0);
   }, [src]);
 
-  const handleError = () => {
-    if (!hasError) {
-      // If image fails to load after probe, use fallback
-      if (currentSrc !== fallbackSrc) {
-        setCurrentSrc(fallbackSrc);
-      } else {
-        setHasError(true);
-      }
-    }
-  };
+  const currentSrc = sourceCandidates[attemptIndex] ?? fallbackSrc;
+  const isLastAttempt = attemptIndex >= sourceCandidates.length - 1;
 
-  if (hasError) {
-    return (
-      <div
-        className={`${className} bg-gray-200 flex items-center justify-center text-gray-500 text-xs`}
-        style={{ width, height }}
-        onClick={onClick}
-      >
-        Sem imagem
-      </div>
-    );
-  }
+  const handleError = () => {
+    setAttemptIndex((prev) => {
+      if (prev >= sourceCandidates.length - 1) {
+        return prev;
+      }
+      return prev + 1;
+    });
+  };
 
   return (
     <Image
@@ -101,6 +72,8 @@ const ImageWithFallback: React.FC<{
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onError={handleError}
+      loading="lazy"
+      unoptimized={isLastAttempt && currentSrc === fallbackSrc}
     />
   );
 };

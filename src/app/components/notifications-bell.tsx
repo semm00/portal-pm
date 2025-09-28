@@ -77,6 +77,7 @@ export default function NotificationsBell() {
   const [error, setError] = useState<string | null>(null);
   const [lastFetchedAt, setLastFetchedAt] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const prevOpenRef = useRef(false);
 
   const fetchAlerts = useCallback(async () => {
     setLoading(true);
@@ -118,14 +119,16 @@ export default function NotificationsBell() {
     if (shouldRefresh && !loading) {
       fetchAlerts().catch(() => null);
     }
-
-    // Fechar automaticamente após 5 segundos (simulando leitura)
-    const autoCloseTimer = setTimeout(() => {
-      setOpen(false);
-    }, 5000);
-
-    return () => clearTimeout(autoCloseTimer);
   }, [open, fetchAlerts, lastFetchedAt, loading]);
+
+  useEffect(() => {
+    if (prevOpenRef.current && !open) {
+      setAlerts([]);
+      setLastFetchedAt(0);
+    }
+
+    prevOpenRef.current = open;
+  }, [open]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

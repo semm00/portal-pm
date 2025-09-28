@@ -380,7 +380,7 @@ export default function Profile({
 
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-[#0b203a] to-[#153b69] h-40 relative">
+      <div className="bg-gradient-to-r from-[#0e2b59] to-[#1b52a8] h-40 relative">
         <div className="absolute -bottom-20 left-4 sm:left-8 flex items-end gap-4">
           <div className="relative">
             {avatarUrl && avatarUrl.trim() ? (
@@ -418,36 +418,40 @@ export default function Profile({
         </div>
       </div>
 
-      <div className="flex justify-end p-4 mt-6 gap-2">
-        <button
-          onClick={toggleTheme}
-          className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all"
-          aria-label="Alternar tema claro/escuro"
-        >
-          {mounted && theme === "dark" ? (
-            <Sun className="h-4 w-4 text-yellow-500" />
-          ) : (
-            <Moon className="h-4 w-4 text-sky-700" />
-          )}
-          {mounted && theme === "dark" ? "Modo claro" : "Modo escuro"}
-        </button>
-        <button
-          onClick={() => {
-            setStatus(null);
-            setIsEditing((prev) => !prev);
-          }}
-          className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all"
-        >
-          <Edit className="h-4 w-4" />
-          {isEditing ? "Cancelar" : "Editar Perfil"}
-        </button>
-        <button
-          onClick={handleLogoutClick}
-          className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-all"
-        >
-          <LogOut className="h-4 w-4" />
-          Sair
-        </button>
+      <div className="p-4 mt-24 sm:mt-6">
+        <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all self-end sm:hidden"
+            aria-label="Alternar tema claro/escuro"
+          >
+            {mounted && theme === "dark" ? (
+              <Sun className="h-4 w-4 text-yellow-500" />
+            ) : (
+              <Moon className="h-4 w-4 text-sky-700" />
+            )}
+            {mounted && theme === "dark" ? "Modo claro" : "Modo escuro"}
+          </button>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
+            <button
+              onClick={() => {
+                setStatus(null);
+                setIsEditing((prev) => !prev);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all"
+            >
+              <Edit className="h-4 w-4" />
+              {isEditing ? "Cancelar" : "Editar Perfil"}
+            </button>
+            <button
+              onClick={handleLogoutClick}
+              className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-all"
+            >
+              <LogOut className="h-4 w-4" />
+              Sair
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="p-8 pt-2">
