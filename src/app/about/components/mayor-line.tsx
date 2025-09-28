@@ -185,12 +185,12 @@ const mayors: Mayor[] = [
       "A segunda eleição aconteceu no final do ano de 1966 entre o comerciante Vicente Oliveira Lobo, tendo como candidato a Vice-Prefeito o também comerciante e ex-prefeito nomeado Anísio Bento de Carvalho, para uma gestão de 4 anos, ou seja, de 1967 a 1970.",
   },
   {
-    image: "zezito-moura",
-    name: "José de Moura (Zezito)",
-    mandate: "1965-1966",
+    image: "anisio-bento",
+    name: "Anisio Bento",
+    mandate: "1964",
     tooltip:
-      "Em 27 de dezembro de 1964, acontece a primeira eleição direta em Padre Marcos. Mas, antes, as lideranças locais que de costume se reuniam para combinar estratégias, concordaram que José de Moura Leal deveria ser o Primeiro Prefeito, e escolheram o comerciante Vicente Oliveira Lobo para candidato a Vice-Prefeito. E assim aconteceu.",
-  },
+      "O então Prefeito nomeado Anísio Bento de Carvalho administrou o recém-criado município por apenas um ano, ou seja, 1964, quando no final do mesmo ano aconteceu a primeira eleição direta para Prefeito de Padre Marcos. No breve mandato, Anísio Bento construiu: o matadouro público na sede do município; ο galpão do Mercado Central; um barreiro público na localidade Lagoa das Pedras.",
+  }
 ];
 
 export default function MayorLine() {
