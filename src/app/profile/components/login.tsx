@@ -46,9 +46,26 @@ type AuthResponse = {
   emailSent?: boolean;
   token?: string;
   refreshToken?: string;
+  expiresIn?: number;
+  tokenExpiresAt?: number;
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
+const resolveTokenExpiry = (payload: {
+  tokenExpiresAt?: number;
+  expiresIn?: number;
+}): number | undefined => {
+  if (payload.tokenExpiresAt) {
+    return payload.tokenExpiresAt;
+  }
+
+  if (payload.expiresIn) {
+    return Date.now() + payload.expiresIn * 1000;
+  }
+
+  return undefined;
+};
 
 const handleLogin = async (
   credentials: LoginPayload
@@ -135,7 +152,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   const handleGsiLoad = () => {
     setGsiLoaded(true);
     setGoogleLoading(false);
-    console.log("Script GSI carregado e pronto.");
   };
 
   useEffect(() => {
@@ -195,6 +211,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             ...response.user,
             token: response.token ?? response.user.token,
             refreshToken: response.refreshToken,
+            tokenExpiresAt: resolveTokenExpiry(response),
           };
           onLoginSuccess(userWithTokens);
         } else if (response.code === "EMAIL_NOT_VERIFIED") {
@@ -247,7 +264,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     }
 
     if (!isGsiLoaded) {
-      console.log("Aguardando carregamento do script GSI...");
       setGoogleLoading(true);
       return;
     }
@@ -257,10 +273,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     const handleCredentialResponse = async (response: {
       credential: string;
     }) => {
-      console.log(
-        "Recebido idToken do Google:",
-        response.credential.substring(0, 50) + "..."
-      );
       const credential = response?.credential;
       if (!credential) return;
       setIsLoading(true);
@@ -272,12 +284,12 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           body: JSON.stringify({ idToken: credential }),
         });
         const data = await res.json();
-        console.log("Resposta do backend:", data);
         if (res.ok && data.user) {
           const userWithTokens: AuthUser = {
             ...data.user,
             token: data.token ?? data.user.token,
             refreshToken: data.refreshToken,
+            tokenExpiresAt: resolveTokenExpiry(data),
           };
           onLoginSuccess(userWithTokens);
         } else {
@@ -298,7 +310,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       }
 
       try {
-        console.log("Inicializando GSI com client_id:", googleClientId);
         window.google.accounts.id.initialize({
           client_id: googleClientId,
           callback: handleCredentialResponse,
@@ -318,7 +329,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             googleButton.style.width = "100%";
             googleButton.style.maxWidth = "320px";
           }
-          console.log("Botão do Google renderizado.");
         } else {
           console.error("Elemento #gsi-button não encontrado");
         }

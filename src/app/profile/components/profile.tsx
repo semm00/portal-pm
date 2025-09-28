@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Mail,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { buildApiUrl } from "@/lib/api";
 import type { AuthUser, ProfileResponse } from "../types";
+import { DEFAULT_SESSION_DURATION_MS } from "../utils/session";
 
 const PLACEHOLDER_TEXT = {
   bio: "Adicione uma descrição",
@@ -40,6 +41,8 @@ const getInitials = (name?: string) => {
 };
 
 type Theme = "light" | "dark";
+
+const REFRESH_THRESHOLD_MS = 5 * 60 * 1000;
 
 function useTheme(): [Theme, () => void, boolean] {
   const [theme, setTheme] = useState<Theme>("light");
@@ -104,6 +107,100 @@ export default function Profile({
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
+  const refreshPromiseRef = useRef<Promise<string | null> | null>(null);
+
+  const refreshAccessToken = useCallback(async (): Promise<string | null> => {
+    if (!user.refreshToken) {
+      return user.token ?? null;
+    }
+
+    if (refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
+    }
+
+    const promise = (async () => {
+      try {
+        const response = await fetch(buildApiUrl("/api/users/refresh"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken: user.refreshToken }),
+        });
+
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            setStatus({
+              type: "error",
+              message: "Sessão expirada. Faça login novamente.",
+            });
+            onLogout();
+          } else {
+            setStatus({
+              type: "error",
+              message: "Não foi possível atualizar sua sessão agora.",
+            });
+          }
+          return null;
+        }
+
+        const data = (await response.json()) as {
+          success?: boolean;
+          token?: string;
+          refreshToken?: string;
+          tokenExpiresAt?: number;
+          expiresIn?: number;
+        };
+
+        if (!data?.success || !data.token) {
+          return null;
+        }
+
+        const resolvedExpiry =
+          data.tokenExpiresAt ??
+          (typeof data.expiresIn === "number"
+            ? Date.now() + data.expiresIn * 1000
+            : undefined);
+
+        onUserUpdate((currentUser) => ({
+          ...currentUser,
+          token: data.token ?? currentUser.token,
+          refreshToken: data.refreshToken ?? currentUser.refreshToken,
+          tokenExpiresAt: resolvedExpiry ?? currentUser.tokenExpiresAt,
+          expiresAt: Date.now() + DEFAULT_SESSION_DURATION_MS,
+        }));
+
+        return data.token;
+      } catch (error) {
+        console.error("Falha ao atualizar token:", error);
+        return null;
+      } finally {
+        refreshPromiseRef.current = null;
+      }
+    })();
+
+    refreshPromiseRef.current = promise;
+    return promise;
+  }, [onLogout, onUserUpdate, user.refreshToken, user.token]);
+
+  const getValidToken = useCallback(
+    async (forceRefresh = false): Promise<string | null> => {
+      const currentToken = user.token ?? null;
+
+      if (!currentToken) {
+        return null;
+      }
+
+      if (!forceRefresh) {
+        const tokenExpiry = user.tokenExpiresAt;
+        if (!tokenExpiry || tokenExpiry - Date.now() > REFRESH_THRESHOLD_MS) {
+          return currentToken;
+        }
+      }
+
+      const refreshedToken = await refreshAccessToken();
+      return refreshedToken ?? currentToken;
+    },
+    [refreshAccessToken, user.token, user.tokenExpiresAt]
+  );
 
   useEffect(() => {
     setProfileData((prev) => ({
@@ -129,24 +226,34 @@ export default function Profile({
   );
 
   const fetchProfile = useCallback(async () => {
-    if (!user.token) {
-      setIsLoading(false);
-      setStatus({
-        type: "error",
-        message: "Sessão expirada. Faça login novamente.",
-      });
-      return;
-    }
-
     setIsLoading(true);
     setStatus(null);
 
     try {
-      const response = await fetch(buildApiUrl("/api/profile/me"), {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
+      let token = await getValidToken();
+
+      if (!token) {
+        setStatus({
+          type: "error",
+          message: "Sessão expirada. Faça login novamente.",
+        });
+        onLogout();
+        return;
+      }
+
+      let response = await fetch(buildApiUrl("/api/profile/me"), {
+        headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (response.status === 401 || response.status === 403) {
+        const refreshedToken = await refreshAccessToken();
+        if (refreshedToken && refreshedToken !== token) {
+          token = refreshedToken;
+          response = await fetch(buildApiUrl("/api/profile/me"), {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        }
+      }
 
       if (response.status === 401 || response.status === 403) {
         setStatus({
@@ -187,7 +294,7 @@ export default function Profile({
     } finally {
       setIsLoading(false);
     }
-  }, [onLogout, persistUser, user.token]);
+  }, [getValidToken, onLogout, persistUser, refreshAccessToken]);
 
   useEffect(() => {
     // Chama fetchProfile apenas uma vez ao montar
@@ -206,15 +313,6 @@ export default function Profile({
   };
 
   const handleSave = async () => {
-    if (!user.token) {
-      setStatus({
-        type: "error",
-        message: "Sessão expirada. Faça login novamente.",
-      });
-      onLogout();
-      return;
-    }
-
     setIsSaving(true);
     setStatus(null);
 
@@ -225,14 +323,40 @@ export default function Profile({
     };
 
     try {
-      const response = await fetch(buildApiUrl("/api/profile/me"), {
+      let token = await getValidToken();
+
+      if (!token) {
+        setStatus({
+          type: "error",
+          message: "Sessão expirada. Faça login novamente.",
+        });
+        onLogout();
+        return;
+      }
+
+      let response = await fetch(buildApiUrl("/api/profile/me"), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
+
+      if (response.status === 401 || response.status === 403) {
+        const refreshedToken = await refreshAccessToken();
+        if (refreshedToken && refreshedToken !== token) {
+          token = refreshedToken;
+          response = await fetch(buildApiUrl("/api/profile/me"), {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
+        }
+      }
 
       if (response.status === 401 || response.status === 403) {
         setStatus({
@@ -285,15 +409,6 @@ export default function Profile({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!user.token) {
-      setStatus({
-        type: "error",
-        message: "Sessão expirada. Faça login novamente.",
-      });
-      onLogout();
-      return;
-    }
-
     setIsUploading(true);
     setStatus(null);
 
@@ -301,13 +416,38 @@ export default function Profile({
       const formData = new FormData();
       formData.append("avatar", file);
 
-      const response = await fetch(buildApiUrl("/api/profile/me/avatar"), {
+      let token = await getValidToken();
+
+      if (!token) {
+        setStatus({
+          type: "error",
+          message: "Sessão expirada. Faça login novamente.",
+        });
+        onLogout();
+        return;
+      }
+
+      let response = await fetch(buildApiUrl("/api/profile/me/avatar"), {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
+
+      if (response.status === 401 || response.status === 403) {
+        const refreshedToken = await refreshAccessToken();
+        if (refreshedToken && refreshedToken !== token) {
+          token = refreshedToken;
+          response = await fetch(buildApiUrl("/api/profile/me/avatar"), {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+        }
+      }
 
       if (response.status === 401 || response.status === 403) {
         setStatus({
@@ -380,8 +520,8 @@ export default function Profile({
 
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-[#0e2b59] to-[#1b52a8] h-20 sm:h-40 relative">
-        <div className="absolute -bottom-20 left-4 sm:left-8 flex items-end gap-4">
+      <div className="bg-gradient-to-r from-sky-200 to-amber-200 h-20 sm:h-40 relative">
+        <div className="absolute inset-x-4 sm:inset-x-auto sm:left-8 -bottom-20 sm:-bottom-24 flex items-end justify-between sm:justify-start gap-4">
           <div className="relative">
             {avatarUrl && avatarUrl.trim() ? (
               <Image
@@ -415,14 +555,9 @@ export default function Profile({
               disabled={isUploading}
             />
           </div>
-        </div>
-      </div>
-
-      <div className="p-4 mt-24 sm:mt-6">
-        <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
           <button
             onClick={toggleTheme}
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all self-end sm:hidden"
+            className="inline-flex items-center gap-2 rounded-lg bg-white/95 px-4 py-2 text-sm font-semibold text-slate-700 shadow hover:bg-white sm:hidden"
             aria-label="Alternar tema claro/escuro"
           >
             {mounted && theme === "dark" ? (
@@ -435,7 +570,7 @@ export default function Profile({
         </div>
       </div>
 
-      <div className="p-8 pt-2">
+      <div className="px-4 sm:px-8 pt-32 sm:pt-20 lg:pt-24 pb-8">
         {status && (
           <div
             className={`mb-6 rounded-lg border px-4 py-3 text-sm ${

@@ -7,6 +7,7 @@ export interface AuthUser {
   token?: string;
   refreshToken?: string;
   expiresAt?: number;
+  tokenExpiresAt?: number;
 }
 
 export type ProfileResponse = {
