@@ -79,7 +79,7 @@ export default function NotificationsBell() {
   const [error, setError] = useState<string | null>(null);
   const [lastFetchedAt, setLastFetchedAt] = useState<number>(0);
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [viewedAlerts, setViewedAlerts] = useState<Set<string>>(new Set());
+  const viewedAlertsRef = useRef<Set<string>>(new Set());
   const containerRef = useRef<HTMLDivElement | null>(null);
   const prevOpenRef = useRef(false);
 
@@ -99,7 +99,12 @@ export default function NotificationsBell() {
         );
       }
 
-      setAlerts(Array.isArray(data.posts) ? data.posts : []);
+      const posts = Array.isArray(data.posts) ? data.posts : [];
+      const filteredPosts = posts.filter(
+        (alert: AlertPost) => !viewedAlertsRef.current.has(alert.id)
+      );
+
+      setAlerts(filteredPosts);
       setLastFetchedAt(Date.now());
     } catch (err) {
       setError(
@@ -135,7 +140,9 @@ export default function NotificationsBell() {
     try {
       const stored = localStorage.getItem("viewedAlerts");
       if (stored) {
-        setViewedAlerts(new Set(JSON.parse(stored)));
+        const parsed = new Set<string>(JSON.parse(stored));
+        viewedAlertsRef.current = parsed;
+        setAlerts((prev) => prev.filter((alert) => !parsed.has(alert.id)));
       }
     } catch {
       // noop
@@ -158,25 +165,25 @@ export default function NotificationsBell() {
   }, [open, fetchAlerts, lastFetchedAt, loading]);
 
   useEffect(() => {
-    if (prevOpenRef.current && !open) {
+    if (prevOpenRef.current && !open && alerts.length > 0) {
+      const updatedViewed = new Set(viewedAlertsRef.current);
+      alerts.forEach((alert) => updatedViewed.add(alert.id));
+      viewedAlertsRef.current = updatedViewed;
+      try {
+        localStorage.setItem(
+          "viewedAlerts",
+          JSON.stringify(Array.from(updatedViewed))
+        );
+      } catch {
+        // noop
+      }
+
       setAlerts([]);
       setLastFetchedAt(0);
     }
 
-    if (!prevOpenRef.current && open && alerts.length > 0) {
-      // Mark alerts as viewed
-      const newViewed = new Set(viewedAlerts);
-      alerts.forEach(alert => newViewed.add(alert.id));
-      setViewedAlerts(newViewed);
-      try {
-        localStorage.setItem("viewedAlerts", JSON.stringify([...newViewed]));
-      } catch {
-        // noop
-      }
-    }
-
     prevOpenRef.current = open;
-  }, [open, alerts, viewedAlerts]);
+  }, [open, alerts]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -190,11 +197,9 @@ export default function NotificationsBell() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const badgeCount = alerts.filter(alert => !viewedAlerts.has(alert.id)).length;
+  const badgeCount = alerts.length;
 
   const dropdownContent = useMemo(() => {
-    const unviewedAlerts = alerts.filter(alert => !viewedAlerts.has(alert.id));
-
     if (loading) {
       return (
         <div className="flex items-center justify-center gap-2 py-6 text-sm text-slate-500">
@@ -219,7 +224,7 @@ export default function NotificationsBell() {
       );
     }
 
-    if (unviewedAlerts.length === 0) {
+    if (alerts.length === 0) {
       return (
         <div className="flex flex-col items-center gap-3 py-6 text-center text-sm text-slate-500">
           <Megaphone className="h-6 w-6 text-[#fca311]" />
@@ -230,7 +235,7 @@ export default function NotificationsBell() {
 
     return (
       <ul className="max-h-80 overflow-y-auto divide-y divide-slate-100">
-        {unviewedAlerts.map((alert) => {
+        {alerts.map((alert) => {
           const eventDate = formatEventDate(alert.eventDate);
           return (
             <li key={alert.id} className="px-4 py-3">
@@ -266,7 +271,7 @@ export default function NotificationsBell() {
         })}
       </ul>
     );
-  }, [alerts, error, fetchAlerts, loading, viewedAlerts]);
+  }, [alerts, error, fetchAlerts, loading]);
 
   if (!user || !user.token) {
     return null;
