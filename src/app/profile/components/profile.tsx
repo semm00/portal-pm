@@ -520,8 +520,8 @@ export default function Profile({
 
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-sky-200 to-amber-200 h-28 sm:h-40 relative">
-        <div className="absolute inset-x-4 sm:inset-x-auto sm:left-8 -bottom-16 sm:-bottom-24 flex flex-col items-center sm:flex-row sm:items-end sm:justify-start gap-4">
+      <div className="bg-gradient-to-r from-sky-200 to-amber-200 h-32 sm:h-40 relative">
+        <div className="absolute inset-x-4 sm:inset-x-auto sm:left-8 -bottom-12 sm:-bottom-24 flex flex-col items-center sm:flex-row sm:items-end sm:justify-start gap-4">
           <div className="relative">
             {avatarUrl && avatarUrl.trim() ? (
               <Image

@@ -92,7 +92,7 @@ export default function AddEventForm({
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
+    <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-[#0b203a]">Adicionar Evento</h2>
         <button

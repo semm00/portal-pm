@@ -12,6 +12,8 @@ import {
   MapPin,
 } from "lucide-react";
 import { buildApiUrl } from "@/lib/api";
+import { loadSession } from "../profile/utils/session";
+import type { AuthUser } from "../profile/types";
 
 interface AlertPost {
   id: string;
@@ -76,6 +78,8 @@ export default function NotificationsBell() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetchedAt, setLastFetchedAt] = useState<number>(0);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [viewedAlerts, setViewedAlerts] = useState<Set<string>>(new Set());
   const containerRef = useRef<HTMLDivElement | null>(null);
   const prevOpenRef = useRef(false);
 
@@ -109,8 +113,40 @@ export default function NotificationsBell() {
   }, []);
 
   useEffect(() => {
-    fetchAlerts();
-  }, [fetchAlerts]);
+    const syncSession = () => {
+      const current = loadSession();
+      setUser(current);
+    };
+
+    syncSession();
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.addEventListener("storage", syncSession);
+    return () => {
+      window.removeEventListener("storage", syncSession);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = localStorage.getItem("viewedAlerts");
+      if (stored) {
+        setViewedAlerts(new Set(JSON.parse(stored)));
+      }
+    } catch {
+      // noop
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user && user.token) {
+      fetchAlerts();
+    }
+  }, [fetchAlerts, user]);
 
   useEffect(() => {
     if (!open) return;
@@ -127,8 +163,20 @@ export default function NotificationsBell() {
       setLastFetchedAt(0);
     }
 
+    if (!prevOpenRef.current && open && alerts.length > 0) {
+      // Mark alerts as viewed
+      const newViewed = new Set(viewedAlerts);
+      alerts.forEach(alert => newViewed.add(alert.id));
+      setViewedAlerts(newViewed);
+      try {
+        localStorage.setItem("viewedAlerts", JSON.stringify([...newViewed]));
+      } catch {
+        // noop
+      }
+    }
+
     prevOpenRef.current = open;
-  }, [open]);
+  }, [open, alerts, viewedAlerts]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -142,9 +190,11 @@ export default function NotificationsBell() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const badgeCount = alerts.length;
+  const badgeCount = alerts.filter(alert => !viewedAlerts.has(alert.id)).length;
 
   const dropdownContent = useMemo(() => {
+    const unviewedAlerts = alerts.filter(alert => !viewedAlerts.has(alert.id));
+
     if (loading) {
       return (
         <div className="flex items-center justify-center gap-2 py-6 text-sm text-slate-500">
@@ -169,7 +219,7 @@ export default function NotificationsBell() {
       );
     }
 
-    if (alerts.length === 0) {
+    if (unviewedAlerts.length === 0) {
       return (
         <div className="flex flex-col items-center gap-3 py-6 text-center text-sm text-slate-500">
           <Megaphone className="h-6 w-6 text-[#fca311]" />
@@ -180,7 +230,7 @@ export default function NotificationsBell() {
 
     return (
       <ul className="max-h-80 overflow-y-auto divide-y divide-slate-100">
-        {alerts.map((alert) => {
+        {unviewedAlerts.map((alert) => {
           const eventDate = formatEventDate(alert.eventDate);
           return (
             <li key={alert.id} className="px-4 py-3">
@@ -216,7 +266,11 @@ export default function NotificationsBell() {
         })}
       </ul>
     );
-  }, [alerts, error, fetchAlerts, loading]);
+  }, [alerts, error, fetchAlerts, loading, viewedAlerts]);
+
+  if (!user || !user.token) {
+    return null;
+  }
 
   return (
     <div ref={containerRef} className="relative">
