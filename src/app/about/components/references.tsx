@@ -27,6 +27,19 @@ export default function References() {
             </span>
             . Autor: Valdo Benedito.
           </li>
+          <li>
+            <span className="italic">«Capitão Marcos Francisco de Araújo Costa».</span>{" "}
+            <a
+              href="https://www.portalentretextos.com.br/post/capitao-marcos-francisco-de-araujo-costa"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#fca311] hover:text-[#fca311]/80 underline"
+            >
+              Por Reginaldo Miranda
+            </a>
+            . Consultado em 28 de setembro de 2025.
+          </li>
+          
         </ol>
       </div>
     </section>

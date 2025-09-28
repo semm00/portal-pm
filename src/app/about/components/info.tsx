@@ -38,28 +38,27 @@ export default function Info() {
                 História
               </h2>
               <p className="text-[15px] text-gray-700 mb-4 whitespace-pre-line">
-                O Município de Padre Marcos, localizado na região sudeste do
-                Estado do Piauí, na microrregião do Alto Médio Canindé, teve
-                origem na Fazenda Boa Esperança, de propriedade do Padre Marcos
-                de Araújo Costa, que a herdou do seu pai, Marcos
-                Francisco de Araújo Costa. Nessa época, pertencia ao município
-                de Jaicós. O Padre Marcos fixou residência na fazenda Boa
-                Esperança por volta do ano de 1820, para continuar a missão
-                educacional do seu pai, Marcos Francisco, com uma escola
-                gratuita para alunos que vinham de vários recantos. Construiu
-                diversas casas para colonos e também uma Capela, hoje Igreja
-                Matriz. Em 1914, a Fazenda Boa Esperança foi elevada à categoria
-                de Povoado. Padre Marcos tornou-se município através da Lei
-                2.566 de 2 de janeiro de 1964, sendo instalado oficialmente em
-                17 de janeiro do mesmo ano. Foi nomeado o primeiro prefeito, o
-                comerciante Anísio Bento de Carvalho, que administrou pelo
-                período de um ano. O governador da época era Petrônio Portella.
-                O primeiro Prefeito eleito foi José de Moura Leal, que foi
-                candidato único e governou Padre Marcos por dois anos: 1965/66.
-                Hoje a sede da Prefeitura, em sua homenagem, foi denominada de
-                &quot;Palácio Prefeito Zezito Moura&quot;, conforme Lei
-                municipal de 2006, de autoria da Vereadora Lucimária Moura, sua
-                neta.
+                A história de Padre Marcos remonta ao início do povoamento em
+                1820, quando o Padre Marcos de Araújo Costa instalou a Fazenda
+                Boa Esperança, construiu sua residência e fundou um colégio que
+                recebeu estudantes de várias regiões do Piauí. Sacerdote,
+                educador e político, foi deputado provincial (1835-1837),
+                vice-presidente da Província e presidente do Conselho Geral,
+                sendo reconhecido como patrono da educação no Piauí, pois, entre
+                1820 e 1850, a Escola Boa Esperança foi a única em funcionamento
+                na província. O município de Padre Marcos foi criado em 1964,
+                pela Lei Estadual nº 2566, com área desmembrada de Jaicós. A
+                Casa de Padre Marcos, sua antiga residência, foi tombada como
+                patrimônio histórico em 1992. A origem da localidade está ligada
+                também a seu pai, o capitão Marcos Francisco de Araújo Costa,
+                que em 1786 fundou a Fazenda Boa Esperança, marco histórico para
+                o povoamento. Além de militar e político, alfabetizou gerações
+                em sua propriedade e recebeu a comenda da Ordem de Cristo. O
+                grande legado do capitão foi a instalação da fazenda de gado,
+                enquanto o de seu filho, Padre Marcos, foi a criação da escola
+                em regime de internato. Dela saíram muitos jovens que
+                ingressaram em cursos de Direito, na magistratura e no
+                ministério religioso.
               </p>
             </div>
 
@@ -81,28 +80,27 @@ export default function Info() {
               </button>
               {expandedHistoria && (
                 <p className="text-[15px] text-gray-700 mb-4 whitespace-pre-line">
-                  O Município de Padre Marcos, localizado na região sudeste do
-                  Estado do Piauí, na microrregião do Alto Médio Canindé, teve
-                  origem na Fazenda Boa Esperança, de propriedade do Padre
-                  Marcos de Araújo Costa, que a herdou do seu pai,
-                  Marcos Francisco de Araújo Costa. Nessa época, pertencia ao
-                  município de Jaicós. O Padre Marcos fixou residência na
-                  fazenda Boa Esperança por volta do ano de 1820, para continuar
-                  a missão educacional do seu pai, Marcos Francisco, com uma
-                  escola gratuita para alunos que vinham de vários recantos.
-                  Construiu diversas casas para colonos e também uma Capela,
-                  hoje Igreja Matriz. Em 1914, a Fazenda Boa Esperança foi
-                  elevada à categoria de Povoado. Padre Marcos tornou-se
-                  município através da Lei 2.566 de 2 de janeiro de 1964, sendo
-                  instalado oficialmente em 17 de janeiro do mesmo ano. Foi
-                  nomeado o primeiro prefeito, o comerciante Anísio Bento de
-                  Carvalho, que administrou pelo período de um ano. O governador
-                  da época era Petrônio Portella. O primeiro Prefeito eleito foi
-                  José de Moura Leal, que foi candidato único e governou Padre
-                  Marcos por dois anos: 1965/66. Hoje a sede da Prefeitura, em
-                  sua homenagem, foi denominada de &quot;Palácio Prefeito Zezito
-                  Moura&quot;, conforme Lei municipal de 2006, de autoria da
-                  Vereadora Lucimária Moura, sua neta.
+                  A história de Padre Marcos remonta ao início do povoamento em
+                  1820, quando o Padre Marcos de Araújo Costa instalou a Fazenda
+                  Boa Esperança, construiu sua residência e fundou um colégio
+                  que recebeu estudantes de várias regiões do Piauí. Sacerdote,
+                  educador e político, foi deputado provincial (1835-1837),
+                  vice-presidente da Província e presidente do Conselho Geral,
+                  sendo reconhecido como patrono da educação no Piauí, pois,
+                  entre 1820 e 1850, a Escola Boa Esperança foi a única em
+                  funcionamento na província. O município de Padre Marcos foi
+                  criado em 1964, pela Lei Estadual nº 2566, com área
+                  desmembrada de Jaicós. A Casa de Padre Marcos, sua antiga
+                  residência, foi tombada como patrimônio histórico em 1992. A
+                  origem da localidade está ligada também a seu pai, o capitão
+                  Marcos Francisco de Araújo Costa, que em 1786 fundou a Fazenda
+                  Boa Esperança, marco histórico para o povoamento. Além de
+                  militar e político, alfabetizou gerações em sua propriedade e
+                  recebeu a comenda da Ordem de Cristo. O grande legado do
+                  capitão foi a instalação da fazenda de gado, enquanto o de seu
+                  filho, Padre Marcos, foi a criação da escola em regime de
+                  internato. Dela saíram muitos jovens que ingressaram em cursos
+                  de Direito, na magistratura e no ministério religioso.
                 </p>
               )}
             </div>
