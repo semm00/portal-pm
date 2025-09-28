@@ -311,38 +311,73 @@ function MediaCarousel({ media }: { media: ApiPost["media"] }) {
   if (!media || media.length === 0) return null;
 
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200/80">
+    <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white">
       <div className="flex snap-x snap-mandatory overflow-x-auto scrollbar-hide">
-        {media.map((item, index) => {
-          const isVideo = item.mimeType?.startsWith("video/");
-          return (
-            <div
-              key={item.id || `${item.url}-${index}`}
-              className="relative w-full flex-shrink-0 snap-center overflow-hidden bg-slate-950/5 max-h-[480px] min-h-[200px]"
-            >
-              {isVideo ? (
-                <video
-                  controls
-                  className="h-full w-full object-contain max-h-[480px]"
-                  preload="metadata"
-                >
-                  <source src={item.url} type={item.mimeType || "video/mp4"} />
-                  Seu navegador não suporta vídeos incorporados.
-                </video>
-              ) : (
-                <Image
-                  src={item.url}
-                  alt={`Mídia ${index + 1} do post`}
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 768px) 100vw, 680px"
-                  priority={index === 0}
-                />
-              )}
-            </div>
-          );
-        })}
+        {media.map((item, index) => (
+          <MediaItem
+            key={item.id || `${item.url}-${index}`}
+            item={item}
+            index={index}
+          />
+        ))}
       </div>
+    </div>
+  );
+}
+
+function MediaItem({
+  item,
+  index,
+}: {
+  item: ApiPost["media"][number];
+  index: number;
+}) {
+  const isVideo = item.mimeType?.startsWith("video/");
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
+
+  const containerStyle = aspectRatio
+    ? { aspectRatio: String(aspectRatio) }
+    : { aspectRatio: "16 / 9" };
+
+  return (
+    <div
+      className="relative w-full flex-shrink-0 snap-center overflow-hidden bg-white"
+      style={containerStyle}
+    >
+      {isVideo ? (
+        <video
+          controls
+          className="h-full w-full object-cover"
+          preload="metadata"
+          onLoadedMetadata={(event) => {
+            const video = event.currentTarget;
+            if (video.videoWidth && video.videoHeight) {
+              setAspectRatio(
+                (current) => current ?? video.videoWidth / video.videoHeight
+              );
+            }
+          }}
+        >
+          <source src={item.url} type={item.mimeType || "video/mp4"} />
+          Seu navegador não suporta vídeos incorporados.
+        </video>
+      ) : (
+        <Image
+          src={item.url}
+          alt={`Mídia ${index + 1} do post`}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 680px"
+          priority={index === 0}
+          onLoadingComplete={({ naturalWidth, naturalHeight }) => {
+            if (naturalWidth && naturalHeight) {
+              setAspectRatio(
+                (current) => current ?? naturalWidth / naturalHeight
+              );
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -689,6 +724,54 @@ export default function Posts({
   const [deletePending, setDeletePending] = useState<string | null>(null);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
 
+  const resolveStorageKey = useCallback(() => {
+    const session = loadSession();
+    return `portal-pm-liked-posts-${session?.id ?? "anon"}`;
+  }, []);
+
+  const readStoredLikes = useCallback((): Record<string, boolean> => {
+    if (typeof window === "undefined") {
+      return {};
+    }
+
+    try {
+      const raw = window.localStorage.getItem(resolveStorageKey());
+      if (!raw) {
+        return {};
+      }
+
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return {};
+      }
+
+      return Object.fromEntries(
+        Object.entries(parsed).filter(
+          ([key, value]) =>
+            typeof key === "string" && typeof value === "boolean"
+        )
+      ) as Record<string, boolean>;
+    } catch (error) {
+      console.warn("Não foi possível ler curtidas armazenadas:", error);
+      return {};
+    }
+  }, [resolveStorageKey]);
+
+  const persistLikes = useCallback(
+    (state: Record<string, boolean>) => {
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      try {
+        window.localStorage.setItem(resolveStorageKey(), JSON.stringify(state));
+      } catch (error) {
+        console.warn("Não foi possível salvar as curtidas:", error);
+      }
+    },
+    [resolveStorageKey]
+  );
+
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -701,8 +784,17 @@ export default function Posts({
         throw new Error(data?.message || "Não foi possível carregar o mural.");
       }
 
-      setPosts(Array.isArray(data.posts) ? data.posts : []);
-      setLikedPosts({});
+      const normalizedPosts = Array.isArray(data.posts) ? data.posts : [];
+      const likesFromStorage = readStoredLikes();
+      const validIds = new Set(normalizedPosts.map((post: ApiPost) => post.id));
+      const filteredLikes = Object.fromEntries(
+        Object.entries(likesFromStorage).filter(([postId]) =>
+          validIds.has(postId)
+        )
+      ) as Record<string, boolean>;
+
+      setPosts(normalizedPosts);
+      setLikedPosts(filteredLikes);
       setLastUpdatedAt(new Date());
     } catch (err) {
       setError(
@@ -714,11 +806,34 @@ export default function Posts({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [readStoredLikes]);
 
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  useEffect(() => {
+    setLikedPosts(readStoredLikes());
+  }, [readStoredLikes]);
+
+  useEffect(() => {
+    persistLikes(likedPosts);
+  }, [likedPosts, persistLikes]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === resolveStorageKey()) {
+        setLikedPosts(readStoredLikes());
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [readStoredLikes, resolveStorageKey]);
 
   useEffect(() => {
     if (!feedback) return;
@@ -876,6 +991,14 @@ export default function Posts({
 
       // Remove o post da lista
       setPosts((prev) => prev.filter((post) => post.id !== postId));
+      setLikedPosts((prev) => {
+        if (!(postId in prev)) {
+          return prev;
+        }
+        const next = { ...prev };
+        delete next[postId];
+        return next;
+      });
 
       setFeedback({
         type: "success",
