@@ -92,21 +92,23 @@ export default function AddEventForm({
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-[#0b203a]">Adicionar Evento</h2>
+    <div className="surface-card w-full max-h-[80vh] max-w-md overflow-y-auto p-6">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-[#0b203a] dark:text-sky-200">
+          Adicionar Evento
+        </h2>
         <button
           onClick={onClose}
-          className="p-1 rounded-full hover:bg-slate-100"
+          className="rounded-full p-1 transition-colors hover:bg-slate-100 dark:hover:bg-neutral-800"
         >
-          <X className="h-5 w-5 text-slate-600" />
+          <X className="h-5 w-5 text-slate-600 dark:text-neutral-300" />
         </button>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label
             htmlFor="event-name"
-            className="block text-sm font-medium text-slate-700"
+            className="block text-sm font-medium text-slate-700 transition-colors dark:text-neutral-300"
           >
             Nome do Evento
           </label>
@@ -115,7 +117,7 @@ export default function AddEventForm({
             id="event-name"
             value={eventName}
             onChange={(e) => setEventName(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm placeholder-slate-400 transition-colors focus:border-[#fca311] focus:outline-none focus:ring-[#fca311] dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100 dark:placeholder-neutral-500"
             required
           />
         </div>
@@ -124,7 +126,7 @@ export default function AddEventForm({
           <div className="sm:w-1/2">
             <label
               htmlFor="start-date"
-              className="block text-sm font-medium text-slate-700"
+              className="block text-sm font-medium text-slate-700 transition-colors dark:text-neutral-300"
             >
               Data de Início
             </label>
@@ -133,12 +135,12 @@ export default function AddEventForm({
               id="start-date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm transition-colors focus:border-[#fca311] focus:outline-none focus:ring-[#fca311] dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100"
               required
             />
             <label
               htmlFor="start-time"
-              className="block mt-2 text-xs font-medium text-slate-700"
+              className="mt-2 block text-xs font-medium text-slate-700 transition-colors dark:text-neutral-300"
             >
               Horário de Início (Opcional)
             </label>
@@ -147,13 +149,13 @@ export default function AddEventForm({
               id="start-time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm transition-colors focus:border-[#fca311] focus:outline-none focus:ring-[#fca311] dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100"
             />
           </div>
           <div className="sm:w-1/2">
             <label
               htmlFor="end-date"
-              className="block text-sm font-medium text-slate-700"
+              className="block text-sm font-medium text-slate-700 transition-colors dark:text-neutral-300"
             >
               Data de Fim (Opcional)
             </label>
@@ -162,11 +164,11 @@ export default function AddEventForm({
               id="end-date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm transition-colors focus:border-[#fca311] focus:outline-none focus:ring-[#fca311] dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100"
             />
             <label
               htmlFor="end-time"
-              className="block mt-2 text-xs font-medium text-slate-700"
+              className="mt-2 block text-xs font-medium text-slate-700 transition-colors dark:text-neutral-300"
             >
               Horário de Fim (Opcional)
             </label>
@@ -175,7 +177,7 @@ export default function AddEventForm({
               id="end-time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm transition-colors focus:border-[#fca311] focus:outline-none focus:ring-[#fca311] dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100"
             />
           </div>
         </div>
@@ -183,7 +185,7 @@ export default function AddEventForm({
         <div>
           <label
             htmlFor="location"
-            className="block text-sm font-medium text-slate-700"
+            className="block text-sm font-medium text-slate-700 transition-colors dark:text-neutral-300"
           >
             Local (Opcional)
           </label>
@@ -192,7 +194,7 @@ export default function AddEventForm({
             id="location"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm placeholder-slate-400 transition-colors focus:border-[#fca311] focus:outline-none focus:ring-[#fca311] dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100 dark:placeholder-neutral-500"
             placeholder="Ex: Praça do evento"
           />
         </div>
@@ -200,7 +202,7 @@ export default function AddEventForm({
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-slate-700"
+            className="block text-sm font-medium text-slate-700 transition-colors dark:text-neutral-300"
           >
             Descrição
           </label>
@@ -209,14 +211,14 @@ export default function AddEventForm({
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm placeholder-slate-400 transition-colors focus:border-[#fca311] focus:outline-none focus:ring-[#fca311] dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100 dark:placeholder-neutral-500"
           />
         </div>
 
         <div>
           <label
             htmlFor="category"
-            className="block text-sm font-medium text-slate-700"
+            className="block text-sm font-medium text-slate-700 transition-colors dark:text-neutral-300"
           >
             Categoria
           </label>
@@ -226,7 +228,7 @@ export default function AddEventForm({
             onChange={(e) =>
               setCategory(e.target.value as CalendarEvent["category"])
             }
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-[#fca311] focus:border-[#fca311] sm:text-sm rounded-md"
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white py-2 pl-3 pr-10 text-base text-slate-900 transition-colors focus:border-[#fca311] focus:outline-none focus:ring-[#fca311] sm:text-sm dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100"
           >
             <option value="evento">Evento Comunitário</option>
             <option value="feriado">Feriado</option>
@@ -237,7 +239,7 @@ export default function AddEventForm({
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+          <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 transition-colors dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
             {error}
           </p>
         )}
@@ -246,7 +248,7 @@ export default function AddEventForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#0b203a] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#13335c] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#0b203a] px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#13335c] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-sky-500 dark:text-neutral-900 dark:hover:bg-sky-400"
           >
             <CalendarIcon className="h-4 w-4" />
             {isSubmitting ? "Enviando..." : "Enviar para aprovação"}

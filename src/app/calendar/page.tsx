@@ -185,17 +185,17 @@ export default function CalendarPage() {
   }, [user]);
 
   return (
-    <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 lg:px-8">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 text-slate-900 transition-colors duration-300 dark:text-neutral-100 lg:px-8">
       <div className="space-y-6">
-        <div className="flex flex-col gap-3 text-center lg:text-left lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 text-center lg:flex-row lg:items-center lg:justify-between lg:text-left">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-[#153b69] leading-tight">
+            <h1 className="text-3xl font-bold leading-tight text-[#153b69] dark:text-sky-300">
               Calendário Anual
             </h1>
-            <p className="text-md text-[#0b203a]/70">
+            <p className="text-md text-[#0b203a]/70 transition-colors dark:text-neutral-300">
               Eventos e feriados importantes de Padre Marcos, Piauí.
             </p>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 transition-colors dark:text-neutral-400">
               Envie um evento para aprovação e acompanhe os eventos já
               confirmados.
             </p>
@@ -205,8 +205,8 @@ export default function CalendarPage() {
               onClick={handleOpenForm}
               className={`inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold shadow-md transition-all ${
                 !user || !user.token
-                  ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-[#fca311] text-[#0b203a] hover:bg-amber-500"
+                  ? "cursor-not-allowed bg-slate-400 text-slate-200 dark:bg-neutral-700/70 dark:text-neutral-400"
+                  : "bg-[#fca311] text-[#0b203a] hover:bg-amber-500 dark:bg-sky-500 dark:text-neutral-900 dark:hover:bg-sky-400"
               }`}
             >
               <PlusCircle className="h-5 w-5" />
@@ -219,16 +219,16 @@ export default function CalendarPage() {
           <div
             className={`rounded-xl border px-4 py-3 text-sm shadow-sm ${
               feedback.type === "success"
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border-red-200 bg-red-50 text-red-700"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200"
+                : "border-red-200 bg-red-50 text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200"
             }`}
           >
             {feedback.message}
           </div>
         )}
         {isLoadingEvents ? (
-          <div className="flex min-h-[200px] items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white/50">
-            <p className="text-sm text-slate-500">
+          <div className="flex min-h-[200px] items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white/50 transition-colors dark:border-neutral-700 dark:bg-neutral-900/40">
+            <p className="text-sm text-slate-500 transition-colors dark:text-neutral-400">
               Carregando eventos aprovados...
             </p>
           </div>
@@ -237,7 +237,7 @@ export default function CalendarPage() {
         )}
 
         {isFormOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-colors dark:bg-black/60">
             <AddEventForm
               onClose={() => setIsFormOpen(false)}
               onSubmit={handleSubmitEvent}

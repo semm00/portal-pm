@@ -15,16 +15,16 @@ export default function Info() {
   const [expandedConsideracoes, setExpandedConsideracoes] = useState(false);
 
   return (
-    <section className="px-5 sm:px-8 md:px-10 py-8">
+    <section className="px-5 py-8 text-slate-900 transition-colors duration-300 dark:text-neutral-100 sm:px-8 md:px-10">
       <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Left: content */}
           <div className="lg:col-span-2">
-            <h1 className="text-2xl font-bold text-slate-900 mb-4">
+            <h1 className="mb-4 text-2xl font-bold text-slate-900 dark:text-neutral-50">
               Padre Marcos
             </h1>
 
-            <p className="text-[15px] text-gray-700 mb-4">
+            <p className="mb-4 text-[15px] text-slate-700 transition-colors dark:text-neutral-300">
               Padre Marcos é um município brasileiro, do estado do Piauí,
               distante 387 km de sua capital, Teresina. Localiza-se a uma
               latitude 07º21&apos;18&quot; sul e a uma longitude
@@ -34,10 +34,10 @@ export default function Info() {
             </p>
 
             <div className="hidden md:block">
-              <h2 className="text-xl font-semibold text-slate-900 mt-6 mb-2">
+              <h2 className="mt-6 mb-2 text-xl font-semibold text-slate-900 dark:text-neutral-50">
                 História
               </h2>
-              <p className="text-[15px] text-gray-700 mb-4 whitespace-pre-line">
+              <p className="mb-4 whitespace-pre-line text-[15px] text-slate-700 transition-colors dark:text-neutral-300">
                 O Município de Padre Marcos, localizado na região sudeste do
                 Estado do Piauí, na microrregião do Alto Médio Canindé, teve
                 origem na Fazenda Boa Esperança, de propriedade do Padre Marcos
@@ -67,10 +67,10 @@ export default function Info() {
               <button
                 type="button"
                 onClick={() => setExpandedHistoria((prev) => !prev)}
-                className="flex w-full items-center justify-between mt-6 mb-2 rounded-lg px-2 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4ea1]/60 hover:bg-slate-100"
+                className="mt-6 mb-2 flex w-full items-center justify-between rounded-lg px-2 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4ea1]/60 hover:bg-slate-100 dark:hover:bg-neutral-800"
                 aria-expanded={expandedHistoria}
               >
-                <span className="text-left text-xl font-semibold text-slate-900">
+                <span className="text-left text-xl font-semibold text-slate-900 dark:text-neutral-100">
                   História
                 </span>
                 {expandedHistoria ? (
@@ -80,7 +80,7 @@ export default function Info() {
                 )}
               </button>
               {expandedHistoria && (
-                <p className="text-[15px] text-gray-700 mb-4 whitespace-pre-line">
+                <p className="mb-4 whitespace-pre-line text-[15px] text-slate-700 transition-colors dark:text-neutral-300">
                   O Município de Padre Marcos, localizado na região sudeste do
                   Estado do Piauí, na microrregião do Alto Médio Canindé, teve
                   origem na Fazenda Boa Esperança, de propriedade do Padre
@@ -108,8 +108,10 @@ export default function Info() {
             </div>
 
             <div className="hidden md:block">
-              <h3 className="text-lg font-medium mt-4 mb-2">Povoados</h3>
-              <p className="text-[15px] text-gray-700">
+              <h3 className="mt-4 mb-2 text-lg font-medium text-slate-900 dark:text-neutral-50">
+                Povoados
+              </h3>
+              <p className="text-[15px] text-slate-700 transition-colors dark:text-neutral-300">
                 Riacho do Padre, Casa Nova, Jurema, Curral Velho, Barra, Canto
                 Alegre.
               </p>
@@ -119,10 +121,12 @@ export default function Info() {
               <button
                 type="button"
                 onClick={() => setExpandedPovoados((prev) => !prev)}
-                className="flex w-full items-center justify-between mt-4 mb-2 rounded-lg px-2 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4ea1]/60 hover:bg-slate-100"
+                className="mt-4 mb-2 flex w-full items-center justify-between rounded-lg px-2 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4ea1]/60 hover:bg-slate-100 dark:hover:bg-neutral-800"
                 aria-expanded={expandedPovoados}
               >
-                <span className="text-left text-lg font-medium">Povoados</span>
+                <span className="text-left text-lg font-medium text-slate-900 dark:text-neutral-100">
+                  Povoados
+                </span>
                 {expandedPovoados ? (
                   <ChevronUp size={20} />
                 ) : (
@@ -130,7 +134,7 @@ export default function Info() {
                 )}
               </button>
               {expandedPovoados && (
-                <p className="text-[15px] text-gray-700">
+                <p className="text-[15px] text-slate-700 transition-colors dark:text-neutral-300">
                   Riacho do Padre, Casa Nova, Jurema, Curral Velho, Barra, Canto
                   Alegre.
                 </p>
@@ -138,19 +142,21 @@ export default function Info() {
             </div>
 
             <div className="hidden md:block">
-              <h3 className="text-lg font-medium mt-6 mb-1">Hino</h3>
-              <p className="text-sm text-gray-600 mb-3">
+              <h3 className="mt-6 mb-1 text-lg font-medium text-slate-900 dark:text-neutral-50">
+                Hino
+              </h3>
+              <p className="mb-3 text-sm text-slate-600 transition-colors dark:text-neutral-400">
                 Autor: Antônio Gomes de Sousa &quot;Jurdan&quot;
               </p>
 
-              <div className="prose max-w-none text-gray-800">
-                <div className="mt-2 p-3 bg-slate-50 rounded">
+              <div className="prose max-w-none text-slate-800 transition-colors dark:text-neutral-100">
+                <div className="mt-2 rounded border border-slate-200/70 bg-slate-50 p-3 transition-colors dark:border-neutral-700 dark:bg-neutral-900/50">
                   <audio controls className="w-full mb-3">
                     <source src="/hino-oficial.mp3" type="audio/mpeg" />
                     Seu navegador não suporta o elemento de áudio.
                   </audio>
 
-                  <div className="text-sm text-slate-800 whitespace-pre-line">
+                  <div className="whitespace-pre-line text-sm text-slate-800 transition-colors dark:text-neutral-200">
                     {!expanded ? (
                       <>
                         {`Em tempos idos, a bravura foi mostrada,
@@ -166,7 +172,7 @@ Foi primazia orgulhando o nosso Estado,
                           <button
                             type="button"
                             onClick={() => setExpanded(true)}
-                            className="text-sm text-[#0a4ea1] underline hover:text-[#08326b] transition-colors px-2 py-1 -mx-2 rounded min-h-[44px] flex items-center"
+                            className="flex min-h-[44px] items-center rounded px-2 py-1 text-sm text-[#0a4ea1] underline transition-colors hover:text-[#08326b] dark:text-sky-300 dark:hover:text-sky-200"
                           >
                             Ver mais
                           </button>
@@ -223,7 +229,7 @@ Me dá prazer externar todo este amor. (repete)`}
                           <button
                             type="button"
                             onClick={() => setExpanded(false)}
-                            className="text-sm text-[#0a4ea1] underline hover:text-[#08326b] transition-colors px-2 py-1 -mx-2 rounded min-h-[44px] flex items-center"
+                            className="flex min-h-[44px] items-center rounded px-2 py-1 text-sm text-[#0a4ea1] underline transition-colors hover:text-[#08326b] dark:text-sky-300 dark:hover:text-sky-200"
                           >
                             Ver menos
                           </button>
@@ -239,10 +245,12 @@ Me dá prazer externar todo este amor. (repete)`}
               <button
                 type="button"
                 onClick={() => setExpandedHino((prev) => !prev)}
-                className="flex w-full items-center justify-between mt-6 mb-1 rounded-lg px-2 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4ea1]/60 hover:bg-slate-100"
+                className="mt-6 mb-1 flex w-full items-center justify-between rounded-lg px-2 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a4ea1]/60 hover:bg-slate-100 dark:hover:bg-neutral-800"
                 aria-expanded={expandedHino}
               >
-                <span className="text-left text-lg font-medium">Hino</span>
+                <span className="text-left text-lg font-medium text-slate-900 dark:text-neutral-100">
+                  Hino
+                </span>
                 {expandedHino ? (
                   <ChevronUp size={20} />
                 ) : (
@@ -251,18 +259,18 @@ Me dá prazer externar todo este amor. (repete)`}
               </button>
               {expandedHino && (
                 <>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="mb-3 text-sm text-slate-600 transition-colors dark:text-neutral-400">
                     Autor: Antônio Gomes de Sousa &quot;Jurdan&quot;
                   </p>
 
-                  <div className="prose max-w-none text-gray-800">
-                    <div className="mt-2 p-3 bg-slate-50 rounded">
+                  <div className="prose max-w-none text-slate-800 transition-colors dark:text-neutral-100">
+                    <div className="mt-2 rounded border border-slate-200/70 bg-slate-50 p-3 transition-colors dark:border-neutral-700 dark:bg-neutral-900/50">
                       <audio controls className="w-full mb-3">
                         <source src="/hino-oficial.mp3" type="audio/mpeg" />
                         Seu navegador não suporta o elemento de áudio.
                       </audio>
 
-                      <div className="text-sm text-slate-800 whitespace-pre-line">
+                      <div className="whitespace-pre-line text-sm text-slate-800 transition-colors dark:text-neutral-200">
                         {!expandedHinoText ? (
                           <>
                             {`Em tempos idos, a bravura foi mostrada,
@@ -278,7 +286,7 @@ Foi primazia orgulhando o nosso Estado,
                               <button
                                 type="button"
                                 onClick={() => setExpandedHinoText(true)}
-                                className="text-sm text-[#0a4ea1] underline hover:text-[#08326b] transition-colors px-2 py-1 -mx-2 rounded min-h-[44px] flex items-center"
+                                className="flex min-h-[44px] items-center rounded px-2 py-1 text-sm text-[#0a4ea1] underline transition-colors hover:text-[#08326b] dark:text-sky-300 dark:hover:text-sky-200"
                               >
                                 Ver mais
                               </button>
@@ -335,7 +343,7 @@ Me dá prazer externar todo este amor. (repete)`}
                               <button
                                 type="button"
                                 onClick={() => setExpandedHinoText(false)}
-                                className="text-sm text-[#0a4ea1] underline hover:text-[#08326b] transition-colors px-2 py-1 -mx-2 rounded min-h-[44px] flex items-center"
+                                className="flex min-h-[44px] items-center rounded px-2 py-1 text-sm text-[#0a4ea1] underline transition-colors hover:text-[#08326b] dark:text-sky-300 dark:hover:text-sky-200"
                               >
                                 Ver menos
                               </button>
@@ -354,7 +362,7 @@ Me dá prazer externar todo este amor. (repete)`}
                 <h3 className="text-lg font-medium mt-2 mb-3">
                   Considerações Gerais
                 </h3>
-                <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
+                <ul className="text-sm text-slate-700 transition-colors dark:text-neutral-300 list-disc pl-5 space-y-1">
                   <li>
                     <strong>Código do Município:</strong> 2207207.
                   </li>
@@ -413,7 +421,7 @@ Me dá prazer externar todo este amor. (repete)`}
                 )}
               </button>
               {expandedConsideracoes && (
-                <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
+                <ul className="text-sm text-slate-700 transition-colors dark:text-neutral-300 list-disc pl-5 space-y-1">
                   <li>
                     <strong>Código do Município:</strong> 2207207.
                   </li>

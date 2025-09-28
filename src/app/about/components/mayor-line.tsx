@@ -197,18 +197,18 @@ export default function MayorLine() {
   const [selectedTooltip, setSelectedTooltip] = useState<string | null>(null);
 
   return (
-    <section className="py-12 px-5 sm:px-8 md:px-10">
+    <section className="py-12 px-5 text-slate-900 transition-colors duration-300 dark:text-neutral-100 sm:px-8 md:px-10">
       <div className="mx-auto max-w-7xl">
-        <h2 className="text-2xl font-bold text-center text-slate-900 mb-2">
+        <h2 className="mb-2 text-center text-2xl font-bold text-slate-900 dark:text-neutral-50">
           Todos os Prefeitos de Padre Marcos
         </h2>
-        <p className="text-center text-xs text-gray-500 mb-6">
+        <p className="mb-6 text-center text-xs text-slate-500 transition-colors dark:text-neutral-400">
           clique ou passe o mouse para mais informações
         </p>
 
         {/* Desktop: Timeline vertical */}
         <div className="hidden md:block relative">
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-1 bg-[#17447a] h-full"></div>
+          <div className="absolute left-1/2 h-full w-1 -translate-x-1/2 transform bg-[#17447a] dark:bg-sky-500/70"></div>
           <div className="space-y-4">
             {mayors.map((mayor, index) => (
               <div
@@ -220,7 +220,7 @@ export default function MayorLine() {
                 <div className={`w-1/2 ${index % 2 === 0 ? "pr-8" : "pl-8"}`}>
                   <div className="relative">
                     <div
-                      className="bg-white rounded-lg shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-shadow"
+                      className="rounded-lg border border-slate-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-xl dark:border-neutral-700 dark:bg-neutral-900/60"
                       onMouseEnter={() => setSelectedTooltip(`${index}`)}
                       onMouseLeave={() => setSelectedTooltip(null)}
                     >
@@ -235,10 +235,10 @@ export default function MayorLine() {
                           />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-slate-900">
+                          <h3 className="text-lg font-semibold text-slate-900 dark:text-neutral-50">
                             {mayor.name}
                           </h3>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-slate-600 transition-colors dark:text-neutral-300">
                             {mayor.mandate}
                           </p>
                         </div>
@@ -246,13 +246,15 @@ export default function MayorLine() {
                     </div>
                     {selectedTooltip === `${index}` && (
                       <div
-                        className={`absolute bottom-full mb-3 bg-gray-800 text-white text-sm rounded-lg shadow-xl p-4 transform z-50 max-w-[min(42vw,22rem)] w-max text-left whitespace-pre-line ${
+                        className={`absolute bottom-full mb-3 w-max max-w-[min(42vw,22rem)] transform whitespace-pre-line rounded-lg border border-slate-200 bg-slate-900/95 p-4 text-left text-sm text-white shadow-xl transition-colors dark:border-sky-500/30 dark:bg-slate-900/95 ${
                           index % 2 === 0
                             ? "right-0 translate-x-1/2 origin-top-right"
                             : "left-0 -translate-x-1/2 origin-top-left"
                         }`}
                       >
-                        <div className="font-semibold mb-1">{mayor.name}</div>
+                        <div className="mb-1 font-semibold text-white">
+                          {mayor.name}
+                        </div>
                         <div className="text-xs text-gray-100">
                           {mayor.tooltip}
                         </div>
@@ -273,7 +275,7 @@ export default function MayorLine() {
               {mayors.map((mayor, index) => (
                 <div
                   key={index}
-                  className="flex-shrink-0 w-64 bg-white rounded-lg shadow-lg p-4 border border-gray-200"
+                  className="flex-shrink-0 w-64 rounded-lg border border-slate-200 bg-white p-4 shadow-lg transition-colors duration-300 dark:border-neutral-700 dark:bg-neutral-900/60"
                   onClick={() =>
                     setSelectedTooltip(
                       selectedTooltip === `mobile-${index}`
@@ -293,10 +295,12 @@ export default function MayorLine() {
                       />
                       {/* mobile tooltips rendered as a single fixed overlay to avoid page vertical scrollbars */}
                     </div>
-                    <h3 className="text-sm font-semibold text-slate-900 mb-1">
+                    <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-neutral-100">
                       {mayor.name}
                     </h3>
-                    <p className="text-xs text-gray-600">{mayor.mandate}</p>
+                    <p className="text-xs text-slate-600 transition-colors dark:text-neutral-400">
+                      {mayor.mandate}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -311,20 +315,20 @@ export default function MayorLine() {
           const idx = parseInt(selectedTooltip.replace("mobile-", ""), 10);
           const mayor = mayors[idx];
           return (
-            <div className="fixed inset-0 flex items-end justify-center pointer-events-none z-[120]">
-              <div className="pointer-events-auto mb-6 mx-4 w-full max-w-3xl">
-                <div className="bg-gray-800 text-white text-sm rounded-lg p-4 shadow-lg max-h-[60vh] overflow-auto">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="font-semibold">{mayor.name}</div>
+            <div className="fixed inset-0 z-[120] flex items-end justify-center pointer-events-none">
+              <div className="pointer-events-auto mx-4 mb-6 w-full max-w-3xl">
+                <div className="max-h-[60vh] overflow-auto rounded-lg border border-slate-200 bg-slate-900/95 p-4 text-sm text-white shadow-lg transition-colors dark:border-sky-500/30">
+                  <div className="mb-2 flex items-start justify-between">
+                    <div className="font-semibold text-white">{mayor.name}</div>
                     <button
                       onClick={() => setSelectedTooltip(null)}
-                      className="text-gray-200 hover:text-white ml-4"
+                      className="ml-4 text-gray-200 transition-colors hover:text-white"
                       aria-label="Fechar"
                     >
                       ✕
                     </button>
                   </div>
-                  <div className="text-xs text-gray-100 whitespace-pre-line">
+                  <div className="whitespace-pre-line text-xs text-gray-100">
                     {mayor.tooltip}
                   </div>
                 </div>

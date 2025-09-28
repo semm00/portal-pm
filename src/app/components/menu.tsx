@@ -14,38 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-
-type Theme = "light" | "dark";
-
-function useTheme(): [Theme, () => void, boolean] {
-  const [theme, setTheme] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    try {
-      const stored = localStorage.getItem("theme") as Theme | null;
-      const initial: Theme = stored === "dark" ? "dark" : "light";
-      setTheme(initial);
-      document.documentElement.classList.toggle("dark", initial === "dark");
-    } catch {
-      // noop
-    }
-  }, []);
-
-  const toggle = () => {
-    const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    try {
-      localStorage.setItem("theme", next);
-    } catch {
-      // noop
-    }
-    document.documentElement.classList.toggle("dark", next === "dark");
-  };
-
-  return [theme, toggle, mounted];
-}
+import { useTheme } from "@/hooks/use-theme";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");

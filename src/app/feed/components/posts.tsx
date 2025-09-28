@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
   AlertTriangle,
@@ -20,10 +19,12 @@ import {
   Trash2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { buildApiUrl } from "@/lib/api";
-import { loadSession } from "@/app/profile/utils/session";
-import type { FilterType } from "./header";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { loadSession } from "@/app/profile/utils/session";
+import { buildApiUrl } from "@/lib/api";
+
+import type { FilterType } from "./header";
 type PollData = {
   question: string;
   options: Array<{ id: string; text: string; votes: number }>;
@@ -61,27 +62,32 @@ const categoryConfigs: Record<
   avisos: {
     icon: Megaphone,
     label: "Aviso",
-    badgeClass: "border border-[#fcd5a6] bg-[#fff5e7] text-[#a04b03]",
+    badgeClass:
+      "border border-[#fcd5a6] bg-[#fff5e7] text-[#a04b03] dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-200",
   },
   eventos: {
     icon: Calendar,
     label: "Evento",
-    badgeClass: "border border-[#c6dcff] bg-[#eef3ff] text-[#1d4ed8]",
+    badgeClass:
+      "border border-[#c6dcff] bg-[#eef3ff] text-[#1d4ed8] dark:border-sky-500/40 dark:bg-sky-500/15 dark:text-sky-200",
   },
   enquetes: {
     icon: BarChart3,
     label: "Enquete",
-    badgeClass: "border border-[#c8f2d8] bg-[#f0fff5] text-[#15803d]",
+    badgeClass:
+      "border border-[#c8f2d8] bg-[#f0fff5] text-[#15803d] dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-200",
   },
   locais: {
     icon: MapPin,
     label: "Local",
-    badgeClass: "border border-[#e0d5ff] bg-[#f6f3ff] text-[#6d28d9]",
+    badgeClass:
+      "border border-[#e0d5ff] bg-[#f6f3ff] text-[#6d28d9] dark:border-purple-500/40 dark:bg-purple-500/15 dark:text-purple-200",
   },
   outro: {
     icon: Tag,
     label: "Outro",
-    badgeClass: "border border-slate-200 bg-slate-50 text-slate-600",
+    badgeClass:
+      "border border-slate-200 bg-slate-50 text-slate-600 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-200",
   },
 };
 
@@ -249,10 +255,12 @@ function Poll({ postId, poll, onPollUpdated }: PollProps) {
   };
 
   return (
-    <div className="mt-4 space-y-2 rounded-2xl border border-[#0b203a]/15 bg-[#0b203a]/5 p-4">
-      <h4 className="font-semibold text-[#0b203a]">{currentPoll.question}</h4>
+    <div className="mt-4 space-y-2 rounded-2xl border border-[#0b203a]/15 bg-[#0b203a]/5 p-4 dark:border-sky-500/25 dark:bg-sky-500/10">
+      <h4 className="font-semibold text-[#0b203a] dark:text-sky-200">
+        {currentPoll.question}
+      </h4>
       {voteError && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
           {voteError}
         </p>
       )}
@@ -268,7 +276,7 @@ function Poll({ postId, poll, onPollUpdated }: PollProps) {
                 type="button"
                 onClick={() => handleVote(option.id)}
                 disabled={isVoting}
-                className="flex w-full items-center justify-between rounded-full border border-[#0b203a]/15 bg-white px-4 py-2 text-sm font-medium text-[#0b203a] transition-colors hover:bg-[#0b203a]/10 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex w-full items-center justify-between rounded-full border border-[#0b203a]/15 bg-white px-4 py-2 text-sm font-medium text-[#0b203a] transition-colors hover:bg-[#0b203a]/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-neutral-700 dark:bg-neutral-900/70 dark:text-neutral-100 dark:hover:bg-neutral-800"
               >
                 <span>{option.text}</span>
                 {isVoting && (
@@ -281,17 +289,17 @@ function Poll({ postId, poll, onPollUpdated }: PollProps) {
           return (
             <div
               key={option.id}
-              className="relative overflow-hidden rounded-full border border-[#0b203a]/10 bg-white"
+              className="relative overflow-hidden rounded-full border border-[#0b203a]/10 bg-white dark:border-neutral-700 dark:bg-neutral-900/70"
             >
               <div
-                className="absolute inset-0 bg-[#fca311]/20"
+                className="absolute inset-0 bg-[#fca311]/20 dark:bg-amber-400/20"
                 style={{ width: `${percent}%` }}
               />
               <div className="relative flex items-center justify-between px-4 py-2 text-sm">
-                <span className="font-medium text-[#0b203a]">
+                <span className="font-medium text-[#0b203a] dark:text-neutral-100">
                   {option.text}
                 </span>
-                <span className="text-xs font-semibold text-[#0b203a]/80">
+                <span className="text-xs font-semibold text-[#0b203a]/80 dark:text-neutral-300">
                   {percent}%
                 </span>
               </div>
@@ -299,7 +307,7 @@ function Poll({ postId, poll, onPollUpdated }: PollProps) {
           );
         })}
       </div>
-      <p className="text-xs text-[#0b203a]/70">
+      <p className="text-xs text-[#0b203a]/70 dark:text-neutral-400">
         {totalVotes} {totalVotes === 1 ? "voto" : "votos"}
         {hasVoted && " · Você já votou"}
       </p>
@@ -311,7 +319,7 @@ function MediaCarousel({ media }: { media: ApiPost["media"] }) {
   if (!media || media.length === 0) return null;
 
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white">
+    <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white dark:border-neutral-700 dark:bg-neutral-900/70">
       <div className="flex snap-x snap-mandatory overflow-x-auto scrollbar-hide">
         {media.map((item, index) => (
           <MediaItem
@@ -341,7 +349,7 @@ function MediaItem({
 
   return (
     <div
-      className="relative w-full flex-shrink-0 snap-center overflow-hidden bg-white"
+      className="relative w-full flex-shrink-0 snap-center overflow-hidden bg-white dark:bg-neutral-900"
       style={containerStyle}
     >
       {isVideo ? (
@@ -489,8 +497,8 @@ function PostCard({
     post.shares === 1 ? "compartilhamento" : "compartilhamentos";
 
   return (
-    <article className="rounded-3xl border border-[#0b203a]/10 bg-white p-5 shadow-sm shadow-[#0b203a]/10 transition-shadow hover:shadow-lg">
-      <header className="border-b border-slate-200/60 pb-4">
+    <article className="surface-card p-5 transition-shadow hover:shadow-lg">
+      <header className="border-b border-slate-200/60 pb-4 dark:border-neutral-800/70">
         <div className="flex items-start gap-3 md:justify-between">
           <div className="flex items-start gap-3 flex-1">
             <Image
@@ -498,11 +506,11 @@ function PostCard({
               alt={`Avatar de ${displayName}`}
               width={52}
               height={52}
-              className="h-12 w-12 rounded-full border border-slate-200 object-cover"
+              className="h-12 w-12 rounded-full border border-slate-200 object-cover dark:border-neutral-700"
             />
             <div className="flex-1 space-y-1">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-semibold text-[#0b203a]">
+                <h3 className="text-base font-semibold text-[#0b203a] dark:text-neutral-100">
                   {displayName}
                 </h3>
                 <div className="flex items-center gap-3 md:hidden">
@@ -518,18 +526,18 @@ function PostCard({
                       aria-haspopup="menu"
                       aria-expanded={isMenuOpen}
                       onClick={() => setIsMenuOpen((prev) => !prev)}
-                      className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                      className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:text-neutral-400 dark:hover:bg-neutral-800/80 dark:hover:text-neutral-100"
                     >
                       <MoreVertical className="h-5 w-5" />
                     </button>
                     {isMenuOpen && (
-                      <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-[#0b203a]/10">
+                      <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-[#0b203a]/10 dark:border-neutral-700 dark:bg-neutral-900 dark:shadow-[0_20px_45px_rgba(15,23,42,0.45)]">
                         {isAuthor && (
                           <button
                             type="button"
                             onClick={handleMenuDelete}
                             disabled={deletePending}
-                            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-red-500/10"
                           >
                             {deletePending ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -543,7 +551,7 @@ function PostCard({
                           type="button"
                           onClick={handleMenuReport}
                           disabled={reportPending}
-                          className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-red-500/10"
                         >
                           {reportPending ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -557,13 +565,13 @@ function PostCard({
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-neutral-400">
                 <span>{userHandle}</span>
                 <span className="inline-block h-1 w-1 rounded-full bg-slate-300" />
                 <span>{formatRelativeTime(post.createdAt)}</span>
               </div>
               {post.alertUsers && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#fce8d7] px-2 py-1 text-[11px] font-semibold text-[#a04b03]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#fce8d7] px-2 py-1 text-[11px] font-semibold text-[#a04b03] dark:bg-amber-500/15 dark:text-amber-200">
                   <Megaphone className="h-3.5 w-3.5" />
                   Destaque para todos
                 </span>
@@ -583,18 +591,18 @@ function PostCard({
                 aria-haspopup="menu"
                 aria-expanded={isMenuOpen}
                 onClick={() => setIsMenuOpen((prev) => !prev)}
-                className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:text-neutral-400 dark:hover:bg-neutral-800/80 dark:hover:text-neutral-100"
               >
                 <MoreVertical className="h-5 w-5" />
               </button>
               {isMenuOpen && (
-                <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-[#0b203a]/10">
+                <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-[#0b203a]/10 dark:border-neutral-700 dark:bg-neutral-900 dark:shadow-[0_20px_45px_rgba(15,23,42,0.45)]">
                   {isAuthor && (
                     <button
                       type="button"
                       onClick={handleMenuDelete}
                       disabled={deletePending}
-                      className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-red-500/10"
                     >
                       {deletePending ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -608,7 +616,7 @@ function PostCard({
                     type="button"
                     onClick={handleMenuReport}
                     disabled={reportPending}
-                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-red-500/10"
                   >
                     {reportPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -625,16 +633,16 @@ function PostCard({
       </header>
 
       <div className="space-y-4 pt-4">
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800 dark:text-neutral-200">
           {post.content}
         </p>
 
         {infoItems.length > 0 && (
-          <div className="flex flex-wrap gap-2 text-xs text-slate-600">
+          <div className="flex flex-wrap gap-2 text-xs text-slate-600 dark:text-neutral-300">
             {infoItems.map((item) => (
               <span
                 key={item.key}
-                className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1"
+                className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 dark:bg-neutral-800/70"
               >
                 <item.icon className="h-3 w-3" />
                 {item.label}
@@ -654,7 +662,7 @@ function PostCard({
         )}
       </div>
 
-      <footer className="mt-6 flex flex-col gap-3 border-t border-slate-200/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <footer className="mt-6 flex flex-col gap-3 border-t border-slate-200/70 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-neutral-800/60">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -662,8 +670,10 @@ function PostCard({
             disabled={likePending}
             aria-pressed={isLiked}
             aria-label={likeButtonLabel}
-            className={`inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-60 ${
-              isLiked ? "bg-rose-50 text-rose-600" : "text-slate-600"
+            className={`inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-60 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-rose-400 dark:hover:bg-rose-500/10 dark:hover:text-rose-200 ${
+              isLiked
+                ? "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-200"
+                : "text-slate-600"
             }`}
           >
             {likePending ? (
@@ -671,12 +681,14 @@ function PostCard({
             ) : (
               <Heart
                 className={`h-4 w-4 ${
-                  isLiked ? "fill-rose-500 text-rose-500" : "text-slate-500"
+                  isLiked
+                    ? "fill-rose-500 text-rose-500 dark:text-rose-200 dark:fill-rose-300"
+                    : "text-slate-500 dark:text-neutral-400"
                 }`}
               />
             )}
             <span>{post.likes}</span>
-            <span className="text-xs font-normal text-slate-400">
+            <span className="text-xs font-normal text-slate-400 dark:text-neutral-500">
               {likeCountWord}
             </span>
           </button>
@@ -685,7 +697,7 @@ function PostCard({
             type="button"
             onClick={() => !sharePending && onShare(post)}
             disabled={sharePending}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-emerald-400 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-200"
           >
             {sharePending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -696,7 +708,7 @@ function PostCard({
           </button>
         </div>
 
-        <div className="text-sm text-slate-500">
+        <div className="text-sm text-slate-500 dark:text-neutral-400">
           {post.shares} {shareCountWord}
         </div>
       </footer>
@@ -1102,19 +1114,19 @@ export default function Posts({
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={index}
-              className="animate-pulse rounded-3xl border border-slate-200 bg-white p-6"
+              className="animate-pulse rounded-3xl border border-slate-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900/70"
             >
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-slate-200" />
+                <div className="h-12 w-12 rounded-full bg-slate-200 dark:bg-neutral-700" />
                 <div className="space-y-2">
-                  <div className="h-4 w-32 rounded bg-slate-200" />
-                  <div className="h-3 w-24 rounded bg-slate-100" />
+                  <div className="h-4 w-32 rounded bg-slate-200 dark:bg-neutral-700" />
+                  <div className="h-3 w-24 rounded bg-slate-100 dark:bg-neutral-800" />
                 </div>
               </div>
               <div className="mt-4 space-y-2">
-                <div className="h-3 w-full rounded bg-slate-100" />
-                <div className="h-3 w-3/4 rounded bg-slate-100" />
-                <div className="h-3 w-1/2 rounded bg-slate-100" />
+                <div className="h-3 w-full rounded bg-slate-100 dark:bg-neutral-800" />
+                <div className="h-3 w-3/4 rounded bg-slate-100 dark:bg-neutral-800" />
+                <div className="h-3 w-1/2 rounded bg-slate-100 dark:bg-neutral-800" />
               </div>
             </div>
           ))}
@@ -1124,13 +1136,15 @@ export default function Posts({
 
     if (error) {
       return (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-red-200 bg-red-50 px-6 py-10 text-center text-red-700">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-red-200 bg-red-50 px-6 py-10 text-center text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
           <AlertTriangle className="h-6 w-6" />
-          <p className="text-sm font-medium">{error}</p>
+          <p className="text-sm font-medium text-red-700 dark:text-red-200">
+            {error}
+          </p>
           <button
             type="button"
             onClick={fetchPosts}
-            className="inline-flex items-center gap-2 rounded-full bg-[#0b203a] px-4 py-2 text-sm font-semibold text-white shadow hover:bg-[#13335c]"
+            className="inline-flex items-center gap-2 rounded-full bg-[#0b203a] px-4 py-2 text-sm font-semibold text-white shadow hover:bg-[#13335c] dark:bg-sky-500 dark:hover:bg-sky-400"
           >
             <RefreshCcw className="h-4 w-4" />
             Tentar novamente
@@ -1141,7 +1155,7 @@ export default function Posts({
 
     if (posts.length === 0) {
       return (
-        <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center text-slate-500">
+        <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center text-slate-500 dark:border-neutral-800 dark:bg-neutral-900/70 dark:text-neutral-400">
           <Megaphone className="mx-auto mb-3 h-8 w-8 text-[#fca311]" />
           <p className="text-sm">
             Nenhuma atualização publicada ainda. Seja o primeiro a compartilhar
@@ -1153,13 +1167,13 @@ export default function Posts({
 
     if (filteredPosts.length === 0) {
       return (
-        <div className="rounded-3xl border border-slate-200 bg-white px-6 py-10 text-center text-slate-500">
+        <div className="rounded-3xl border border-slate-200 bg-white px-6 py-10 text-center text-slate-500 dark:border-neutral-800 dark:bg-neutral-900/70 dark:text-neutral-400">
           <Search className="mx-auto mb-3 h-8 w-8 text-[#0b203a]" />
           <p className="text-sm">
             Não encontramos resultados para a sua busca.
           </p>
           {normalizedQuery && (
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-slate-400 dark:text-neutral-500">
               Tente ajustar as palavras-chave ou limpar os filtros ativos.
             </p>
           )}
@@ -1190,13 +1204,13 @@ export default function Posts({
   };
 
   return (
-    <section className="w-full space-y-4">
+    <section className="w-full space-y-4 text-slate-900 transition-colors duration-300 dark:text-neutral-200">
       {feedback && (
         <div
           className={`flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm shadow ${
             feedback.type === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-red-200 bg-red-50 text-red-700"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200"
+              : "border-red-200 bg-red-50 text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200"
           }`}
         >
           {feedback.type === "success" ? (
@@ -1208,7 +1222,7 @@ export default function Posts({
         </div>
       )}
 
-      <div className="flex items-center justify-between text-xs text-slate-500">
+      <div className="flex items-center justify-between text-xs text-slate-500 transition-colors dark:text-neutral-400">
         <span>
           Atualizado em{" "}
           {lastUpdatedAt
@@ -1221,7 +1235,7 @@ export default function Posts({
         <button
           type="button"
           onClick={fetchPosts}
-          className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 font-semibold uppercase tracking-wide text-[#0b203a] transition-colors hover:border-[#0b203a] hover:bg-[#0b203a]/10"
+          className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 font-semibold uppercase tracking-wide text-[#0b203a] transition-colors hover:border-[#0b203a] hover:bg-[#0b203a]/10 dark:border-neutral-700 dark:text-neutral-200 dark:hover:border-sky-400 dark:hover:bg-sky-500/10"
         >
           <RefreshCcw className="h-3.5 w-3.5" /> Atualizar
         </button>

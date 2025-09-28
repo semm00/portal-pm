@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Mail, MapPin, Edit, LogOut, Upload, Sun, Moon } from "lucide-react";
 import { buildApiUrl } from "@/lib/api";
+import { useTheme } from "@/hooks/use-theme";
 import type { AuthUser, ProfileResponse } from "../types";
 import { DEFAULT_SESSION_DURATION_MS } from "../utils/session";
 
@@ -30,39 +31,7 @@ const getInitials = (name?: string) => {
   return initials.length > 0 ? initials.toUpperCase() : "?";
 };
 
-type Theme = "light" | "dark";
-
 const REFRESH_THRESHOLD_MS = 5 * 60 * 1000;
-
-function useTheme(): [Theme, () => void, boolean] {
-  const [theme, setTheme] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    try {
-      const stored = localStorage.getItem("theme") as Theme | null;
-      const initial: Theme = stored === "dark" ? "dark" : "light";
-      setTheme(initial);
-      document.documentElement.classList.toggle("dark", initial === "dark");
-    } catch {
-      // noop
-    }
-  }, []);
-
-  const toggle = () => {
-    const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    try {
-      localStorage.setItem("theme", next);
-    } catch {
-      // noop
-    }
-    document.documentElement.classList.toggle("dark", next === "dark");
-  };
-
-  return [theme, toggle, mounted];
-}
 
 type StatusState = { type: "success" | "error"; message: string } | null;
 
@@ -509,14 +478,14 @@ export default function Profile({
   const displayCity = profileData.city?.trim() ?? "";
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden min-h-screen sm:min-h-0">
+    <div className="w-full max-w-4xl mx-auto bg-white dark:bg-neutral-900 rounded-2xl shadow-xl dark:shadow-[0_0_50px_rgba(15,23,42,0.45)] overflow-hidden min-h-screen sm:min-h-0 transition-colors duration-300">
       {/* Header Section */}
-      <div className="bg-gradient-to-br from-blue-500 via-purple-600 to-amber-500 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-blue-500 via-purple-600 to-amber-500 dark:from-slate-900 dark:via-indigo-950 dark:to-black relative overflow-hidden transition-colors duration-300">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
-          <div className="absolute top-16 right-0 w-24 h-24 bg-white rounded-full translate-x-12"></div>
-          <div className="absolute bottom-0 left-16 w-20 h-20 bg-white rounded-full translate-y-10"></div>
+          <div className="absolute top-0 left-0 w-32 h-32 bg-white dark:bg-slate-700 rounded-full -translate-x-16 -translate-y-16"></div>
+          <div className="absolute top-16 right-0 w-24 h-24 bg-white dark:bg-slate-700 rounded-full translate-x-12"></div>
+          <div className="absolute bottom-0 left-16 w-20 h-20 bg-white dark:bg-slate-700 rounded-full translate-y-10"></div>
         </div>
 
         <div className="relative px-6 py-8 sm:px-8 sm:py-12">
@@ -531,22 +500,22 @@ export default function Profile({
                     alt={`Foto de ${displayName}`}
                     width={120}
                     height={120}
-                    className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-xl object-cover"
+                    className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white dark:border-neutral-800 shadow-xl object-cover"
                     unoptimized
                   />
                   <div className="absolute inset-0 rounded-full bg-gradient-to-t from-black/20 to-transparent"></div>
                 </div>
               ) : (
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-2xl sm:text-3xl font-bold text-gray-600 shadow-xl">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white dark:border-neutral-800 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-neutral-700 dark:to-neutral-800 flex items-center justify-center text-2xl sm:text-3xl font-bold text-gray-600 dark:text-neutral-200 shadow-xl">
                   {getInitials(displayName)}
                 </div>
               )}
 
               <label
                 htmlFor="avatar-upload"
-                className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer border-2 border-gray-100"
+                className="absolute -bottom-2 -right-2 w-8 h-8 bg-white dark:bg-neutral-800 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer border-2 border-gray-100 dark:border-neutral-700"
               >
-                <Upload className="h-4 w-4 text-gray-600" />
+                <Upload className="h-4 w-4 text-gray-600 dark:text-neutral-200" />
               </label>
               <input
                 id="avatar-upload"
@@ -584,7 +553,7 @@ export default function Profile({
           <div className="flex justify-center mt-6 sm:hidden">
             <button
               onClick={toggleTheme}
-              className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-white/30 transition-all"
+              className="inline-flex items-center gap-2 rounded-full bg-white/20 dark:bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-white/30 dark:hover:bg-white/20 transition-all"
               aria-label="Alternar tema claro/escuro"
             >
               {mounted && theme === "dark" ? (
@@ -604,8 +573,8 @@ export default function Profile({
           <div
             className={`rounded-xl border px-4 py-3 text-sm shadow-sm ${
               status.type === "success"
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border-red-200 bg-red-50 text-red-700"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200"
+                : "border-red-200 bg-red-50 text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200"
             }`}
           >
             {status.message}
@@ -613,9 +582,9 @@ export default function Profile({
         )}
 
         {/* Bio Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-neutral-900 dark:to-neutral-900 rounded-2xl p-6 shadow-sm dark:shadow-[0_20px_45px_rgba(15,23,42,0.35)] border border-gray-100 dark:border-neutral-800 transition-colors duration-300">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-neutral-100 mb-3 flex items-center gap-2">
+            <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full"></div>
             Sobre mim
           </h3>
           {isEditing ? (
@@ -623,14 +592,14 @@ export default function Profile({
               name="bio"
               value={profileData.bio ?? ""}
               onChange={(event) => handleFieldChange("bio", event.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white shadow-sm"
+              className="w-full rounded-xl border border-gray-200 dark:border-neutral-700 px-4 py-3 text-gray-700 dark:text-neutral-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white dark:bg-neutral-900/80 shadow-sm"
               rows={4}
               placeholder={PLACEHOLDER_TEXT.bio}
             />
           ) : (
             <p
-              className={`text-gray-700 leading-relaxed ${
-                displayBio ? "" : "italic text-gray-400"
+              className={`text-gray-700 dark:text-neutral-200 leading-relaxed ${
+                displayBio ? "" : "italic text-gray-400 dark:text-neutral-500"
               }`}
             >
               {displayBio || PLACEHOLDER_TEXT.bio}
@@ -639,29 +608,31 @@ export default function Profile({
         </div>
 
         {/* Contact Info */}
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-neutral-900 dark:to-neutral-900 rounded-2xl p-6 shadow-sm dark:shadow-[0_20px_45px_rgba(15,23,42,0.35)] border border-gray-100 dark:border-neutral-800 transition-colors duration-300">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-neutral-100 mb-4 flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 dark:bg-emerald-400 rounded-full"></div>
             Informações de contato
           </h3>
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <Mail className="h-5 w-5 text-blue-600" />
+            <div className="flex items-center gap-3 p-3 bg-white/60 dark:bg-neutral-900/70 rounded-lg border border-transparent dark:border-neutral-800 transition-colors">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center">
+                <Mail className="h-5 w-5 text-blue-600 dark:text-blue-300" />
               </div>
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                <p className="text-xs text-gray-500 dark:text-neutral-400 uppercase tracking-wide font-medium">
                   Email
                 </p>
-                <p className="text-gray-800 font-medium">{profileData.email}</p>
+                <p className="text-gray-800 dark:text-neutral-100 font-medium">
+                  {profileData.email}
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
-              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                <MapPin className="h-5 w-5 text-purple-600" />
+            <div className="flex items-center gap-3 p-3 bg-white/60 dark:bg-neutral-900/70 rounded-lg border border-transparent dark:border-neutral-800 transition-colors">
+              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-500/20 rounded-full flex items-center justify-center">
+                <MapPin className="h-5 w-5 text-purple-600 dark:text-purple-300" />
               </div>
               <div className="flex-1">
-                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                <p className="text-xs text-gray-500 dark:text-neutral-400 uppercase tracking-wide font-medium">
                   Cidade
                 </p>
                 {isEditing ? (
@@ -671,13 +642,15 @@ export default function Profile({
                     onChange={(event) =>
                       handleFieldChange("city", event.target.value)
                     }
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white"
+                    className="w-full rounded-lg border border-gray-200 dark:border-neutral-700 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 bg-white dark:bg-neutral-900/80 dark:text-neutral-100"
                     placeholder={PLACEHOLDER_TEXT.city}
                   />
                 ) : (
                   <p
-                    className={`text-gray-800 font-medium ${
-                      displayCity ? "" : "italic text-gray-400"
+                    className={`text-gray-800 dark:text-neutral-100 font-medium ${
+                      displayCity
+                        ? ""
+                        : "italic text-gray-400 dark:text-neutral-500"
                     }`}
                   >
                     {displayCity || PLACEHOLDER_TEXT.city}
@@ -721,7 +694,7 @@ export default function Profile({
         </div>
 
         {isLoading && (
-          <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600 text-center">
+          <div className="rounded-xl border border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-900/80 px-4 py-3 text-sm text-gray-600 dark:text-neutral-300 text-center transition-colors">
             Carregando informações do perfil...
           </div>
         )}
