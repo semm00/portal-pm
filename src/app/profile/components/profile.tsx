@@ -556,7 +556,7 @@ export default function Profile({
             />
           </div>
 
-          <div className="flex flex-col items-center gap-2 sm:mb-6 sm:items-start">
+          <div className="flex w-full max-w-full flex-col items-center gap-1 text-center sm:mb-6 sm:w-auto sm:items-start sm:text-left">
             {isEditing ? (
               <input
                 type="text"
@@ -564,14 +564,16 @@ export default function Profile({
                 onChange={(event) =>
                   handleFieldChange("fullName", event.target.value)
                 }
-                className="w-full max-w-xl rounded-lg border border-slate-300 px-3 py-2 text-3xl font-bold text-[#0b203a] focus:border-[#fca311] focus:ring-1 focus:ring-[#fca311]"
+                className="w-full max-w-full rounded-lg border border-slate-300 px-3 py-2 text-3xl font-bold text-[#0b203a] focus:border-[#fca311] focus:ring-1 focus:ring-[#fca311] sm:max-w-xl"
               />
             ) : (
               <h1 className="text-3xl font-bold text-[#0b203a]">
                 {displayName}
               </h1>
             )}
-            <p className="text-md text-slate-500">@{profileData.username}</p>
+            <p className="text-md text-slate-500 break-words">
+              @{profileData.username}
+            </p>
           </div>
 
           <button
