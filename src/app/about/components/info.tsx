@@ -11,6 +11,7 @@ export default function Info() {
   const [expandedHistoria, setExpandedHistoria] = useState(false);
   const [expandedPovoados, setExpandedPovoados] = useState(false);
   const [expandedHino, setExpandedHino] = useState(false);
+  const [expandedHinoText, setExpandedHinoText] = useState(false);
   const [expandedConsideracoes, setExpandedConsideracoes] = useState(false);
 
   return (
@@ -262,7 +263,9 @@ Me dá prazer externar todo este amor. (repete)`}
                       </audio>
 
                       <div className="text-sm text-slate-800 whitespace-pre-line">
-                        {`Em tempos idos, a bravura foi mostrada,
+                        {!expandedHinoText ? (
+                          <>
+                            {`Em tempos idos, a bravura foi mostrada,
 Na terra amada que desfralda seu pendão;
 Traz seus legados como fonte inspiradora,
 Tão geradora da riqueza deste chão.
@@ -271,15 +274,74 @@ Naquele tempo, a escola Boa Esperança,
 Mostrou pujança fomentando bom saber;
 Foi primazia orgulhando o nosso Estado,
 É um passado que ninguém deve esquecer.`}
-                        <div className="mt-2">
-                          <button
-                            type="button"
-                            onClick={() => setExpanded(true)}
-                            className="text-sm text-[#0a4ea1] underline hover:text-[#08326b] transition-colors px-2 py-1 -mx-2 rounded min-h-[44px] flex items-center"
-                          >
-                            Ver mais
-                          </button>
-                        </div>
+                            <div className="mt-2">
+                              <button
+                                type="button"
+                                onClick={() => setExpandedHinoText(true)}
+                                className="text-sm text-[#0a4ea1] underline hover:text-[#08326b] transition-colors px-2 py-1 -mx-2 rounded min-h-[44px] flex items-center"
+                              >
+                                Ver mais
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {`Em tempos idos, a bravura foi mostrada,
+Na terra amada que desfralda seu pendão;
+Traz seus legados como fonte inspiradora,
+Tão geradora da riqueza deste chão.
+É muita glória oriunda do passado,
+Prodígio dado feito por bem merecer;
+História digna que merece ser contada,
+Da pátria amada que orgulha eu e você.
+
+Naquele tempo, a escola Boa Esperança,
+Mostrou pujança fomentando bom saber;
+Foi primazia orgulhando o nosso Estado,
+É um passado que ninguém deve esquecer.
+A Padre Marcos tão fecunda encantadora,
+Tão promissora devido a seu benfeitor;
+O bom político sacerdote inteligente,
+O sapiente benemérito educador.
+
+A casa grande de adobes avarandada,
+Brisa aromada da videira do Pomar;
+Suas paredes rebocadas bem caiadas
+De Tabatinga argila sedimentar.
+
+Foi essa escola, o berço da educação,
+Brilho e razão que esposo notoriedade;
+Sua influência foi compensatória,
+Dando a história grandes personalidades.
+Neste compasso, seu povo tomou a frente,
+Tão persistente corajoso para lutar;
+Nem circunstâncias por força da natureza,
+Mostrou destreza para o labor evitar.
+
+Sua cultura de Caju, milho e feijão,
+O algodão alvorecendo o campeiro;
+Já a caatinga mostrando grande secura,
+Dando bravura da labuta do vaqueiro.
+Os que te amam agem com patriotismo,
+Erguem civismo cada um por te amar;
+Tomam a vanguarda externando o bem querer,
+No florescer de um progresso que virá.
+
+A Padre Marcos, nossa terra, nosso chão,
+Meu coração por ti pulsa com fervor;
+Cidade amada detentora do meu ser,
+Me dá prazer externar todo este amor. (repete)`}
+                            <div className="mt-2">
+                              <button
+                                type="button"
+                                onClick={() => setExpandedHinoText(false)}
+                                className="text-sm text-[#0a4ea1] underline hover:text-[#08326b] transition-colors px-2 py-1 -mx-2 rounded min-h-[44px] flex items-center"
+                              >
+                                Ver menos
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

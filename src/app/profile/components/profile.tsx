@@ -380,7 +380,7 @@ export default function Profile({
 
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-[#0e2b59] to-[#1b52a8] h-40 relative">
+      <div className="bg-gradient-to-r from-[#0e2b59] to-[#1b52a8] h-20 sm:h-40 relative">
         <div className="absolute -bottom-20 left-4 sm:left-8 flex items-end gap-4">
           <div className="relative">
             {avatarUrl && avatarUrl.trim() ? (
@@ -432,25 +432,6 @@ export default function Profile({
             )}
             {mounted && theme === "dark" ? "Modo claro" : "Modo escuro"}
           </button>
-          <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
-            <button
-              onClick={() => {
-                setStatus(null);
-                setIsEditing((prev) => !prev);
-              }}
-              className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all"
-            >
-              <Edit className="h-4 w-4" />
-              {isEditing ? "Cancelar" : "Editar Perfil"}
-            </button>
-            <button
-              onClick={handleLogoutClick}
-              className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-all"
-            >
-              <LogOut className="h-4 w-4" />
-              Sair
-            </button>
-          </div>
         </div>
       </div>
 
@@ -541,18 +522,28 @@ export default function Profile({
           </div>
         </div>
 
+        <div className="mt-6 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-start">
+          <button
+            onClick={() => {
+              setStatus(null);
+              setIsEditing((prev) => !prev);
+            }}
+            className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-all"
+          >
+            <Edit className="h-4 w-4" />
+            {isEditing ? "Cancelar" : "Editar Perfil"}
+          </button>
+          <button
+            onClick={handleLogoutClick}
+            className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-all"
+          >
+            <LogOut className="h-4 w-4" />
+            Sair
+          </button>
+        </div>
+
         {isEditing && (
           <div className="mt-6 flex justify-end gap-3">
-            <button
-              onClick={() => {
-                setIsEditing(false);
-                setStatus(null);
-                void fetchProfile();
-              }}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:text-slate-900"
-            >
-              Descartar
-            </button>
             <button
               onClick={handleSave}
               disabled={isSaving}
