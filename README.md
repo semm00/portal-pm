@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+📖 Portal Padre Marcos - PI
 
-## Getting Started
+Um portal dinâmico sobre a cidade de Padre Marcos (Piauí).
+O projeto reúne notícias, história, turismo, eventos e serviços locais, com painel administrativo para atualização de conteúdo.
 
-First, run the development server:
+🚀 Tecnologias Utilizadas
+Frontend
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Next.js
+ – Framework React
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Tailwind CSS
+ – Estilização rápida e responsiva
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+TypeScript
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+Backend
 
-To learn more about Next.js, take a look at the following resources:
+Express.js
+ – Servidor Node.js
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Prisma
+ – ORM para PostgreSQL
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Neon.tech
+ – Banco de dados PostgreSQL em nuvem
 
-## Deploy on Vercel
+Supabase
+ – Storage de arquivos (galeria, imagens, PDFs)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+📌 Funcionalidades
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Home: introdução, últimas notícias, próximos eventos.
+
+Sobre: informações do município, história e localização (mapa).
+
+Feed: um mural postar atualizações sobre a cidade.
+
+Eventos: agenda de eventos e festas tradicionais.
